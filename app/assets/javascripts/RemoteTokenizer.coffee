@@ -4,8 +4,20 @@ define ->
   class RemoteTokenizer
   	constructor: (@session, @route) ->
       @doc = @session.getDocument()
+      @session.setAnnotations [
+        type: 'error'
+        text: 'what the hell?'
+        row:  5  
+      ,
+        type: 'warning'
+        text: 'really?'
+        row:  7
+      ]
       @socket = new WebSocket(@route.webSocketURL())
       @socket.onmessage = (e) => @$updateRemote(JSON.parse(e.data))
+
+    deltas: []
+    pushTimeout: null
 
     rows: []
 
@@ -31,9 +43,11 @@ define ->
         @rows[e.index] = e.row        
         @fireUpdateEvent(e.index,e.index)        
 
+    $pushChanges: =>
+      @socket.send(JSON.stringify @deltas)
+      @deltas = []
+
     $updateOnChange: (delta) ->
-      offset = 0
-      offset += @doc.getLine(row).length + 1 for row in [0 ... delta.range.start.row]
-      offset += delta.range.start.column
-      delta.offset = offset
-      @socket.send(JSON.stringify delta)
+      @deltas.push(delta)
+      clearTimeout(@pushTimeout)
+      @pushTimeout = setTimeout(@$pushChanges, 250)      
