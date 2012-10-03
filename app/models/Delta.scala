@@ -21,9 +21,10 @@ case class Range(start: Position, end: Position) {
 
 object Position {
   implicit object Format extends Format[Position] {
-    def reads(json: JsValue): Position = Position(
-        (json \ "row").as[Int],
-        (json \ "column").as[Int])
+    def reads(json: JsValue): JsResult[Position] = for {
+      row <- Json.fromJson[Int](json \ "row")
+      column <- Json.fromJson[Int](json \ "column")
+    } yield Position(row, column)
     def writes(pos: Position): JsValue = JsObject(
         "row" -> JsNumber(pos.row) ::
         "column" -> JsNumber(pos.column) :: Nil)
@@ -32,9 +33,10 @@ object Position {
 
 object Range {
   implicit object Format extends Format[Range] {
-    def reads(json: JsValue): Range = Range(
-        (json \ "start").as[Position],
-        (json \ "end").as[Position])
+    def reads(json: JsValue): JsResult[Range] = for {
+      start <- Json.fromJson[Position](json \ "start")
+      end <- Json.fromJson[Position](json \ "end")      
+    } yield Range(start, end)
     def writes(range: Range): JsValue = JsObject(
         "start" -> Json.toJson(range.start) ::
         "end" -> Json.toJson(range.end) :: Nil)
@@ -43,16 +45,15 @@ object Range {
 
 object Delta {
   implicit object Format extends Format[Delta] {
-    def reads(json: JsValue): Delta = {
-      val range = (json \ "range").as[Range]
-      val action = (json \ "action").as[String]
-      action match {
+    def reads(json: JsValue): JsResult[Delta] = for {
+      range <- Json.fromJson[Range](json \ "range")      
+      result <- Json.fromJson[String](json \ "action") map {
         case "insertLines" => InsertLines(range, (json \ "lines").as[Array[String]])
         case "removeLines" => RemoveLines(range, (json \ "lines").as[Array[String]])
         case "insertText" => InsertText(range, (json \ "text").as[String])
         case "removeText" => RemoveText(range, (json \ "text").as[String])        
-      }
-    }
+      } 
+    } yield result
     def writes(delta: Delta): JsValue = delta match {
       case InsertLines(range, lines) => JsObject(
         "action" -> JsString("insertLines") ::

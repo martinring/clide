@@ -17,7 +17,7 @@
 }
 
 .ace-tm .ace_fold {
-    background-color: #6B72E6;
+  background-color: #6B72E6;
 }
 
 .ace-tm .ace_text-layer {
@@ -40,10 +40,6 @@
 .ace-tm .ace_line .ace_storage,
 .ace-tm .ace_line .ace_keyword {
   color: blue;
-}
-
-.ace-tm .ace_verbatim {
-  background-color: #f0f0f0;
 }
 
 .ace-tm .ace_line .ace_constant {
@@ -85,7 +81,7 @@
 }
 
 .ace-tm .ace_line .ace_string {
-  color: rgb(3, 106, 7);
+  color: rgb(196, 6, 7);
 }
 
 .ace-tm .ace_line .ace_comment {

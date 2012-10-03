@@ -17,9 +17,10 @@ object Project {
    * Typeclass instance for Json conversions
   **/
   implicit object Format extends Format[Project] {
-    def reads(json: JsValue): Project = Project(
-      (json \ "name").as[String],
-      (json \ "owner").as[String])
+    def reads(json: JsValue): JsResult[Project] = for {
+      name <- Json.fromJson[String](json \ "name")
+      owner <- Json.fromJson[String](json \ "owner")
+    } yield Project(name, owner)
     def writes(project: Project): JsValue = JsObject(Seq(
       "type" -> JsString("Project"),
       "name" -> JsString(project.name),

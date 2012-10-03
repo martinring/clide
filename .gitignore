@@ -10,3 +10,5 @@ tmp
 .history
 dist
 .target/
+.settings/
+.project

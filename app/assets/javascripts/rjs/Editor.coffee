@@ -3,10 +3,8 @@ define ['ace/ace','RemoteTokenizer'], (ace, RemoteTokenizer) ->
   class Editor extends Backbone.View      
     # tag for new editors is <div>
     tagName: 'div'
-
     # css class name
     className: 'editor'
-
     # initialization needs to be done once to set up the socket and
     # initialize ace aswell as our custom RemoteTokenizer
     initialize: ->
@@ -31,7 +29,8 @@ define ['ace/ace','RemoteTokenizer'], (ace, RemoteTokenizer) ->
         success: (e) =>
           # Attach our RemoteTokenizer
           session = @ace.getSession()
-          session.bgTokenizer = new RemoteTokenizer session, @route
+          session.setMode('ace/mode/isabelle')
+          new RemoteTokenizer session, @route
           # Set the file content
           ## @ace.setValue e
           # Reset the undo manager so that the user cant undo the file load
@@ -43,6 +42,5 @@ define ['ace/ace','RemoteTokenizer'], (ace, RemoteTokenizer) ->
           @ace.setReadOnly false
           # Finally move focus to the editor
           @ace.focus()
-
     # nothing needs to be done for now...
     render: -> @

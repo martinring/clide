@@ -1,7 +1,4 @@
-require.config
-  baseUrl: '/assets/javascripts'
-
-require ['editor'], (Editor) ->
+require ['editor'], (Editor) ->  
   class Project extends Backbone.Model
     defaults:
       name: ''
@@ -22,7 +19,7 @@ require ['editor'], (Editor) ->
     unrender: ->
       $(@el).remove()
 
-  class Backstage extends Backbone.View
+  class Backstage extends Backbone.View    
     el: $ '#backstage'
     events: ->
       'click #backstage': 'refresh'
@@ -69,10 +66,9 @@ require ['editor'], (Editor) ->
             currentApp.render(project)          
 
   #backstage = new Backstage
-  #backstage.show()
+  #backstage.show()  
   editor = new Editor 
     user: 'martinring'
     project: 'test'
     path: 'ex.thy'
-
   $('body').append editor.render().el

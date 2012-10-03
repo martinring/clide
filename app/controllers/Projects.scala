@@ -7,8 +7,6 @@ import play.api.libs.json._
 import play.api.libs.iteratee._
 import scala.io.Source
 import isabelle._
-import scala.actors._
-import models.RemoteTokenizer
 
 object Projects extends Controller {
   def listProjects(user: String) = Action {
@@ -29,8 +27,8 @@ object Projects extends Controller {
   }
   
   def getFileSocket(user: String, project: String, path: String) = WebSocket.using[JsValue] { request =>
-    val remoteTokenizer = new RemoteTokenizer
-    (remoteTokenizer.in, remoteTokenizer.out)
+    val remoteSession = new RemoteSession
+    (remoteSession.in, remoteSession.out)
   }   
 
   def getFileContent(user: String, project: String, path: String) = Action {

@@ -97,23 +97,6 @@ var indenter = /(?:[({[=:]|[-=]>|\b(?:else|try|with))\s*$/;
         this.$outdent.autoOutdent(doc, row);
     };
 
-    this.createWorker = function(session) {
-        console.log('working...')
-        var errors = [];
-
-        errors.push({
-            row: 5,
-            column: 0,
-            text: 'what the hell?',
-            type: 'error',
-            lint: 'something else'
-        });
-
-        setTimeout(function(){ 
-            session.setAnnotations(errors);
-            console.log(session.getAnnotations()); }, 1000)            
-    };    
-
 }).call(Mode.prototype);
 
 exports.Mode = Mode;

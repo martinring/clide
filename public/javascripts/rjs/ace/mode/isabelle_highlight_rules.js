@@ -46,7 +46,7 @@ var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 
 var IsabelleHighlightRules = function() {
     var keywords = lang.arrayToMap((
-        "lemma|theory|header|text").split("|")
+        "header|theory|imports|keywords|uses|begin|end|lemma|text").split("|")
     );
 
     var digit = "(?:[0-9]*)"    
@@ -77,11 +77,11 @@ var IsabelleHighlightRules = function() {
                 next : "comment"
             },
             {
-                token : "verbatim",
+                token : "comment",
                 regex : '\\{\\*.*?\\*\\}\\s*?$'
             },
             {
-                token : "verbatim",
+                token : "comment",
                 merge : true,
                 regex : '\\{\\*.*',
                 next : "verbatim"
@@ -96,6 +96,20 @@ var IsabelleHighlightRules = function() {
                 regex : '"',
                 next  : "qstring"
             },
+            {
+                token : "string", // single line
+                regex : '[`](?:(?:\\\\.)|(?:[^`\\\\]))*?[`]'
+            },
+            {
+                token : "string", // " string
+                merge : true,
+                regex : '`',
+                next  : "qstring2"
+            },
+            {
+                token : "symbol", // single line
+                regex : '\\\\<(?:(?:\\\\.)|(?:[^`\\\\]))*?>'
+            },            
             {
                 token : "constant.numeric", // imaginary
                 regex : "(?:" + floatNumber + "|\\d+)[jJ]\\b"
@@ -162,6 +176,17 @@ var IsabelleHighlightRules = function() {
             {
                 token : "string",
                 regex : '"',
+                next : "start"
+            }, {
+                token : "string",
+                merge : true,
+                regex : '.+'
+            }
+        ],
+        "qstring2" : [
+            {
+                token : "string",
+                regex : '`',
                 next : "start"
             }, {
                 token : "string",
