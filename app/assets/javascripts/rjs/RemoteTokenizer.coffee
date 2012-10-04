@@ -9,10 +9,11 @@ define ["ace/lib/event_emitter"], (EventEmitter) ->
       @socket = new WebSocket(@route.webSocketURL())
       @socket.onmessage = (e) => @$updateRemote(JSON.parse(e.data))
 
+    current_version: 0
     deltas: []
-    rows: []
+    lines: []
 
-    pushDelay: 250
+    pushDelay: 700
 
     setDocument: (document) =>
       @fallback.setDocument(document)
@@ -26,11 +27,14 @@ define ["ace/lib/event_emitter"], (EventEmitter) ->
           first: firstRow
           last: lastRow
 
-    start: =>
-      @fallback.start()      
+    start: (startRow) =>
+      @fallback.start(startRow)
+
+    stop: =>
+      @fallback.stop()
 
     getTokens: (row) =>
-      @rows[row] or @fallback.getTokens(row)
+      @lines[row] or @fallback.getTokens(row)
 
     getState: (row) =>
       @fallback.getState(row)
@@ -39,15 +43,21 @@ define ["ace/lib/event_emitter"], (EventEmitter) ->
 
     $updateRemote: (e) => switch e.type
       when 'row'
-        @rows[e.index] = e.row        
-        @fireUpdateEvent(e.index,e.index)        
+        if e.version is @current_version 
+          @lines[e.index] = e.row        
+          @fireUpdateEvent(e.index,e.index)        
+        else
+          console.log("ignoring changes for version #{e.version} (actual: #{@current_version})")
 
     $pushChanges: =>
-      @socket.send(JSON.stringify @deltas)
+      @current_version += 1
+      console.log("version #{ @current_version }")
+      @socket.send JSON.stringify @deltas      
       @deltas = []
 
     $updateOnChange: (delta) =>
-      @fallback.$updateOnChange(delta)
+      @lines = @lines.slice(0, delta.range.start.row)
+      @fallback.$updateOnChange(delta)      
       @deltas.push(delta)
       clearTimeout(@$pushTimeout)
       @$pushTimeout = setTimeout(@$pushChanges, @pushDelay)

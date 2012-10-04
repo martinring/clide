@@ -11,4 +11,6 @@ tmp
 dist
 .target/
 .settings/
+.settings
 .project
+RUNNING_PID
