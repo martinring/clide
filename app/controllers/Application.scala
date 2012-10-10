@@ -2,8 +2,11 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import isabelle.Isabelle_System
 
-object Application extends Controller {
+object Application extends Controller {  
+  Isabelle_System.init()
+  
   def index = Action {
     Ok(views.html.index())
   }    

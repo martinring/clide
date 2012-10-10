@@ -43,45 +43,31 @@ define(function(require, exports, module) {
 var oop = require("../lib/oop");
 var lang = require("../lib/lang");
 var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var LatexHighlightRules = require("./doc_comment_highlight_rules").LatexHighlightRules;
 
 var IsabelleHighlightRules = function() {
     var keywords = lang.arrayToMap((
-        "header|theory|imports|keywords|uses|begin|end|lemma|text").split("|")
-    );
-
-    var digit = "(?:[0-9]*)"    
-
-    var decimalInteger = "(?:(?:[1-9]\\d*)|(?:0))";
-    var octInteger = "(?:0[oO]?[0-7]+)";
-    var hexInteger = "(?:0[xX][\\dA-Fa-f]+)";
-    var binInteger = "(?:0[bB][01]+)";
-    var integer = "(?:" + decimalInteger + "|" + octInteger + "|" + hexInteger + "|" + binInteger + ")";    
-
-    var exponent = "(?:[eE][+-]?\\d+)";
-    var fraction = "(?:\\.\\d+)";
-    var intPart = "(?:\\d+)";
-    var pointFloat = "(?:(?:" + intPart + "?" + fraction + ")|(?:" + intPart + "\\.))";
-    var exponentFloat = "(?:(?:" + pointFloat + "|" +  intPart + ")" + exponent + ")";
-    var floatNumber = "(?:" + exponentFloat + "|" + pointFloat + ")";
-
+        "header|theory|imports|keywords|uses|begin|end|lemma|text|consts|oops").split("|")
+    );        
+    
     this.$rules = {
         "start" : [
             {
                 token : "comment",
-                regex : '\\(\\*.*\\*\\)'
+                regex : /\(\*.*?\*\)/
             },
             {
                 token : "comment",
                 merge : true,
-                regex : '\\(\\*.*',
+                regex : /\(\*/,
                 next : "comment"
             },
             {
-                token : "comment",
+                token : "verbatim",
                 regex : '\\{\\*.*?\\*\\}\\s*?$'
             },
             {
-                token : "comment",
+                token : "verbatim",
                 merge : true,
                 regex : '\\{\\*.*',
                 next : "verbatim"
@@ -109,18 +95,6 @@ var IsabelleHighlightRules = function() {
             {
                 token : "symbol", // single line
                 regex : '\\\\<(?:(?:\\\\.)|(?:[^`\\\\]))*?>'
-            },            
-            {
-                token : "constant.numeric", // imaginary
-                regex : "(?:" + floatNumber + "|\\d+)[jJ]\\b"
-            },
-            {
-                token : "constant.numeric", // float
-                regex : floatNumber
-            },
-            {
-                token : "constant.numeric", // integer
-                regex : integer + "\\b"
             },
             {
                 token : function(value) {
@@ -151,7 +125,7 @@ var IsabelleHighlightRules = function() {
         "comment" : [
             {
                 token : "comment", // closing comment
-                regex : ".*?\\*\\)",
+                regex : /.*?\*\)/,
                 next : "start"
             },
             {
@@ -165,7 +139,7 @@ var IsabelleHighlightRules = function() {
                 token : "verbatim", // closing comment
                 regex : ".*?\\*\\}",
                 next : "start"
-            },
+            },            
             {
                 token : "verbatim", // comment spanning whole line
                 merge : true,

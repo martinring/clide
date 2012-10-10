@@ -1,11 +1,6 @@
-(*
-    $Id: ex.thy,v 1.2 2004/11/23 15:14:34 webertj Exp $
-    Author: Martin Strecker
-*)
-
 header {* Searching in Lists *}
 
-(*<*) theory ex imports Main begin (*>*)
+theory ex imports Main begin
 
 text {* Define a function @{text first_pos} that computes the index
 of the first element in a list that satisfies a given predicate: *}

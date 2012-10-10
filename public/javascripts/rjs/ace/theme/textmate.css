@@ -88,6 +88,10 @@
   color: rgb(76, 136, 107);
 }
 
+.ace-tm .ace_line .ace_verbatim {
+  background-color: rgb(240, 240, 240);
+}
+
 .ace-tm .ace_line .ace_comment.ace_doc {
   color: rgb(0, 102, 255);
 }

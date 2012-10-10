@@ -50,14 +50,26 @@ define ["ace/lib/event_emitter"], (EventEmitter) ->
           console.log("ignoring changes for version #{e.version} (actual: #{@current_version})")
 
     $pushChanges: =>
-      @current_version += 1
       console.log("version #{ @current_version }")
       @socket.send JSON.stringify @deltas      
       @deltas = []
 
     $updateOnChange: (delta) =>
-      @lines = @lines.slice(0, delta.range.start.row)
-      @fallback.$updateOnChange(delta)      
+      range = delta.range
+      startRow = range.start.row
+      len = range.end.row - startRow
+
+      if len is 0
+        @lines[startRow] = false
+      else if delta.action is "removeText" or delta.action is "removeLines"
+        @lines.splice(startRow, len + 1, false);        
+      else
+        args = Array(len + 1)
+        args.unshift(startRow, 1)
+        @lines.splice.apply(this.lines, args)        
+
+      @fallback.$updateOnChange(delta)            
+      @current_version += 1 if @deltas.length is 0
       @deltas.push(delta)
       clearTimeout(@$pushTimeout)
       @$pushTimeout = setTimeout(@$pushChanges, @pushDelay)

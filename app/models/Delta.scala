@@ -16,6 +16,7 @@ case class ReplaceText(range: Range, text: String) extends Delta {
   def + (other: Delta) = other match {
     case ReplaceText(range, text) if this.range.end == range.start =>
       Some(ReplaceText(Range(this.range.start, range.end), this.text + text))
+    case r@ReplaceText(range, text) if this.range == range => Some(r)
     case _ => None
   }
 }
