@@ -1,6 +1,8 @@
-package models
+package models.ace
 
 import play.api.libs.json._
+import scala.Array.canBuildFrom
+import scala.math.BigDecimal.int2bigDecimal
 
 trait Delta {
   val range: Range

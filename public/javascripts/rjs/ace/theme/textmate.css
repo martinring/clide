@@ -24,6 +24,95 @@
   cursor: text;
 }
 
+.ace-tm .ace_line .ace_string {
+  color: black
+}
+
+.ace-tm .ace_line .ace_altstring {
+  color: black
+}
+
+.ace-tm .ace_line .ace_verbatim {
+  color: gray
+}
+
+.ace-tm .ace_line .ace_literal {
+  color: #006699
+}
+
+.ace-tm .ace_line .ace_delimiter {
+  color: black
+}
+
+.ace-tm .ace_line .ace_typeFree {
+  color: #a020f0
+}
+
+.ace-tm .ace_line .ace_typeVar {
+  color: #a020f0
+}
+
+.ace-tm .ace_line .ace_free {
+  color: blue
+}
+
+.ace-tm .ace_line .ace_skolem {
+  color: #d2691e
+}
+
+.ace-tm .ace_line .ace_bound {
+  color: green
+}
+
+.ace-tm .ace_line .ace_var {
+  color: #00009b
+}
+
+.ace-tm .ace_line .ace_inner_string {
+  color: #d2691e
+}
+
+.ace-tm .ace_line .ace_inner_comment {
+  color: #8b0000
+}
+
+.ace-tm .ace_line .ace_dynamic_fact {
+  color: #7ba428
+}
+
+.ace-tm .ace_line .ace_ml_keyword {
+  color: #006699
+}
+
+.ace-tm .ace_line .ace_ml_delimiter {
+  color: black
+}
+
+.ace-tm .ace_line .ace_ml_numeral {
+  color: red
+}
+
+.ace-tm .ace_line .ace_ml_char {
+  color: #d2691e
+}
+
+.ace-tm .ace_line .ace_ml_string {
+  color: #d2691e
+}
+
+.ace-tm .ace_line .ace_ml_comment {
+  color: #8b0000
+}
+
+.ace-tm .ace_line .ace_ml_malformed {
+  color: #ff6a6a
+}
+
+.ace-tm .ace_line .ace_antiquotation {
+  color: blue
+}
+
+
 .ace-tm .ace_cursor {
   border-left: 2px solid black;
 }
@@ -80,16 +169,29 @@
   color: rgb(104, 118, 135);
 }
 
+.ace-tm .ace_line .ace_command {
+  color: blue;
+  font-weight: bold;
+}
+
+.ace-tm .ace_line .ace_error {
+  border-bottom: 1px dashed red;
+}
+
+.ace-tm .ace_line .ace_bad {
+  border-bottom: 1px dashed orange;
+}
+
+.ace-tm .ace_line .ace_warn {
+  border-bottom: 1px dashed yellow;
+}
+
 .ace-tm .ace_line .ace_string {
   color: rgb(196, 6, 7);
 }
 
 .ace-tm .ace_line .ace_comment {
   color: rgb(76, 136, 107);
-}
-
-.ace-tm .ace_line .ace_verbatim {
-  background-color: rgb(240, 240, 240);
 }
 
 .ace-tm .ace_line .ace_comment.ace_doc {
@@ -130,6 +232,9 @@
 
 .ace-tm .ace_marker-layer .ace_selection {
   background: rgb(181, 213, 255);
+}
+.ace-tm .ace_marker-layer .error {
+  border-bottom: 2px dotted red;
 }
 .ace-tm.multiselect .ace_selection.start {
   box-shadow: 0 0 3px 0px white;

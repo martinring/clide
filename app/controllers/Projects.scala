@@ -1,6 +1,5 @@
 package controllers
 
-import models._
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
@@ -16,6 +15,10 @@ import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.util.duration._
 import scala.concurrent.Await
+import models.Users
+import models.Project
+import models.ace.Delta
+import models.ace.RemoteDocument
 
 object Projects extends Controller {
   def listProjects(user: String) = Action {
@@ -52,18 +55,23 @@ object Projects extends Controller {
     }
   }
 
+  def path(user: String, project: String, path: String) =
+    Path.basic(".") + Path.basic("data") + Path.basic(user) + Path.basic(project) + Path.explode(path)
+    
+  def nodeName(user: String, project: String, path: String) =
+    Document.Node.Name(this.path(user,project,path))
+  
   def getFileSocket(user: String, project: String, path: String) = WebSocket.using[JsValue] { request =>
-    val projectActor = getProjectActor(Project(project, user)) 
-    val (out, channel) = Concurrent.broadcast[JsValue]
+    val projectActor = getProjectActor(Project(project, user))
+    val src = Source.fromFile("data/" + user + "/" + project + "/" + path)
+    val doc = new RemoteDocument[isabelle.Scan.Context]()
+    doc.insertLines(0, src.getLines.toSeq :_*)
     val docActor = Await.result(
         projectActor.ask
-           (ProjectActor.Open(path, channel))
+           (ProjectActor.Open(this.nodeName(user,project,path), doc))
            (Timeout(10 seconds)).mapTo[ActorRef],
-        10 seconds)
-    val in = Iteratee.foreach[JsValue] { deltas =>
-      docActor ! deltas.as[Array[Delta]]
-    }    
-    (in, out)
+        10 seconds)        
+    (doc.in, doc.out)
   }
 
   def getFileContent(user: String, project: String, path: String) = Action {

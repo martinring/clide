@@ -7,71 +7,153 @@ import play.api.libs.iteratee.Concurrent.Channel
 import isabelle._
 import isabelle.Text.Edit
 import play.api.libs.json._
-import models.Delta
-import models.InsertLines
-import models.InsertNewline
-import models.InsertText
-import models.NoChange
-import models.RemoteDocument
-import models.RemoveLines
-import models.RemoveNewline
-import models.RemoveText
-import models.ReplaceText
-import models.Token
+import models.ace.Delta
+import models.ace.InsertLines
+import models.ace.InsertNewline
+import models.ace.InsertText
+import models.ace.NoChange
+import models.ace.RemoteDocument
+import models.ace.RemoveLines
+import models.ace.RemoveNewline
+import models.ace.RemoveText
+import models.ace.ReplaceText
+import models.ace.Token
 import scala.math.BigDecimal.int2bigDecimal
 import scala.math.BigDecimal.long2bigDecimal
 
-class DocumentActor(    
-    val name: Document.Node.Name,
-    val lines: Iterator[String],
-    val channel: Channel[JsValue],
-    val session: Session,
-    val newline: String = "\n") extends Actor {  
-  val log = Logging(context.system, this)
-  
-  val doc = new RemoteDocument(newline)  
-  doc.insertLines(0, lines.toSeq :_*)
-  val edits = Buffer[Edit]()
-  
-  var version = 0: Long
-  
-  def applyDelta(delta: Delta): Unit = delta match {
-    case InsertNewline(range) =>
-      edits += doc.splitLine(range.start.row, range.start.column)
-    case RemoveNewline(range) =>
-      edits += doc.mergeLines(range.end.row)
-    case ReplaceText(range, text) =>
-      edits += doc.removeText(range.start.row, range.start.column, text.length)
-      edits += doc.insertText(range.start.row, range.start.column, text)
-    case InsertText(range,text) =>
-      edits += doc.insertText(range.start.row, range.start.column, text)
-    case RemoveText(range, text) =>
-      edits += doc.removeText(range.start.row, range.start.column, text.length)
-    case InsertLines(range, lines) =>
-      edits += doc.insertLines(range.start.row, lines :_*)
-    case RemoveLines(range, lines) =>
-      edits += doc.removeLines(range.start.row, lines.length)
+object DocumentActor {
+  object Close
+  object Pause
+  object Start
+  object GetText
+}
 
-    case NoChange =>      
+class DocumentActor(
+    val name: Document.Node.Name,
+    var doc: RemoteDocument[Scan.Context],
+    val session: Session,
+    val thy_load: Thy_Load) extends Actor {
+  val log = Logging(context.system, this)       
+ 
+  def node_header(): Document.Node_Header = Exn.capture {
+    thy_load.check_header(name,
+      Thy_Header.read(doc.mkString))
   }
   
+  def init() {    	        	           
+	session.init_node(name, node_header(), Text.Perspective.full, doc.mkString)	
+  }
+  
+  override def preStart = {
+    init()
+    doc.listen(self)    
+  }    
+  
+  def invalidate(start: Int = 0) {
+    
+  }
+  
+  def convertToken(add: String)(token: isabelle.Token) = token.kind match {
+    case isabelle.Token.Kind.COMMENT =>
+      Token("comment " + add, "(*" + token.content + "*)")
+    case isabelle.Token.Kind.STRING =>
+      Token("string " + add, "\"" + token.content + "\"")
+    case isabelle.Token.Kind.VERBATIM =>
+      Token("string " + add, "{*" + token.content + "*}")    
+    case _ =>
+      Token(token.kind.toString() + " " + add, token.content)
+  }
+  
+  private val token_classes: Map[String, String] =
+    Map(
+      Isabelle_Markup.ERROR -> "error",      
+      Isabelle_Markup.BAD -> "bad",
+      Isabelle_Markup.WARNING -> "warn",
+      Isabelle_Markup.KEYWORD -> "keyword",      
+      Isabelle_Markup.COMMAND -> "command",
+      Isabelle_Markup.COMMENT -> "comment",      
+      Isabelle_Markup.STRING -> "string",
+      Isabelle_Markup.ALTSTRING -> "altstring",
+      Isabelle_Markup.VERBATIM -> "verbatim",
+      Isabelle_Markup.LITERAL -> "literal",
+      Isabelle_Markup.DELIMITER -> "delimiter",
+      Isabelle_Markup.TFREE -> "typeFree",
+      Isabelle_Markup.TVAR -> "typeVar",
+      Isabelle_Markup.FREE -> "free",
+      Isabelle_Markup.SKOLEM -> "skolem",
+      Isabelle_Markup.BOUND -> "bound",
+      Isabelle_Markup.VAR -> "var",
+      Isabelle_Markup.INNER_STRING -> "inner_string",
+      Isabelle_Markup.INNER_COMMENT -> "inner_comment",
+      Isabelle_Markup.DYNAMIC_FACT -> "dynamic_fact",
+      Isabelle_Markup.ML_KEYWORD -> "ml_keyword",
+      Isabelle_Markup.ML_DELIMITER -> "ml_delimiter",
+      Isabelle_Markup.ML_NUMERAL -> "ml_numeral",
+      Isabelle_Markup.ML_CHAR -> "ml_char",
+      Isabelle_Markup.ML_STRING -> "ml_string",
+      Isabelle_Markup.ML_COMMENT -> "ml_comment",
+      Isabelle_Markup.ML_MALFORMED -> "ml_malformed",
+      Isabelle_Markup.ANTIQ -> "antiquotation")        
+
+  private val token_class_elements = Set.empty[String] ++ token_classes.keys
+
+  def markup(snapshot: Document.Snapshot, range: Text.Range)
+      : Stream[Text.Info[String]] =
+    snapshot.cumulate_markup(range, "", Some(token_class_elements),
+      {
+        case (x, Text.Info(_, XML.Elem(Markup(m, _), _)))
+        if token_classes.isDefinedAt(m) => token_classes(m)
+      })
+
+  private val writeln_pri = 1
+  private val warning_pri = 2
+  private val legacy_pri = 3
+  private val error_pri = 4      
+      
+  private val squiggly_colors = Map(
+    writeln_pri -> "writeln",
+    warning_pri -> "warning",
+    error_pri -> "error")
+
+  def squiggly_underline(snapshot: Document.Snapshot, range: Text.Range): Stream[Text.Info[String]] =
+  {
+    val results =
+      snapshot.cumulate_markup[Int](range, 0,
+        Some(Set(Isabelle_Markup.WRITELN, Isabelle_Markup.WARNING, Isabelle_Markup.ERROR)),
+        {
+          case (pri, Text.Info(_, XML.Elem(Markup(name, _), _))) =>
+            name match {
+              case Isabelle_Markup.WRITELN => pri max writeln_pri
+              case Isabelle_Markup.WARNING => pri max warning_pri
+              case Isabelle_Markup.ERROR => pri max error_pri
+              case _ => pri
+            }
+        })
+    for {
+      Text.Info(r, pri) <- results
+      color <- squiggly_colors.get(pri)
+    } yield Text.Info(r, color)
+  }  
+      
   def receive = {
-    case deltas: Array[Delta] =>      
-      val optimized = Delta.optimize(Delta.optimize(deltas.toVector))      
-      for (delta <- optimized) applyDelta(delta)      
-      version += 1      
-      val iedits = Document.Node.Edits[Text.Edit,Text.Perspective](edits.toList)
-      println(iedits)
-      session.edit(List((name,iedits)))
-      edits.clear()
-//      for (i <- 0 until doc.length) {
-//        val line = doc(i)
-//        channel.push(JsObject(
-//	      "type" -> JsString("row") ::
-//	      "version" -> JsNumber(version) ::
-//	      "index" -> JsNumber(i) ::
-//	      "row" -> Json.toJson(Array(Token("string", line))) :: Nil
-//        ))
-//      }      
+    case DocumentActor.GetText => 
+      sender ! doc.mkString      
+    case RemoteDocument.NewVersion(version,edits) =>
+      session.edit_node(name, node_header(), Text.Perspective.full, edits)
+      //doc.error(5, "test")
+    case change: Session.Commands_Changed =>      
+      val snapshot = session.snapshot(name,Nil)
+      val markers = squiggly_underline(snapshot, Text.Range(0,doc.bufferLength)).toList
+      markers.foreach(i => doc.markError(i.range.start, i.range.stop))
+      val cs = markup(snapshot,Text.Range(0,doc.bufferLength))
+      val tokens = cs.toList.map(c =>
+        Token(c.info, doc.getRange(c.range.start, c.range.stop)))
+        /*snapshot.node.commands.toList.flatMap { command =>
+        val add = if (command.is_malformed) "error" else "" 
+        command.span.map(convertToken(add))
+      }*/
+      val lines = Token.lines(tokens)
+      doc.tokens(lines)
+      
   }
 }

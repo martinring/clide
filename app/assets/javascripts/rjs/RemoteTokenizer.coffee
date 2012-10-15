@@ -1,4 +1,5 @@
-define ["ace/lib/event_emitter"], (EventEmitter) ->
+define ["ace/lib/event_emitter","ace/range"], (EventEmitter,Range) ->
+  Range = Range.Range
   # the remote tokenizer synchronizes with a websocket to
   # let a server do the tokenization  
   class RemoteTokenizer extends EventEmitter.EventEmitter
@@ -12,6 +13,7 @@ define ["ace/lib/event_emitter"], (EventEmitter) ->
     current_version: 0
     deltas: []
     lines: []
+    annotations: []
 
     pushDelay: 700
 
@@ -41,13 +43,31 @@ define ["ace/lib/event_emitter"], (EventEmitter) ->
 
     $pushTimeout: null
 
-    $updateRemote: (e) => switch e.type
-      when 'row'
+    $updateRemote: (e) => switch e.action
+      when 'LineUpdate'
         if e.version is @current_version 
-          @lines[e.index] = e.row        
-          @fireUpdateEvent(e.index,e.index)        
+          @lines[e.line] = e.tokens        
+          @fireUpdateEvent(e.line,e.line)        
         else
           console.log("ignoring changes for version #{e.version} (actual: #{@current_version})")
+      when 'Marker'
+        if e.version is @current_version
+          console.log(e)
+          console.log(@session.addMarker(
+            new Range(e.range.start.row,e.range.start.column,e.range.end.row,e.range.end.column),
+            e.clazz,
+            "line",
+            false)
+          )
+        else 
+          console.log("ignoring marker for version #{e.version} (actual: #{@current_version})")
+      when 'Annotation'
+        if e.version is @current_version
+          console.log("test")
+          @annotations.push(e)
+          @session.setAnnotations(@annotations)
+        else
+          console.log("ignoring annotation for version #{e.version} (actual: #{@current_version})")
 
     $pushChanges: =>
       console.log("version #{ @current_version }")
@@ -55,6 +75,7 @@ define ["ace/lib/event_emitter"], (EventEmitter) ->
       @deltas = []
 
     $updateOnChange: (delta) =>
+      @lines = []
       range = delta.range
       startRow = range.start.row
       len = range.end.row - startRow
@@ -62,13 +83,13 @@ define ["ace/lib/event_emitter"], (EventEmitter) ->
       if len is 0
         @lines[startRow] = false
       else if delta.action is "removeText" or delta.action is "removeLines"
-        @lines.splice(startRow, len + 1, false);        
+        @lines.splice(startRow, len + 1, false);
       else
         args = Array(len + 1)
         args.unshift(startRow, 1)
-        @lines.splice.apply(this.lines, args)        
+        @lines.splice.apply(this.lines, args)
 
-      @fallback.$updateOnChange(delta)            
+      @fallback.$updateOnChange(delta)
       @current_version += 1 if @deltas.length is 0
       @deltas.push(delta)
       clearTimeout(@$pushTimeout)

@@ -1,47 +1,42 @@
 package actors
 
-import akka.actor.Actor
+import scala.collection.mutable.Queue
+import scala.io.Source
+import akka.actor._
 import akka.event.Logging
 import isabelle._
-import play.api.libs.iteratee.Concurrent.Channel
-import play.api.libs.json.JsValue
-import scala.collection.mutable.Queue
 import models.Project
 import play.api.Logger
-import play.api.Play.current
-import scala.io.Source
-import play.api.libs.concurrent.Akka
-import akka.actor.Props
-import isabelle.Session.Commands_Changed
+import play.api.libs.iteratee.Concurrent.Channel
+import play.api.libs.json.JsValue
+import models.ace.RemoteDocument
 
-object ProjectActor {
-  case class PhaseChanged(msg: Any)
-  case class Syslog(msg: Any)
-  case class CommandsChanged(msg: Any)
-  case class Open(path: String, channel: Channel[JsValue])
-  case class Pause(path: String)
-  case class Start(path: String)
-  case class Close(path: String)
-  case class Forward(path: String, msg: Any)
+object ProjectActor {  
+  case class Raw(msg: Any)
+  case class Open(name: Document.Node.Name, doc: RemoteDocument[Scan.Context])
+  case class Pause(name: Document.Node.Name)
+  case class Start(name: Document.Node.Name)
+  case class Close(name: Document.Node.Name)
 }
 
-class ProjectActor(
-    project: Project) extends Actor {  
+class ProjectActor(project: Project) extends Actor {  
   val log = Logging(context.system, this)
-  
+      
   import ProjectActor._
-        
-  /* the associated isabelle prover session */
-  val session: Session = new Session
-  val thy_load = new Thy_Load
+    
+  val thy_load = new Thy_Load {
+    // TODO: Include DocActors
+  }
   
-  /* the websocket broadcasting channels for open theory sessions */
-  val channels = scala.collection.mutable.Map[String,Channel[JsValue]]()
+  /** the associated isabelle prover session **/
+  val session: Session = new Session(thy_load)
+    
+  val docs = scala.collection.mutable.Map[Document.Node.Name,ActorRef]()
   
-  /* postponed actions that are executed when session becomes ready */
+  /** postponed actions that are executed when session becomes ready */
   val postponed = Queue[() => Unit]()
   
-  /* 
+  /**
    * Execute a piece of code only if the session is ready. Otherwise postpone the action and 
    * execute it when the session phase changes to ready 
    */
@@ -50,7 +45,7 @@ class ProjectActor(
     case _ => postponed.enqueue(f _)
   } 
   
-  /*
+  /**
    * Executes all postponed actions in order and then clears the queue
    */
   def executePostponed() {
@@ -59,40 +54,60 @@ class ProjectActor(
   }
   
   override def preStart() {
-    Logger.debug("initializing isabelle session for " + project)   
-    session.phase_changed += WrapperActor(self, PhaseChanged)
-    session.commands_changed += WrapperActor(self, CommandsChanged)
+    Logger.debug("initializing isabelle session for " + project)
+    session.phase_changed += Forwarder(self)
+    session.commands_changed += Forwarder(self)
+    //session.raw_output_messages += Forwarder(self,Raw)
+    //session.all_messages += Forwarder(self,Raw)
     session.start(List("HOL"))
     val basePath = "data/" + project.owner + "/" + project.name + "/"
   }
  
-  def receive = {    
-    case PhaseChanged(Session.Ready) =>
-      log.info("ready")
+  def handlePhaseChange(phase: Session.Phase) = phase match {
+    case Session.Ready =>
+      log.info(Session.Ready.toString())
       executePostponed()
-    case PhaseChanged(_) =>
-      log.info("phase: " + session.phase)
-    case CommandsChanged(cmds: Commands_Changed) =>
-      cmds.commands.foreach { command =>        
-        log.info(command.span.toString)
-      }      
-    case Open(path, channel) =>
+    case other =>
+      log.info(other.toString())
+  }
+  
+  def handleCommandsChange(change: Session.Commands_Changed) = {
+    change.nodes.foreach{ node =>
+      docs.get(node).map(_ ! change)
+    }    
+  }
+  
+  def receive = {    
+    case phaseChange: Session.Phase =>
+      handlePhaseChange(phaseChange)
+    case commandChange: Session.Commands_Changed =>
+      handleCommandsChange(commandChange)
+    case Raw(msg) => 
+      println(msg)
+    case Open(name, doc) =>
       val sender = this.sender
       whenReady {
-        log.info("initializing " + path)      
-        val filePath = "data/" + project.owner + "/" + project.name + "/" + path
-        val lines = Source.fromFile(filePath).getLines.toList        
-        val text = lines.mkString("\n")
-        val nodeName = Document.Node.Name(Path.explode(filePath))
-        val header = Exn.capture { thy_load.check_header(nodeName, Thy_Header.read(text)) }
-        session.init_node(nodeName, header, Text.Perspective.full, text)
-        val documentActor = context.actorOf(Props(new DocumentActor(nodeName, lines.iterator, channel, session)))
-        sender ! documentActor
-      }
-    case Pause(path) => 
-    case Start(path) => 
-    case Close(path) => 
-    case Forward(path,msg) =>
-      log.info("message for " + path + ": " + msg)
+        docs.get(name) match {
+          case None =>
+            log.info("initializing " + name)
+	        val documentActor = context.actorOf(Props(new DocumentActor(name, doc, session, thy_load)))
+	        sender ! documentActor
+	        docs(name) = documentActor
+          case Some(actor) =>
+            log.error("restart not yet supported")
+            sender ! actor
+        } }
+    case Pause(name) => docs.get(name) match {
+      case Some(act) => act ! DocumentActor.Pause
+      case None => log.error("trying to pause " + name + " which is not opened")
+    }
+    case Start(name) => docs.get(name) match {
+      case Some(act) => act ! DocumentActor.Start
+      case None => log.error("trying to start " + name + " which is not opened")
+    }
+    case Close(name) => docs.get(name) match {
+      case Some(act) => act ! DocumentActor.Close
+      case None => log.error("trying to close " + name + " which is not opened")
+    }      
   }
 }
