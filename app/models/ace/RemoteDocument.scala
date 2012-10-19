@@ -20,15 +20,17 @@ object RemoteDocument {
 class RemoteDocument[Context](newline: String = "\n") {
   import RemoteDocument._
   
-  def apply(line: Int) = buffer.slice(offset(line), offset(line + 1) - nllength).mkString
-  def length = offsets.length - 1
+  def apply(line: Int) = if (line < length)  
+      buffer.slice(offset(line), offset(line + 1) - nllength).mkString
+    else ""
+  def length = offsets_.length - 1
 
   private var edits = Buffer[Text.Edit]()
   private val nllength = newline.length
   private val buffer = Buffer[Char]()
-  private val offsets = Buffer[Int](0)
+  private val offsets_ = Buffer[Int](0)
   private var listener: Option[ActorRef] = None
-  private val contexts = Map[Int,Context]()
+  private val tokens = Buffer[List[Token]]()  
   
   private var version = 0: Long        
   
@@ -38,6 +40,13 @@ class RemoteDocument[Context](newline: String = "\n") {
     case Some(_) => 
       sys.error("listener allready registered")
   }
+  
+  def offsets = offsets_.toSeq
+  
+  def ranges = 
+    offsets_.tail.foldLeft(Vector((0,0))){
+      case (v,o) => v :+ (v.last._2, o)
+    }.tail
   
   def getRange(start: Int, end: Int) = buffer.slice(start, end).mkString
   
@@ -50,15 +59,15 @@ class RemoteDocument[Context](newline: String = "\n") {
   
   private def shiftOffsets(start: Int, diff: Int) {
     for (i <- start until offsets.length)
-      offsets(i) = offsets(i) + diff
+      offsets_(i) = offsets_(i) + diff
   }
 
-  def offset(line: Int) = offsets(line)
-  def line(offset: Int) = offsets.takeWhile(_ <= offset).length
+  def offset(line: Int) = offsets_(line)
+  def line(offset: Int) = offsets_.takeWhile(_ <= offset).length - 1
 
   def position(offset: Int) = {
     val line = this.line(offset)
-    Position(line,this.offset(line) - offset)
+    Position(line,offset - offsets_(line))
   }
   
   def mkString = buffer.mkString
@@ -77,10 +86,13 @@ class RemoteDocument[Context](newline: String = "\n") {
     val newOffsets = lines.foldLeft(Vector(startOffset)){
       case (offsets, line) => offsets :+ (offsets.last + line.length + nllength)
     }
-    offsets.insertAll(lineNumber, newOffsets.init)
+    offsets_.insertAll(lineNumber, newOffsets.init)
     val shiftStart = lineNumber + lines.length
     val diff = newOffsets.last - startOffset
-    shiftOffsets(shiftStart, diff)
+    shiftOffsets(shiftStart, diff)    
+    
+    /* update tokens */
+    tokens.insertAll(lineNumber, lines.map(line => List(Token(List("text"), line))))
     
     return Edit.insert(start, elems)
   }
@@ -93,10 +105,13 @@ class RemoteDocument[Context](newline: String = "\n") {
     buffer.remove(start, count)
     
     /* update offsets */
-    offsets.remove(lineNumber + 1, lines)
+    offsets_.remove(lineNumber + 1, lines)
     shiftOffsets(lineNumber + 1, -count)
     
     require(text.length >= lines)
+    
+    /* update tokens */
+    tokens.remove(lineNumber,lines)
     
     return Edit.remove(start, text)
   }
@@ -109,6 +124,9 @@ class RemoteDocument[Context](newline: String = "\n") {
     /* update offsets */       
     shiftOffsets(line+1, text.length)
     
+    /* update tokens */
+    
+    
     return Edit.insert(offset, text)
   }
   
@@ -119,9 +137,10 @@ class RemoteDocument[Context](newline: String = "\n") {
     buffer.remove(offset, length)
     
     /* update offsets */
-    shiftOffsets(line+1,-length)
+    shiftOffsets(line+1,-length)    
     
-    require(text.length == length)
+    /* update tokens */
+    
     
     return Edit.remove(offset, text)
   }
@@ -133,7 +152,21 @@ class RemoteDocument[Context](newline: String = "\n") {
     
     /* update offsets */        
     shiftOffsets(line+1,nllength)
-    offsets.insert(line+1,offsets(line) + column + nllength)
+    offsets_.insert(line+1,offsets(line) + column + nllength)
+    
+    /* update tokens */            
+    val (_,(lts,rts)) = tokens(line).foldLeft((0,(Vector[Token](),Vector[Token]()))){
+      case ((pos,(l,r)),t) => 
+        if (pos + t.length <= column) (pos+t.length,(l:+t,r))
+        else if (pos == column) (pos+t.length,(l,r:+t))
+        else if (pos < column) {
+          val (lv,rv) = t.splitAt(column-pos)
+          (pos+t.length,(l:+lv,r:+rv))
+        }
+        else (pos,(l,r:+t))
+    }    
+    tokens(line) = lts.toList
+    tokens.insert(line+1, rts.toList)
     
     return Edit.insert(offset, newline)
   }
@@ -144,8 +177,12 @@ class RemoteDocument[Context](newline: String = "\n") {
     buffer.remove(offset, nllength)
     
     /* update offsets */
-    offsets.remove(line)
+    offsets_.remove(line)
     shiftOffsets(line,-nllength)
+    
+    /* update tokens */
+    tokens(line) ++= tokens(line + 1)
+    tokens.remove(line + 1)
     
     return Edit.remove(offset, newline)
   }           
@@ -166,26 +203,35 @@ class RemoteDocument[Context](newline: String = "\n") {
   
   val (out, channel) = Concurrent.broadcast[JsValue]
   
-  def tokens(t: List[List[Token]]) = {
+  def updateTokens(t: List[List[Token]], from: Int = 0) = {    
     t.zipWithIndex.foreach {
-      case (l,i) => channel.push(Json.toJson(LineUpdate(i,version,l)))
+      case (l,i) => 
+        if (tokens.isDefinedAt(from+i)) 
+          if (tokens(from + i) != l) {          
+            tokens(from+i) = l
+            channel.push(Json.toJson(LineUpdate(from + i,version,l)))
+          }
+        else {
+          tokens.insert(from+i, l)
+          channel.push(Json.toJson(LineUpdate(from + i,version,l)))
+        }                              
     }
   }
   
   def error(line: Int, msg: String) {
     channel.push(Json.toJson(Annotation("error", version, Position(line,0), msg)))    
-  }   
+  }
+  
+  def warning(line: Int, msg: String) {
+    channel.push(Json.toJson(Annotation("warning", version, Position(line,0), msg)))
+  }
+  
+  def info(line: Int, msg: String) {
+    channel.push(Json.toJson(Annotation("info", version, Position(line,0), msg)))
+  }
   
   def markError(start: Int, end: Int) {    
     channel.push(Json.toJson(Marker(version, Range(position(start), position(end)),"error","")))
-  }
-  
-  def tokenize(f: (String,Option[Context]) => (List[Token],Context)) = {
-    for (i <- 0 until length) {
-      val (tokens,next) = f(this(i),contexts.get(i))
-      contexts(i+1) = next
-      channel.push(Json.toJson(LineUpdate(i,version,tokens)))
-    }    
   }
   
   val in = Iteratee.foreach[JsValue] { json =>

@@ -62,6 +62,10 @@ class ProjectActor(project: Project) extends Actor {
     session.start(List("HOL"))
     val basePath = "data/" + project.owner + "/" + project.name + "/"
   }
+  
+  override def postStop() {   
+    session.stop()    
+  }
  
   def handlePhaseChange(phase: Session.Phase) = phase match {
     case Session.Ready =>

@@ -70,5 +70,5 @@ require ['editor'], (Editor) ->
   editor = new Editor 
     user: 'martinring'
     project: 'test'
-    path: 'ex.thy'
+    path: 'Seq.thy'
   $('body').append editor.render().el

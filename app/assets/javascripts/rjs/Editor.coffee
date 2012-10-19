@@ -1,4 +1,5 @@
-define ['ace/ace','RemoteTokenizer'], (ace, RemoteTokenizer) ->
+define ['ace/ace','RemoteTokenizer','ace/search'], (ace, RemoteTokenizer, Search) ->
+  Search = Search.Search
   # options: user, project, path to set the routes
   class Editor extends Backbone.View      
     # tag for new editors is <div>
@@ -16,20 +17,20 @@ define ['ace/ace','RemoteTokenizer'], (ace, RemoteTokenizer) ->
       # Create the editor
       @ace = ace.edit @el
       # Set to readonly while content is loading
-      @ace.setReadOnly true
+      @ace.setReadOnly true    
       # Set an initial theme
       @ace.setTheme 'ace/theme/textmate'
       # The route for file content
       file = routes.controllers.Projects.getFileContent(
         @options.user,
         @options.project,
-        @options.path)
+        @options.path)      
       # Retrieve file content asynchonously
       file.ajax
         success: (e) =>
           # Attach our RemoteTokenizer
           session = @ace.getSession()
-          session.setMode('ace/mode/isabelle')          
+          #session.setMode('ace/mode/isabelle')          
           # Set the file content
           @ace.setValue e
           # Reset the undo manager so that the user cant undo the file load
@@ -43,5 +44,14 @@ define ['ace/ace','RemoteTokenizer'], (ace, RemoteTokenizer) ->
           @ace.setReadOnly false
           # Finally move focus to the editor
           @ace.focus()
+          substitute = (delta) =>
+            search = new Search
+            search.set
+              needle: '\\<Rightarrow>'
+            for range in search.findAll(session)
+              session.replace(range,'→')
+          #substitutions
+          #@ace.on 'change', substitute
+          #substitute(null)
     # nothing needs to be done for now...
     render: -> @

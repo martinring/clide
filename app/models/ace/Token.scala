@@ -2,20 +2,34 @@ package models.ace
 
 import play.api.libs.json._
 
-case class Token(tpe: String, value: String) {
+case class Token(
+    types: List[String], 
+    value: String
+    ) {
+  
   private val newline = "\n"
+    
   def isMultiline = value.contains(newline)
+  
   def isEmpty = value.isEmpty
-  def splitLine: (Token,Token) =
-    value.splitAt(value.indexOf(newline)) match {
-      case (left,right) => (Token(tpe,left),Token(tpe,right.drop(newline.length)))
-    }    
+  
+  def length = value.length
+  
+  def splitAt(n: Int): (Token,Token) = {
+    val (left,right) = value.splitAt(n)
+    (Token(types,left),Token(types,right))
+  }
+  
+  def splitLine: (Token,Token) = {
+    val (left,right) = value.splitAt(value.indexOf(newline))
+    (Token(types,left),Token(types,right.drop(newline.length)))
+  }
 }
 
 object Token {
   implicit object Writes extends Writes[Token] {
     def writes(token: Token) = JsObject(
-        "type" -> JsString(token.tpe) ::
+        "type" -> JsString(token.types.mkString(".")) ::
         "value" -> JsString(token.value) :: Nil)
   }        
   

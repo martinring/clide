@@ -6,5 +6,5 @@ object Global extends GlobalSettings {
     Logger.info("initializing isabelle system")
     Isabelle_System.init()
     Logger.info("isabelle system initialized")
-  }
+  }  
 }
