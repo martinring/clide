@@ -1,0 +1,61 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[ngerman]{thesis}
+
+\usepackage{blindtext}
+
+\setStyleFile{glossary}
+\makeglossaries
+
+\input{glossary.tex}
+\input{acronyms.tex}
+
+\bibliography{bibliography}
+
+\input{settings.tex}
+
+\begin{document}
+
+% Titel
+\maketitle
+
+% Impressumsseite
+\clearpage
+\thispagestyle{empty}\small
+\null\vfill
+
+\makeatletter
+  \textbf{\@author}\par
+  \@title\par
+  \ifthesis@hassubtitle\@subtitleshort\fi
+
+  \diplomaname, \@department\par
+  \@institute, \monthyear
+\makeatother
+
+\normalsize
+
+\clearpage
+\input{chapters/declarations.tex}
+
+\clearpage
+\input{chapters/acknowledgements.tex}
+
+\clearpage
+\input{chapters/abstract.tex}
+
+\frontmatter
+\phantomsection
+\addcontentsline{toc}{section}{\contentsname}
+\tableofcontents
+
+%\clearpage
+%\listoftodos
+
+\cleardoublepage
+\mainmatter
+
+\input{chapters/index.tex}
+\input{appendices/index.tex}
+
+\end{document}
