@@ -1,124 +1,11 @@
-@type: #a020f0;
+@type: rgb(43,145,175);
 @keyword: rgb(104, 118, 135);
 @string: rgb(3, 106, 7);
 @variable: #00009b;
-@verbatim: #cccccc;
+@verbatim: gray;
 @comment: rgb(76, 136, 107);
 
-/* inner syntax */
-.ace_tfree {
-  color: @type;
-}
-.ace_tvar {
-  color: @type;
-}
-.ace_free {
-  color: blue
-}
-.ace_skolem {
-  color: #d2691e;
-}
-.ace_bound {
-  color: green;
-}
-.ace_var {
-  color: @variable
-}
-.ace_numeral {
-
-}
-.ace_literal {
-
-}
-.ace_delimiter {
-  
-}
-.ace_inner_string {
-  
-}
-.ace_inner_comment {
-
-}
-.ace_token_range {
-
-}
-.ace_sort {
-
-}
-.ace_typ {
-
-}
-.ace_term {
-
-}
-.ace_prop {
-
-}
-
-.ace_typing {
-
-}
-
-.ace_attribute {
-
-}
-.ace_method {
-
-}
-
-
-/* embedded source text */
-.ace_ML_source {
-
-}
-.ace_doc_source {
-
-}
-.ace_antiq {
-
-}
-
-  /* ML syntax */
-
-.ML_keyword {
-  color: @keyword;
-}
-.ML_delimiter {
-
-}
-.ML_tvar {
-
-}
-.ML_numeral {
-  color: red;
-}
-.ML_char {
-  color: @string;
-}
-.ML_string {
-  color: @string;
-}
-.ML_comment {
-  color: #8b0000;
-}
-.ML_malform {
-  color: #ff6a6a;
-}
-.ML_def {
-
-}
-.ML_open {
-
-}
-.ML_struct {
-
-}
-.ML_typing {
-
-}
-
-
-  /* outer syntax */
+ /* outer syntax */
 
 .ace_keyword {
   color: @keyword;
@@ -131,7 +18,7 @@
   font-weight: bold;
 }
 .ace_string {
-  color: @string;
+  background: #00000005;
 }
 .ace_altstring {
   color: @string;
@@ -159,6 +46,121 @@
 
 }
 
+
+/* inner syntax */
+.ace_tfree {
+  color: @type !important
+}
+.ace_tvar {
+  color: @type !important
+}
+.ace_free {
+  color: blue !important
+}
+.ace_skolem {
+  color: #d2691e !important
+}
+.ace_bound {
+  color: green !important
+}
+.ace_var {
+  color: @variable !important
+}
+.ace_numeral {
+
+}
+.ace_literal {
+
+}
+.ace_delimiter {
+  color: gray !important
+}
+.ace_inner_string {
+  
+}
+.ace_inner_comment {
+
+}
+.ace_token_range {
+
+}
+.ace_sort {
+
+}
+.ace_typ {
+
+}
+.ace_term {
+
+}
+.ace_prop {
+
+}
+
+.ace_typing {
+  
+}
+
+.ace_attribute {
+  
+}
+
+.ace_method {
+
+}
+
+
+/* embedded source text */
+.ace_ML_source {
+
+}
+.ace_doc_source {
+
+}
+.ace_antiq {
+
+}
+
+  /* ML syntax */
+
+.ace_ML_keyword {
+  color: @keyword !important
+}
+.ace_ML_delimiter {
+
+}
+.ace_ML_tvar {
+
+}
+.ace_ML_numeral {
+  color: red !important
+}
+.ace_ML_char {
+  color: @string !important
+}
+.ace_ML_string {
+  color: @string !important
+}
+.ace_ML_comment {
+  color: #8b0000 !important
+}
+.ace_ML_malform {
+  color: #ff6a6a !important
+}
+.ace_ML_def {
+
+}
+.ace_ML_open {
+
+}
+.ace_ML_struct {
+
+}
+.ace_ML_typing {
+
+}
+
+
 /*
   val INIT = "init"
   val STATUS = "status"
@@ -167,9 +169,26 @@
   val TRACING = "tracing"
   val WARNING = "warning"
 */
-.ace_error{  
-  border-bottom: 1px dashed red;
+.ace_line .ace_error{  
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: red;
 }
+
+.ace_line .ace_warning{  
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: yellow;
+}
+
+.ace_accepted {
+  border-bottom: 1px dotted green !important  
+}
+
+.ace_forked {
+  border-bottom: 1px dotted blue !important 
+}
+
 /*
   val PROTOCOL = "protocol"
   val SYSTEM = "system"
@@ -184,7 +203,3 @@
   val BAD = "bad"
 
 */
-
-body {
-  font-family: inconsolata;
-}

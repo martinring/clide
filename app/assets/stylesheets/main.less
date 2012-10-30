@@ -1,15 +1,43 @@
+@font-face {
+  font-family: 'icon';
+  src: url('/assets/fonts/icon.ttf');
+}
+
+@import 'variables.less';
+@import 'reset.less';
 @import 'isabelle.less';
+@import 'sidebar.less';
+@import 'search.less';
+@import 'tabs.less';
+@import 'statusbar.less';
 
 body {
-  background: #fff;
+  font-family: "myriad-pro", Segoe UI, Helvetica;
+  font-size: 11pt;
+  background-color: #ccc;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+#content {
+  -webkit-transition: left @fancy-transition ease;
+  position: fixed;
+  background-color: #ccc;
+  left: @ribbon-width;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.sidebar #content {
+  left: @ribbon-width + @sidebar-width;
 }
 
 .editor {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .hide {

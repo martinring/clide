@@ -1,74 +1,26 @@
-require ['editor'], (Editor) ->  
-  class Project extends Backbone.Model
-    defaults:
-      name: ''
+require ['Editor','Tabs','Tab','session','sidebar'], (Editor,Tabs,Tab,session,sidebar) ->
+  tabs = new Tabs('#content')  
 
-  class ProjectList extends Backbone.Collection
-    model: Project
-    url:   routes.controllers.Projects.listProjects('martinring').url
+  openfiles = []
 
-  class ProjectView extends Backbone.View
-    tagName: 'li'
-    initialize: ->
-      _.bindAll @
-      @model.bind 'change', @render
-      @model.bind 'remove', @unrender
-    render: ->
-      $(@el).html("#{ @model.get 'name' }")
-      return @
-    unrender: ->
-      $(@el).remove()
+  sidebar.on 'open', (file) ->
+    if openfiles[file]? 
+      openfiles[file].activate()
+    else 
+      editor = new Editor
+        user: 'martinring'
+        project: 'test'
+        path: file
+      tab = new Tab
+        title: file
+        content: editor.$el
+      openfiles[file] = tab
+      tabs.add tab    
 
-  class Backstage extends Backbone.View    
-    el: $ '#backstage'
-    events: ->
-      'click #backstage': 'refresh'
-    initialize: ->
-      _.bindAll @
-      @files = new ProjectList      
-      @files.bind 'add', @add          
-      @refresh()
-    refresh: ->
-      console.log('refreshing')
-      @files.fetch success: => @render()      
-    render: ->
-      $(@el).empty()
-      for file in @files.models
-        view = new ProjectView model: file  
-        $(@el).append(view.render().el)      
-      return @
-    add: (file) ->
-      view = new ProjectView model: file
-      $(@el).append view.render().el
-    show: ->
-      $(@el).removeClass 'hide'
-    hide: ->
-      $(@el).addClass 'hide'
-    toggle: ->
-      $(@el).toggleClass 'hide'
-    isVisible: ->
-      $(@el).hasClass 'hide'
+  session.on 'change:phase', (model,phase) ->
+    if phase is 'Ready' then  
 
-  class AppRouter extends Backbone.Router
-    initialize: ->
-        @currentApp = new Tasks
-            el: $("#main")
-    routes:
-        ""                         : "index"
-        "/projects/:project/tasks" : "tasks"
-    index: ->
-        # show dashboard
-        $("#main").load "/ #main"
-    tasks: (project) ->
-        # load project || display app
-        currentApp = @currentApp
-        $("#main").load "/projects/" + project + "/tasks", (tpl) ->
-            currentApp.render(project)          
-
-  #backstage = new Backstage
-  #backstage.show()  
-  editor = new Editor 
-    user: 'martinring'
-    project: 'test'
-    path: 'Seq.thy'
-  $('body').append editor.render().el
+  session.scala.call
+    action: 'getFiles'
+    callback: (files) ->
+      sidebar.set files: files  

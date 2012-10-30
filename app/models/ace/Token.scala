@@ -7,6 +7,11 @@ case class Token(
     value: String
     ) {
   
+  val id = {
+    Token.id += 1
+    "tk" + Token.id
+  }
+  
   private val newline = "\n"
     
   def isMultiline = value.contains(newline)
@@ -14,6 +19,9 @@ case class Token(
   def isEmpty = value.isEmpty
   
   def length = value.length
+  
+  def take(n: Int): Token = Token(types,value.take(n))
+  def drop(n: Int): Token = Token(types,value.drop(n))
   
   def splitAt(n: Int): (Token,Token) = {
     val (left,right) = value.splitAt(n)
@@ -27,12 +35,14 @@ case class Token(
 }
 
 object Token {
+  private[ace] var id = 0: Long
+
   implicit object Writes extends Writes[Token] {
     def writes(token: Token) = JsObject(
-        "type" -> JsString(token.types.mkString(".")) ::
+        "type" -> JsString((token.id :: token.types).mkString(".")) ::
         "value" -> JsString(token.value) :: Nil)
   }        
-  
+
   def lines(tokens: List[Token]): List[List[Token]] = {    
     val (left, right) = tokens.span(!_.isMultiline)
     right match {
@@ -45,15 +55,26 @@ object Token {
   }
 }
 
-case class LineUpdate(line: Int, version: Long, tokens: List[Token])
+case class Line(val t: List[Token]) extends AnyVal {
+  override def toString = t.map(_.value).mkString 
+  
+  def take(n: Int) = t.foldLeft((0, List.empty[Token])) {
+    case ((p,r),t) if (p>n) => (p,r)
+    case ((p,r),t) if (p+t.length>n) => (p+t.length,r:+t.take(n-p))
+    case ((p,r),t) => (p+t.length,r:+t)
+  }._2
 
-object LineUpdate {
-  implicit object Writes extends Writes[LineUpdate] {
-    def writes(up: LineUpdate) = JsObject(
-        "action" -> JsString("LineUpdate") ::
-        "line" -> JsNumber(up.line) ::
-        "version" -> JsNumber(up.version) ::
-        "tokens" -> Json.toJson(up.tokens.toArray) ::
-        Nil)
-  }
+  def drop(n: Int) = t.foldLeft((0, List.empty[Token])) {
+    case ((p,r),t) if (p>n) => (p,r:+t)
+    case ((p,r),t) if (p+t.length>n) => (p+t.length,r:+t.drop(n-p))
+    case ((p,r),t) => (p+t.length,r)
+  }._2
+
+  def splitAt(n: Int) = t.foldLeft((0, (List.empty[Token],List.empty[Token]))) {
+    case ((p,(l,r)),t) if (p>n) => (p,(l,r:+t))
+    case ((p,(l,r)),t) if (p+t.length>n) =>
+      val (a,b) = t.splitAt(n-p)
+      (p+t.length,(l:+a,r:+b))
+    case ((p,(l,r)),t) => (p+t.length,(l:+t,r))
+  }._2    
 }

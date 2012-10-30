@@ -7,11 +7,12 @@ object ApplicationBuild extends Build {
     val appVersion      = "1.0-SNAPSHOT"
 
     val appDependencies = Seq(
-      "org.scala-lang" % "scala-swing" % "2.10.0-M7"
+      "org.scala-lang" % "scala-swing" % "2.10.0-RC1"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
-      scalaVersion := "2.10.0-M7",
-      coffeescriptOptions := Seq("bare")
+      scalaVersion := "2.10.0-RC1",
+      coffeescriptOptions := Seq("bare"),
+      lessEntryPoints <<= baseDirectory(d => (d / "app" / "assets" / "stylesheets" ** "main.less"))
     )
 }

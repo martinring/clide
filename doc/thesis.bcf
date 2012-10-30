@@ -271,3 +271,8 @@
     <bcf:datasource type="file" datatype="bibtex">bibliography.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
+    <bcf:citekey>scala</bcf:citekey>
+    <bcf:citekey>actors</bcf:citekey>
+    <bcf:citekey>isabelle</bcf:citekey>
+  </bcf:section>
+</bcf:controlfile>

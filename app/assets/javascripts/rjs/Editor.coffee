@@ -1,5 +1,6 @@
-define ['ace/ace','RemoteTokenizer','ace/search'], (ace, RemoteTokenizer, Search) ->
+define ['ace/ace','IsabelleConnection','ace/search', 'ace/range'], (ace, IsabelleConnection, Search, Range) ->
   Search = Search.Search
+  Range = Range.Range
   # options: user, project, path to set the routes
   class Editor extends Backbone.View      
     # tag for new editors is <div>
@@ -17,41 +18,20 @@ define ['ace/ace','RemoteTokenizer','ace/search'], (ace, RemoteTokenizer, Search
       # Create the editor
       @ace = ace.edit @el
       # Set to readonly while content is loading
-      @ace.setReadOnly true    
-      # Set an initial theme
-      @ace.setTheme 'ace/theme/textmate'
-      # The route for file content
-      file = routes.controllers.Projects.getFileContent(
-        @options.user,
-        @options.project,
-        @options.path)      
-      # Retrieve file content asynchonously
-      file.ajax
-        success: (e) =>
-          # Attach our RemoteTokenizer
-          session = @ace.getSession()
-          #session.setMode('ace/mode/isabelle')          
-          # Set the file content
-          @ace.setValue e
-          # Reset the undo manager so that the user cant undo the file load
-          session.getUndoManager().reset()
-          # Clear selesction and move cursor to top (needs to be done for some reason)
-          @ace.selection.clearSelection()
-          @ace.gotoLine 0
-          # initialize a new remotetokenizer
-          new RemoteTokenizer session, @route
-          # Remove readonly
-          @ace.setReadOnly false
-          # Finally move focus to the editor
-          @ace.focus()
-          substitute = (delta) =>
-            search = new Search
-            search.set
-              needle: '\\<Rightarrow>'
-            for range in search.findAll(session)
-              session.replace(range,'→')
-          #substitutions
-          #@ace.on 'change', substitute
-          #substitute(null)
+      @ace.setReadOnly true
+      # Attach our RemoteTokenizer
+      session = @ace.getSession()
+      #session.setMode('ace/mode/isabelle')          
+      new IsabelleConnection session, @route
+      # Reset the undo manager so that the user cant undo the file load
+      session.getUndoManager().reset()
+      # Clear selesction and move cursor to top (needs to be done for some reason)
+      @ace.selection.clearSelection()
+      @ace.gotoLine 0
+      # initialize a new remotetokenizer
+      # Remove readonly
+      @ace.setReadOnly false
+      # Finally move focus to the editor
+      @ace.focus()          
     # nothing needs to be done for now...
-    render: -> @
+    render: => @

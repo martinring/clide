@@ -55,7 +55,8 @@ case class Folder(
 
 case class Project(
     name: String,
-    owner: String) {
+    owner: String,
+    logic: String = "HOL") {
   def files: List[File] = List(
       Folder(name, "/", "folder1"),
       Folder(name, "/", "folder2"),      

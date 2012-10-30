@@ -21,6 +21,11 @@ import models.ace.Token
 import scala.math.BigDecimal.int2bigDecimal
 import scala.math.BigDecimal.long2bigDecimal
 import models.MarkupTree
+import scala.concurrent.ExecutionContext
+import ExecutionContext.Implicits.global
+import js.DynamicJsValue
+import scala.language.dynamics
+import scala.collection.immutable.SortedMap
 
 object DocumentActor {
   case class Reset(doc: RemoteDocument[Scan.Context])
@@ -49,9 +54,9 @@ class DocumentActor(
     
   import Isabelle_Markup._
     
-  def syntax(snapshot: Document.Snapshot, range: Text.Range): Stream[Text.Info[String]] = {
+  def syntax(snapshot: Document.Snapshot, range: Text.Range): Stream[Text.Info[List[String]]] = {
     val outer = Set(COMMAND,KEYWORD,STRING,ALTSTRING,VERBATIM,OPERATOR,COMMENT,CONTROL,
-            MALFORMED,COMMAND_SPAN,IGNORED_SPAN,MALFORMED_SPAN)
+            MALFORMED,COMMAND_SPAN,IGNORED_SPAN,MALFORMED_SPAN,ERROR,WARNING)
             
     val inner = Set(TFREE,TVAR,FREE,SKOLEM,
             BOUND,VAR,NUMERAL,LITERAL,DELIMITER,INNER_STRING,INNER_COMMENT,TOKEN_RANGE,
@@ -59,83 +64,106 @@ class DocumentActor(
             ML_TVAR,ML_NUMERAL,ML_CHAR,ML_STRING,ML_COMMENT,ML_MALFORMED,ML_DEF,ML_OPEN,
             ML_STRUCT,ML_TYPING)
     
-    snapshot.cumulate_markup[String](
+    def add(stream: Stream[Text.Info[List[String]]], set: Set[String]) = stream.map {
+      case info => 
+        val r = snapshot.cumulate_markup[List[String]](
+          info.range, 
+          Nil, 
+          Some(set),
+          { case (x, m) => List(m.info.markup.name) })
+        Text.Info(info.range, info.info ++ (r.foldLeft[List[String]](Nil){ case (a,b) => a ++ b.info }))
+      }
+            
+    val fine = snapshot.cumulate_markup[List[String]](
         range,
-        "accepted",
+        Nil,
         Some(outer ++ inner),
-        { case (x, m) => m.info.markup.name })
+        { case (x, m) => List(m.info.markup.name) })
+   
+    add(add(add(fine,outer),Set(ERROR,WARNING)),Set(ENTITY))
   }
-                  
+                     
   def errors(snapshot: Document.Snapshot, range: Text.Range): Stream[Text.Info[(String,String)]] =
       snapshot.cumulate_markup[Option[(String,String)]](
           range, 
           None,
-          Some(Set(ERROR)),
+          Some(Set(ERROR,WARNING)),
           { case (x, i) =>
-            val msg = i.toString() // Pretty.string_of(i.info., 25)
+            val msg = Pretty.string_of(i.info.body, 25)
             Some((i.info.markup.name,msg))
         }).collect{ case Text.Info(x,Some(n)) => Text.Info(x,n) }  
-      
-//  def gutter_message(snapshot: Document.Snapshot, range: Text.Range): Option[String] =
-//  {
-//    val results =
-//      snapshot.cumulate_markup[Int](range, 0,
-//        Some(Set(Isabelle_Markup.WARNING, Isabelle_Markup.ERROR)),
-//        {
-//          case (pri, Text.Info(_, XML.Elem(Markup(Isabelle_Markup.WARNING, _), body))) =>
-//            body match {
-//              case List(XML.Elem(Markup(Isabelle_Markup.LEGACY, _), _)) => pri max legacy_pri
-//              case _ => pri max warning_pri
-//            }
-//          case (pri, Text.Info(_, XML.Elem(Markup(Isabelle_Markup.ERROR, _), body))) =>            
-//            pri max error_pri
-//        })
-//    val pri = (0 /: results) { case (p1, Text.Info(_, p2)) => p1 max p2 }
-//    gutter_icons.get(pri)
-//  }  
   
   def receive = {
     case DocumentActor.GetText => 
-      sender ! doc.mkString      
+      sender ! doc.mkString
     case RemoteDocument.NewVersion(version,edits) =>
       session.edit_node(name, node_header(), Text.Perspective.full, edits)
       //doc.error(5, "test")
-    case change: Session.Commands_Changed =>            
+    case change: Session.Commands_Changed =>
+      //println(doc.js.sync.testSomething("Hallo").message.as[String])	    
       val snapshot = session.snapshot(name)                                                           
+	  
+//	  def fill(start: Text.Offset, map: Map[Text.Range, Token], classes: Set[String]) = {
+//	    val ord = map.keys.toSeq.sorted(Text.Range.Ordering)
+//	    val filled = ord.foldLeft(Vector[Text.Range](Text.Range(0,start))) {
+//	      case (rs,next) => 
+//	        if (rs.last.stop == next.start) rs :+ next
+//	        else rs :+ Text.Range(rs.last.stop,next.start) :+ next
+//	    }.tail
+//	    Map(filled.map(x => x -> map.lift(x).getOrElse(Token(classes.toList,doc.getRange(x.start, x.stop)))) :_*)	   
+//      }
+	            
+//      def tokens(tree: Markup_Tree, offset: Text.Offset, parent: Set[String]): Map[Text.Range, Token] =
+//        tree.getBranches.flatMap { case (range,branch) =>
+//          if (branch.subtree.getBranches.isEmpty)
+//            Map[Text.Range,Token](branch.range + offset -> Token(
+//                (parent ++ branch.elements).intersect(interesting).toList,
+//                doc.getRange(branch.range.start + offset, branch.range.stop + offset)))
+//          else
+//            fill(offset,tokens(branch.subtree, offset + branch.range.start, parent ++ branch.elements), parent)
+//        }
       
-//      doc.channel.push(JsObject(
-//        "action" -> JsString("markup") ::
-//        "markup" -> JsArray(snapshot.select_markup(snapshot.node.full_range, None, {
-//          case markup => JsObject(
-//            "name" -> JsString(markup.info.markup.name) ::            
-//            "body" -> JsArray(markup.info.body.map(x => JsString(x.toString))) ::
-//            "properties" -> JsObject(markup.info.markup.properties.map{
-//              case (x,y) => x -> JsString(y)}) :: 
-//            Nil)}).map(i => i.info + 
-//            ("start" -> Json.toJson(doc.position(i.range.start))) + 
-//            ("end" -> Json.toJson(doc.position(i.range.stop)))).toSeq) 
-//       :: Nil))
-            
-      // markup             
+      
+      
+      def markup(tree: Markup_Tree, offset: Text.Offset): JsArray = JsArray(
+        (for ((_,branch) <- tree.getBranches) yield JsObject(
+          "range" -> Json.toJson(models.ace.Range(
+              doc.position(branch.range.start + offset),
+              doc.position(branch.range.stop + offset))) ::          
+          "text" -> JsString(doc.getRange(branch.range.start + offset, branch.range.stop + offset)) ::
+          "elements" -> JsArray(branch.elements.map(JsString).toSeq) ::
+          "subtree" -> markup(branch.subtree,branch.range.start + offset) ::
+          Nil
+        )).toSeq
+      )
+      
+      // markup
+      for {
+        cmd <- change.commands
+        start <- snapshot.node.command_start(cmd)
+      } {
+        val info = snapshot.state.command_state(snapshot.version, cmd)
+        doc.js.ignore.markup(doc.version, markup(info.markup, start))
+      }
+      
       val i = syntax(snapshot,snapshot.node.full_range)
-      val p = i.map(c => Token(List(c.info), doc.getRange(c.range.start, c.range.stop)))        
+      val p = i.map(c => Token(c.info, doc.getRange(c.range.start, c.range.stop)))        
       val lines = Token.lines(p.toList)
       doc.updateTokens(lines)
-      
-      // gutter messages
-//      for (((start,stop),line) <- doc.ranges.zipWithIndex) {
-//        gutter_message(snapshot, Text.Range(start,stop)) match {
-//          case Some("error") => doc.error(line, "")
-//          case Some("warning") => doc.warning(line, "")
-//          case Some("info") => doc.info(line, "")
-//          case None => 
-//        }
-//      }
-      
-      errors(snapshot, snapshot.node.full_range) foreach { x =>
-        println(x.range)
-        doc.error(doc.position(x.range.start).row, x.info._2)
-        doc.markError(x.range.start, x.range.stop)
+             
+      errors(snapshot, snapshot.node.full_range) foreach { x => 
+        val start = doc.position(x.range.start)
+        val end = doc.position(x.range.stop)
+        doc.js.ignore.annotate(
+            doc.version, 
+            start,
+            x.info._1,
+            x.info._2)
+//        doc.js.ignore.mark(
+//            doc.version,
+//            models.ace.Range(start,end),
+//            "error")
+        //doc.markError(x.range.start, x.range.stop)
       }
   }
 }

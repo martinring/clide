@@ -9,6 +9,11 @@ import akka.actor.ActorRef
 import akka.actor.actorRef2Scala
 import models.ace._
 import play.api.libs.json.Json
+import js._
+import scala.concurrent.ExecutionContext
+import ExecutionContext.Implicits.global
+import scala.language.dynamics
+import play.api.libs.json._
 
 object RemoteDocument {
   case class NewVersion(version: Long, edits: List[Text.Edit])
@@ -17,8 +22,8 @@ object RemoteDocument {
 /** 
  * This is the main interface between the JavaScript ACE-Editor and the scala world. 
  **/
-class RemoteDocument[Context](newline: String = "\n") {
-  import RemoteDocument._
+class RemoteDocument[Context](newline: String = "\n") extends JSConnector {
+  import RemoteDocument._  
   
   def apply(line: Int) = if (line < length)  
       buffer.slice(offset(line), offset(line + 1) - nllength).mkString
@@ -30,9 +35,12 @@ class RemoteDocument[Context](newline: String = "\n") {
   private val buffer = Buffer[Char]()
   private val offsets_ = Buffer[Int](0)
   private var listener: Option[ActorRef] = None
-  private val tokens = Buffer[List[Token]]()  
+  private val tokens = Buffer[List[Token]]()
   
-  private var version = 0: Long        
+  private var version_ = 0: Long
+  private var tokenId = 0: Long
+  
+  def version = version_
   
   def listen(who: ActorRef) = listener match {
     case None => 
@@ -92,7 +100,7 @@ class RemoteDocument[Context](newline: String = "\n") {
     shiftOffsets(shiftStart, diff)    
     
     /* update tokens */
-    tokens.insertAll(lineNumber, lines.map(line => List(Token(List("text"), line))))
+    tokens.insertAll(lineNumber, lines.map(line => List(Token(Nil, line))))
     
     return Edit.insert(start, elems)
   }
@@ -124,8 +132,7 @@ class RemoteDocument[Context](newline: String = "\n") {
     /* update offsets */       
     shiftOffsets(line+1, text.length)
     
-    /* update tokens */
-    
+    /* update tokens */    
     
     return Edit.insert(offset, text)
   }
@@ -186,75 +193,79 @@ class RemoteDocument[Context](newline: String = "\n") {
     
     return Edit.remove(offset, newline)
   }           
-  
-//  def updateTokens(offset: Int, tokens: List[Token]) {
-//    val line = this.line(offset)
-//    val column = offset - this.offset(line)
-//    for ((tokenLine,i) <- Token.lines(tokens).zipWithIndex.tail) {
-//      if (i == 0 && column != 0)
-//        this.tokens(line + i) = 
-//          Token("invisible", buffer.slice(this.offset(line), this.offset(line) + column).mkString) :: 
-//          tokenLine
-//      else 
-//        this.tokens(line + i) = 
-//          tokenLine
-//    }
-//  }    
-  
-  val (out, channel) = Concurrent.broadcast[JsValue]
-  
+   
   def updateTokens(t: List[List[Token]], from: Int = 0) = {    
     t.zipWithIndex.foreach {
       case (l,i) => 
         if (tokens.isDefinedAt(from+i)) 
           if (tokens(from + i) != l) {          
             tokens(from+i) = l
-            channel.push(Json.toJson(LineUpdate(from + i,version,l)))
+            js.ignore.updateLine(
+                line = from + i,
+                version = version,
+                tokens = l)
           }
         else {
           tokens.insert(from+i, l)
-          channel.push(Json.toJson(LineUpdate(from + i,version,l)))
+          js.ignore.updateLine(
+              line = from + i,
+              version = version,
+              tokens = l)
         }                              
+    }
+  }      
+
+  var perspective = 0 to 0
+  
+  def invalidate(start: Position, end: Position) {
+    if (start.row == end.row)
+      tokens(start.row) = {
+        val line = Line(tokens(start.row))
+        val l = line.take(start.column)
+        val r = line.drop(end.column)
+        l ++ ((Token(Nil,apply(start.row).substring(start.column, end.column))) :: r)
+      }
+    else {
+      tokens(start.row) = Line(tokens(start.row)).take(start.column) :+ 
+        Token(Nil,apply(start.row).drop(start.column))
+      tokens(end.row) = Token(Nil,apply(end.row).take(end.column)) ::
+        Line(tokens(end.row)).drop(end.column)
+      for (i <- (start.row+1) until end.row) 
+        tokens(i) = List(Token(Nil,apply(i)))
     }
   }
   
-  def error(line: Int, msg: String) {
-    channel.push(Json.toJson(Annotation("error", version, Position(line,0), msg)))    
-  }
-  
-  def warning(line: Int, msg: String) {
-    channel.push(Json.toJson(Annotation("warning", version, Position(line,0), msg)))
-  }
-  
-  def info(line: Int, msg: String) {
-    channel.push(Json.toJson(Annotation("info", version, Position(line,0), msg)))
-  }
-  
-  def markError(start: Int, end: Int) {    
-    channel.push(Json.toJson(Marker(version, Range(position(start), position(end)),"error","")))
-  }
-  
-  val in = Iteratee.foreach[JsValue] { json =>
-    version += 1
-    val deltas = json.as[Array[Delta]]
-    Delta.optimize(Delta.optimize(deltas.toVector)).foreach {
-      case InsertNewline(range) =>
-        edits += splitLine(range.start.row, range.start.column)
-      case RemoveNewline(range) =>
-        edits += mergeLines(range.end.row)
-      case ReplaceText(range, text) =>
-        edits += removeText(range.start.row, range.start.column, text.length)
-        edits += insertText(range.start.row, range.start.column, text)
-      case InsertText(range,text) =>
-        edits += insertText(range.start.row, range.start.column, text)
-      case RemoveText(range, text) =>
-        edits += removeText(range.start.row, range.start.column, text.length)
-      case InsertLines(range, lines) =>
-        edits += insertLines(range.start.row, lines :_*)
-      case RemoveLines(range, lines) =>
-        edits += removeLines(range.start.row, lines.length)
-      case NoChange => 
-    }    
-    push()
-  }      
+  val actions: PartialFunction[String,DynamicJsValue => Any] = {
+    case "getContent" => json =>
+      JsObject(
+	  "version" -> JsNumber(version) ::
+	  "content" -> JsString(mkString) ::
+	  Nil)
+	  
+    case "changePerspective" => json =>
+      perspective = (json.from.as[Int] to json.to.as[Int])
+      
+    case "edit" => json =>
+        version_ += 1    
+	    val deltas = json.as[Array[Delta]]
+	    Delta.optimize(Delta.optimize(deltas.toVector)).foreach {
+	      case InsertNewline(range) =>
+	        edits += splitLine(range.start.row, range.start.column)
+	      case RemoveNewline(range) =>
+	        edits += mergeLines(range.end.row)
+	      case ReplaceText(range, text) =>
+	        edits += removeText(range.start.row, range.start.column, text.length)
+	        edits += insertText(range.start.row, range.start.column, text)
+	      case InsertText(range,text) =>
+	        edits += insertText(range.start.row, range.start.column, text)
+	      case RemoveText(range, text) =>
+	        edits += removeText(range.start.row, range.start.column, text.length)
+	      case InsertLines(range, lines) =>
+	        edits += insertLines(range.start.row, lines :_*)
+	      case RemoveLines(range, lines) =>
+	        edits += removeLines(range.start.row, lines.length)
+	      case NoChange => 
+	    }
+	    push()
+  }    
 }

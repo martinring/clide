@@ -1,0 +1,202 @@
+#ribbon {
+  z-index: 3;
+  color: #000;
+  -webkit-transition: background-color @fancy-transition ease;
+  cursor: default;
+  background-color: #ddd;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: 38px 0 0 0;
+  width: @ribbon-width;
+  top: 0;
+  a {
+    color: #000;  
+  }
+  a:hover {
+    background: transparent;
+    color: #000;
+  }
+}
+
+#ribbon .menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  -webkit-transition: all @quick-transition ease;
+  li {
+    overflow: visible;
+    font-family: icon;
+    font-size: 16px;
+    text-align: center;
+    vertical-align: middle;
+    width: 32px;
+    color: #111;
+    opacity: 0.2;
+    display: inline-block;
+    line-height: 32px;
+    margin: 0;
+    padding: 0;
+    -webkit-transition: opacity @quick-transition ease;
+    .icon {
+      fill: white;
+      overflow: visible;
+      width: 16px;
+      height: 16px;
+    }
+    &:hover {
+      text-decoration: none;
+      opacity: 1;
+    }
+    &:last {
+      margin-right: 0;
+    }
+  }
+  li.active {
+    opacity: 1;
+  }
+}
+
+#sidebarButton {
+  opacity: 0.6;
+  display: inline-block;
+  font-family: icon;
+  font-size: 16px;
+  width: 32px;
+  padding-bottom: 2px;
+  height: 32px;
+  text-align: center;
+  line-height: 32px;
+  vertical-align: middle;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  -webkit-transition: -webkit-transform @fancy-transition ease;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.sidebar #sidebarButton {
+  -webkit-transform: rotate(-180deg);
+}
+
+#sidebar {
+  z-index: 2;
+  box-shadow: 1px 1px 5px #888;
+  -webkit-transition: left @fancy-transition ease;
+  position: fixed;
+  background-color: @grayLighter;
+  left: -@sidebar-width;
+  bottom: 0;
+  top: 0;
+  width: @sidebar-width;
+  padding: 32px 0 0 @ribbon-width;
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+
+  ::-webkit-scrollbar-button {
+    visibility: hidden;
+  }
+
+  ::-webkit-scrollbar-thumb {  
+    background: #ccc;
+    opacity: 0;
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .section {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    opacity: 0.2;
+    -webkit-transition: opacity @quick-transition ease;
+
+    &:hover, .active {
+      opacity: 1;
+    }
+  }
+
+  .section.active {
+    opacity: 1;
+  }
+
+  h1 {
+    font-family: "myriad-pro", "Segoe UI Light";
+    font-weight: 100;
+    font-size: 16pt;
+    margin: 8px 16px;
+  }
+
+
+  hr {
+    margin: 16px;
+    color: #EEE;
+  }
+
+  .treeview {
+  cursor: default;
+  list-style: none;
+  width: 100%;
+  padding: 0;
+  margin: 0px 0;
+
+  li a {      
+    color: @textColor;
+    display: block;
+    vertical-align: middle;
+    line-height: 16pt;
+    padding: 0px 16px;
+    -webkit-transition: background-color @quick-transition ease;
+  }
+
+  li a:before {
+    margin-right: 4px;
+    font-family: 'icon';
+    content: 'f';
+  }
+
+  li a.folder:before {
+    content: 'F';
+  }
+
+  li a:hover {
+    text-decoration: none;
+    background-color: @grayLight;
+  }
+
+  li a.selected {
+    background-color: @green;
+    color: @bodyBackground;
+  }
+
+  li ul {
+    border-left: 1px solid @gray;
+    padding-left: 8px;
+  }
+}
+
+}
+
+#sidebarContent {
+  padding: 0 0 128px 0;
+  margin: 0;
+  position: absolute;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  bottom: 0;
+  left: 32px;
+  right: 0;
+  top: 32px;
+}
+
+
+.sidebar #sidebar, .search #sidebar {
+  left: 0;
+}

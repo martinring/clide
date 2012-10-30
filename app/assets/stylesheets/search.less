@@ -1,0 +1,64 @@
+#search {
+  z-index: 4;
+  -webkit-transition: width @fancy-transition ease, background-color @quick-transition ease;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 29px;
+  border-bottom: 3px solid @green;
+  background: #ccc;
+  overflow: hidden;
+  #searchBox {
+    background: none;
+    position: absolute;
+    top: 0;
+    left: 32px;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    border: none;
+    padding: 16px 16px;
+    &:focus {
+      border: none;
+      outline: none;
+    }
+  }
+  &.active {
+    #searchButton {
+      opacity: 1;
+    }
+  }
+}
+
+.sidebar #search, .search #search {
+  background: @white;
+  width: @ribbon-width + @sidebar-width;
+}
+
+#searchButton {
+  opacity: 0.4;
+  position: absolute;
+  font-size: 16px;
+  vertical-align: middle;
+  text-align: center;
+  font-family: icon;
+  line-height: 29px;
+  width: 32px;
+  height: 32px;
+  &:hover {
+    opacity: 1;
+  }
+}
+  
+.tab-content {
+  position: fixed;
+  z-index: 1;
+  background-color: #fff;
+  padding: 0;
+  left: @ribbon-width;
+  right: 0;
+  top: 32px;
+  bottom: 0px;
+  -webkit-transition: left @fancy-transition ease;
+}

@@ -12,6 +12,20 @@
         <script type="text/javascript" src="@routes.Assets.at("javascripts/require.js")" data-main="@routes.Assets.at("javascripts/rjs/main.js")"></script>        
     </head>
     <body>
-      <ul id="backstage"></ul>    
+      <nav id="ribbon">
+        <ul class="nav menu">
+        </ul>
+        <div id="sidebarButton">&gt;</div>
+      </nav>
+      <nav id="sidebar">
+        <ul id="sidebarContent">
+        </ul>            
+      </nav>
+      <div id="content"></div>
+      <div id="search">
+        <div id="searchButton">h</div>
+        <input id="searchBox"></input>
+      </div>
+      <div id="statusbar"></div>
     </body>
 </html>

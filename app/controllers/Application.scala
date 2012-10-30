@@ -17,8 +17,9 @@ object Application extends Controller {
     Ok(
       Routes.javascriptRouter("routes")(
         routes.javascript.Application.index,
-        Projects.listProjects, Projects.getProject,
-        Projects.getFileSocket, Projects.getFileContent
+        Projects.listProjects, 
+        Projects.getFileSocket, Projects.getFileContent,
+        Projects.getSession
       )
     ).as("text/javascript") 
   }

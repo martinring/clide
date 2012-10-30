@@ -14,6 +14,6 @@ GET     /socket/:user/:project/*path   controllers.Projects.getFileSocket(user: 
 
 # Projects
 GET     /:user/                        controllers.Projects.listProjects(user: String)
-GET     /:user/:project/               controllers.Projects.getProject(user: String, project: String)
+GET     /:user/:project/               controllers.Projects.getSession(user: String, project: String)
 GET     /:user/:project/close          controllers.Projects.close(user: String, project: String)
 GET     /:user/:project/files/*path    controllers.Projects.getFileContent(user: String, project: String, path: String)

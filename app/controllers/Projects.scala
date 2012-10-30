@@ -10,10 +10,10 @@ import akka.actor.ActorRef
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
 import akka.actor.Props
-import actors.ProjectActor
+import actors.SessionActor
 import akka.pattern.ask
 import akka.util.Timeout
-import scala.concurrent.util.duration._
+import scala.concurrent.duration._
 import scala.concurrent.Await
 import models.Users
 import models.Project
@@ -40,8 +40,9 @@ object Projects extends Controller {
   
   val projectActors = scala.collection.mutable.Map[(String,String),ActorRef]()
   
-  def getProjectActor(project: Project) = projectActors.getOrElseUpdate((project.owner,project.name),
-    Akka.system.actorOf(Props(new ProjectActor(project)), name = "project-" + project.owner + "-" + project.name)) 
+  def getProjectActor(project: Project) =     
+    projectActors.getOrElseUpdate((project.owner,project.name),
+    Akka.system.actorOf(Props(new SessionActor(project)), name = "project-" + project.owner + "-" + project.name)) 
     
   def close(username: String, projectname: String) = Action {
     Users.find(username) match {
@@ -61,6 +62,11 @@ object Projects extends Controller {
   def nodeName(user: String, project: String, path: String) =
     Document.Node.Name(this.path(user,project,path))
   
+  def getSession(user: String, project: String) = WebSocket.using[JsValue] { request =>
+    val session = new models.Session(user,project)
+    (session.in, session.out)
+  }
+    
   def getFileSocket(user: String, project: String, path: String) = WebSocket.using[JsValue] { request =>
     val projectActor = getProjectActor(Project(project, user))
     val src = Source.fromFile("data/" + user + "/" + project + "/" + path)
@@ -68,7 +74,7 @@ object Projects extends Controller {
     doc.insertLines(0, src.getLines.toSeq :_*)
     val docActor = Await.result(
         projectActor.ask
-           (ProjectActor.Open(this.nodeName(user,project,path), doc))
+           (SessionActor.Open(this.nodeName(user,project,path), doc))
            (Timeout(10 seconds)).mapTo[ActorRef],
         10 seconds)        
     (doc.in, doc.out)

@@ -1,16 +1,25 @@
-define ["ace/lib/event_emitter","ace/range"], (EventEmitter,Range) ->
+define ["ScalaConnector","ace/range"], (ScalaConnector,Range) ->
   Range = Range.Range
   # the remote tokenizer synchronizes with a websocket to
-  # let a server do the tokenization  
-  class RemoteTokenizer extends EventEmitter.EventEmitter
-  	constructor: (@session, @route) ->
+  # let a server do the tokenization
+  class IsabelleConnection
+  	constructor: (@session, @route) ->      
+      # connect to scala layer      
       @fallback = @session.bgTokenizer
-      @session.bgTokenizer = this
-      @doc = @session.getDocument()
-      @socket = new WebSocket(@route.webSocketURL())
-      @socket.onmessage = (e) => @$updateRemote(JSON.parse(e.data))
+      @scala = new ScalaConnector @route.webSocketURL(), @, =>
+        console.log 'init'
+        @scala.call
+          action: 'getContent'
+          callback: (e) =>
+            console.log e
+            @version = e.version
+            @session.setValue(e.content)
+            @session.bgTokenizer = this
+            @session.on 'changeScollTop', (e) =>
+              console.log e            
+            @doc = @session.getDocument()
 
-    current_version: 0    
+    current_version: 0
     deltas: []
     history: []
     lines: []
@@ -44,43 +53,20 @@ define ["ace/lib/event_emitter","ace/range"], (EventEmitter,Range) ->
 
     $pushTimeout: null
 
-    $updateRemote: (e) => switch e.action
-      when 'markup'
-        console.log(e)
-      when 'LineUpdate'
-        diff = @current_version - e.version        
-        console.error('version > current') if diff < 0        
-        if diff is 0
-          @lines[e.line] = e.tokens
-          @fireUpdateEvent(e.line,e.line)
-        else if diff <= @history.length
-          console.warn('todo: integrate older versions')
-          # lines = @history[diff-1].lines
-          # lines[e.line] = e.tokens
-          # for i in [diff ... 0]
-          #   for delta in @history[i].deltas
-          #     @applyDelta(delta)
-          # @history = @history.slice(0, diff)
-      when 'Marker'
-        if e.version is @current_version
-          console.log(e)
-          console.log(@session.addMarker(
-            new Range(e.range.start.row,e.range.start.column,e.range.end.row,e.range.end.column),
-            e.clazz,
-            "line",
-            false)
-          )
-        else 
-          console.log("ignoring marker for version #{e.version} (actual: #{@current_version})")
-      when 'Annotation'
-        if e.version is @current_version          
-          @annotations.push(e)
-          @session.setAnnotations(@annotations)
-        else
-          console.log("ignoring annotation for version #{e.version} (actual: #{@current_version})")
+    updateLine: (e) =>
+      diff = @current_version - e.version
+      console.error('version > current') if diff < 0        
+      if diff is 0
+        @lines[e.line] = e.tokens
+        @fireUpdateEvent(e.line,e.line)
+      else if diff <= @history.length
+        console.warn('todo: integrate older versions')
+
     $pushChanges: =>
       console.log("version #{ @current_version }")
-      @socket.send JSON.stringify @deltas
+      @scala.call
+        action: 'edit'
+        data: @deltas
       @history.unshift
         lines: @lines
         deltas: @deltas
@@ -98,17 +84,17 @@ define ["ace/lib/event_emitter","ace/range"], (EventEmitter,Range) ->
           if startColumn is 0
             (@lines[startRow] or []).unshift
               type: 'text'
-              value: delta.text              
-          else 
-            pos = 0            
-            for token in @lines[startRow]
+              value: delta.text
+          else
+            pos = 0
+            if @lines[startRow] then for token in @lines[startRow]
               nextPos = pos + token.value.length
               if pos < startColumn and startColumn <= nextPos
-                token.value = token.value.substr(0,startColumn - pos) + delta.text + token.value.substr(startColumn - pos) 
-              pos = nextPos              
+                token.value = token.value.substr(0,startColumn - pos) + delta.text + token.value.substr(startColumn - pos)
+              pos = nextPos
         else if delta.action is "removeText"
-          pos = 0          
-          for token in @lines[startRow]
+          pos = 0
+          if @lines[startRow]? then for token in @lines[startRow]
             start = startColumn - pos
             end = endColumn - pos
             nextPos = pos + token.value.length
@@ -116,8 +102,8 @@ define ["ace/lib/event_emitter","ace/range"], (EventEmitter,Range) ->
               token.value = token.value.substr(0,start) + token.value. substr(end, token.value.length - end)
             pos = nextPos            
         else console.error("insert/removeLines with len 0")
-      else if delta.action is "removeText"         
-        @lines.splice(startRow, len + 1, false);
+      else if delta.action is "removeText"
+        @lines.splice(startRow, len + 1, if @lines[startRow]? then @lines[startRow].concat(@lines[startRow+1]) else false);
       else if delta.action is "removeLines"
         @lines.splice(startRow, len + 1, false);
       else
@@ -135,8 +121,32 @@ define ["ace/lib/event_emitter","ace/range"], (EventEmitter,Range) ->
       @fallback.$updateOnChange(delta)
       if @deltas.length is 0
         @current_version += 1
+        #for marker in @markers 
+        #  @session.removeMarker(marker)
+        #@markers = []
         @annotations = []
         @session.setAnnotations []
       @deltas.push(delta)
       clearTimeout(@$pushTimeout)
       @$pushTimeout = setTimeout(@$pushChanges, @pushDelay)
+
+    annotate: (version, position, type, message) =>
+      if version is @current_version
+        @annotations.push
+          type: type
+          row: position.row
+          column: position.column
+          type: type
+          text: message
+        @session.setAnnotations(@annotations)
+        return true
+      else
+        console.log("ignoring annotation for version #{version} (actual: #{@current_version})")
+        return false
+
+    markup: (version, markup) =>      
+      if version is @current_version
+        for entry in markup
+          start = entry.range.start
+          end = entry.range.end
+          console.log(entry)

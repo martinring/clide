@@ -1,5 +1,6 @@
 package actors
 
+import js.JSConnector
 import scala.collection.mutable.Queue
 import scala.io.Source
 import akka.actor._
@@ -10,8 +11,9 @@ import play.api.Logger
 import play.api.libs.iteratee.Concurrent.Channel
 import play.api.libs.json.JsValue
 import models.ace.RemoteDocument
+import js.DynamicJsValue
 
-object ProjectActor {  
+object SessionActor {  
   case class Raw(msg: Any)
   case class Open(name: Document.Node.Name, doc: RemoteDocument[Scan.Context])
   case class Pause(name: Document.Node.Name)
@@ -19,10 +21,10 @@ object ProjectActor {
   case class Close(name: Document.Node.Name)
 }
 
-class ProjectActor(project: Project) extends Actor {  
-  val log = Logging(context.system, this)
-      
-  import ProjectActor._
+class SessionActor(project: Project) extends Actor with JSConnector {  
+  val log = Logging(context.system, SessionActor.this)
+
+  import SessionActor._
     
   val thy_load = new Thy_Load {
     // TODO: Include DocActors
@@ -81,15 +83,21 @@ class ProjectActor(project: Project) extends Actor {
     }    
   }
   
+  val actions: PartialFunction[String, DynamicJsValue => Any] = {
+    case "getFiles" => json =>
+      "none"
+  }
+  
   def receive = {    
     case phaseChange: Session.Phase =>
+      js.ignore.phaseChange(phaseChange.toString)
       handlePhaseChange(phaseChange)
     case commandChange: Session.Commands_Changed =>
       handleCommandsChange(commandChange)
     case Raw(msg) => 
       println(msg)
     case Open(name, doc) =>
-      val sender = this.sender
+      val sender = SessionActor.this.sender
       whenReady {
         docs.get(name) match {
           case None =>
@@ -97,8 +105,7 @@ class ProjectActor(project: Project) extends Actor {
 	        val documentActor = context.actorOf(Props(new DocumentActor(name, doc, session, thy_load)))
 	        sender ! documentActor
 	        docs(name) = documentActor
-          case Some(actor) =>
-            log.error("restart not yet supported")
+          case Some(actor) =>            
             sender ! actor
         } }
     case Pause(name) => docs.get(name) match {
