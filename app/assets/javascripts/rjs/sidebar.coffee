@@ -1,4 +1,4 @@
-define ['session'], (session) ->
+define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,settings,commands,icons,menu) ->
   class Ribbon extends Backbone.View    
     el: '#ribbon'
     events:
@@ -21,12 +21,65 @@ define ['session'], (session) ->
 
   class FileItemView extends Backbone.View
     tagName: 'li'
-    initialize: ->
-      @$el.append "<a>#{@model}</a>"
-    events: 
-      'dblclick': 'open'
+    initialize: =>
+      a = $("<a>#{@model.get 'id'}</a>")
+      a.attr('data-icon',icons.file)      
+      p = $("<div class='progress'></div>")
+      f = $("<div class='finished'></div>")
+      r = $("<div class='running'></div>")
+      w = $("<div class='warned'></div>")
+      fl = $("<div class='failed'></div>")
+      p.append f
+      p.append r
+      p.append w
+      p.append fl
+      fadeOut = null
+      prevFinished = 0
+      @model.on 'change:finished', (m,finished) ->
+        if finished > prevFinished
+          f.animate width: (finished + "%")
+        else
+          f.css width: (finished + "%")
+        prevFinished = finished
+        if finished is 100
+          a.attr('data-icon',icons.check)
+          fadeOut = setTimeout (() -> p.fadeOut()), 1000
+        else 
+          a.attr('data-icon',icons.clock)
+          if fadeOut?
+            clearTimeout(fadeOut)          
+            p.fadeIn()
+            fadeOut = null        
+      @model.on 'change:running', (m,running) ->
+        r.animate
+          width: running + "%"
+      @model.on 'change:warned', (m,warned) ->
+        w.animate
+          width: warned + "%"
+      @model.on 'change:failed', (m,failed) ->
+        fl.animate
+          width: failed + "%"
+      @model.on 'change:active', (m,active) =>
+        @$el.toggleClass 'selected', active
+      @$el.append a
+      @$el.append p
+    events:
+      'dblclick': 'open'      
+      'contextmenu': 'contextMenu'
     open: =>
-      @trigger 'open', @model
+      commands.open.execute(@model)
+    contextMenu: (e) =>
+      e.preventDefault()
+      menu.show(e.pageX,e.pageY,[                  
+          text: 'Open'
+          command: @open
+        ,
+          text: 'Delete'
+          command: -> alert('delete')
+        ,
+          text: 'Rename'
+          command: => prompt('Enter new name',@model.get 'id')        
+        ])
 
   class Section extends Backbone.View    
     tagName: 'li'
@@ -44,7 +97,11 @@ define ['session'], (session) ->
           @activate()
           @center()
       @$el.append "<h1>#{@options.title}</h1>"
-      @$el.append @options.content
+      if @options.content.length        
+        @$el.append x.$el for x in @options.content
+      else 
+        @content = @options.content
+        @$el.append @content.$el      
       # @$el.on 'mouseenter', =>        
       #   @timeout = setTimeout(@activate,2000)
       # @$el.on 'mouseleave', =>
@@ -67,36 +124,117 @@ define ['session'], (session) ->
         @$el.removeClass 'active'
         @trigger 'deactivate'
 
+  class CommandGroup extends Backbone.View
+    tagName: 'ul'
+    className: 'commandGroup'
+    initialize: =>
+      @render()
+    render: =>
+      console.log @options.content
+      @$el.append x for x in @options.content
+
+  class Command extends Backbone.View
+    tagName: 'li'
+    className: 'command'
+    initialize: =>
+      @a = $("<a title='#{@options.text}'>#{@options.text}</a>")
+      @a.attr('data-icon',@options.icon)
+      @$el.append(@a)
+      @a.on 'click', @options.command.execute
+
+  class CheckBox extends Backbone.View
+    tagName: 'li'
+    className: 'checkBox'
+
+  class DropBox extends Backbone.View
+    tagName: 'li'
+    className: 'dropBox'
+
+  class TheoriesView extends Backbone.View
+    tagName: 'ul'
+    className: 'treeview'
+    initialize: =>
+      @collection = isabelle.theories      
+      @collection.on 'add', @render
+      @collection.on 'remove', @render
+      @render()
+    render: =>
+      @$el.html('')
+      @collection.forEach (theory) =>        
+        view = new FileItemView model: theory
+        @$el.append(view.el)
+
+  class HelpView extends Backbone.View
+    tagName: 'div'
+    initialize: =>
+      @render
+    render: =>
+      @$el.text('Copyright 2012 by Martin Ring')
+
   class Sidebar extends Backbone.View
     el: '#sidebar'    
+
     search: new Search
-    ribbon: new Ribbon         
+
+    ribbon: new Ribbon   
+
     theories: new Section
       title: 'Theories'
-      icon: 'l'
-      content: $("<ul class='treeview'></ul>")
+      icon: icons.list
+      content: new TheoriesView
+
     edit: new Section
       title: 'Edit'
-      icon: 'e'
-      content: $("<ul class='treeview'></ul>")
+      icon: icons.edit
+      content: [
+        new CommandGroup 
+          content: [
+            new Command
+              text: 'Cut'
+              icon: icons.cut
+              command: commands.cut
+            new Command
+              text: 'Copy'
+              icon: icons.copy
+              command: commands.copy
+            new Command
+              text: 'Paste'
+              icon: icons.paste
+              command: commands.paste
+          ]
+      ]
+
     view: new Section
       title: 'View'
-      icon: 'V'
-      content: $("<ul class='treeview'></ul>")
+      icon: icons.view
+      content: [
+        new Command
+          text: 'Show Linenumbers'
+          icon: icons.checkbox.checked
+          command: commands.copy
+      ]
+
     settings: new Section
       title: 'Settings'
-      icon: 'S'
-      content: $("<ul class='treeview'></ul>")
+      icon: icons.settings
+      content: [
+        new Command
+          text: 'Copy'
+          icon: 'c'
+          command: commands.copy
+      ]
+
     help: new Section
       title: 'Help'
-      icon: '?'
-      content: $("<ul class='treeview'></ul>")
+      icon: icons.help
+      content: new HelpView    
+
     currentSection: null
     addSection: (section) =>      
       section.on 'activate', =>
         if @currentSection?
           @currentSection.deactivate()
-        $('body').addClass('sidebar')  
+        $('body').addClass('sidebar')
         @currentSection = section
       section.on 'deactivate', =>
         if @currentSection is section
@@ -110,19 +248,5 @@ define ['session'], (session) ->
       @addSection(@view)
       @addSection(@settings)
       @addSection(@help)
-      @model.on 'change:files', (model,files) =>
-        treeview = $('.treeview')
-        treeview.html('')
-        for file in files
-          view = new FileItemView model: file
-          view.on 'open', (e) => @model.trigger 'open', e  
-          treeview.append view.el
-
-  class SidebarModel extends Backbone.Model
-    defaults:
-      files: []
-
-  sidebar = new Sidebar 
-    model: new SidebarModel
-
-  return sidebar.model
+      
+  return new Sidebar

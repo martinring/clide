@@ -15,14 +15,10 @@ import ExecutionContext.Implicits.global
 import scala.language.dynamics
 import play.api.libs.json._
 
-object RemoteDocument {
-  case class NewVersion(version: Long, edits: List[Text.Edit])
-}
-
 /** 
  * This is the main interface between the JavaScript ACE-Editor and the scala world. 
  **/
-class RemoteDocument[Context](newline: String = "\n") extends JSConnector {
+class RemoteDocument(newline: String = "\n") {
   import RemoteDocument._  
   
   def apply(line: Int) = if (line < length)  
@@ -40,15 +36,10 @@ class RemoteDocument[Context](newline: String = "\n") extends JSConnector {
   private var version_ = 0: Long
   private var tokenId = 0: Long
   
+  def lines = ranges.map{ case (start,stop) => buffer.slice(start, stop - newline.length).mkString }
+  
   def version = version_
-  
-  def listen(who: ActorRef) = listener match {
-    case None => 
-      listener = Some(who)
-    case Some(_) => 
-      sys.error("listener allready registered")
-  }
-  
+    
   def offsets = offsets_.toSeq
   
   def ranges = 
@@ -57,14 +48,7 @@ class RemoteDocument[Context](newline: String = "\n") extends JSConnector {
     }.tail
   
   def getRange(start: Int, end: Int) = buffer.slice(start, end).mkString
-  
-  private def push() = listener match {
-    case None =>
-    case Some(listener) => 
-      listener ! NewVersion(version, edits.toList)
-      edits.clear()
-  }
-  
+    
   private def shiftOffsets(start: Int, diff: Int) {
     for (i <- start until offsets.length)
       offsets_(i) = offsets_(i) + diff
@@ -78,17 +62,17 @@ class RemoteDocument[Context](newline: String = "\n") extends JSConnector {
     Position(line,offset - offsets_(line))
   }
   
-  def mkString = buffer.mkString
+  def mkString = buffer.mkString.dropRight(newline.length)
 
   def bufferLength = buffer.length
   
   def insertLines(lineNumber: Int, lines: String*): Edit = {
     /* insert lines */
-    val start = offsets(lineNumber)    
+    val start = offsets(lineNumber)
     val elems = lines.mkString(newline) + newline
-    
+
     buffer.insertAll(start, elems)
-       
+
     /* update offsets */
     val startOffset = offset(lineNumber)
     val newOffsets = lines.foldLeft(Vector(startOffset)){
@@ -97,7 +81,7 @@ class RemoteDocument[Context](newline: String = "\n") extends JSConnector {
     offsets_.insertAll(lineNumber, newOffsets.init)
     val shiftStart = lineNumber + lines.length
     val diff = newOffsets.last - startOffset
-    shiftOffsets(shiftStart, diff)    
+    shiftOffsets(shiftStart, diff)
     
     /* update tokens */
     tokens.insertAll(lineNumber, lines.map(line => List(Token(Nil, line))))
@@ -146,9 +130,7 @@ class RemoteDocument[Context](newline: String = "\n") extends JSConnector {
     /* update offsets */
     shiftOffsets(line+1,-length)    
     
-    /* update tokens */
-    
-    
+    /* update tokens */ 
     return Edit.remove(offset, text)
   }
   
@@ -194,26 +176,26 @@ class RemoteDocument[Context](newline: String = "\n") extends JSConnector {
     return Edit.remove(offset, newline)
   }           
    
-  def updateTokens(t: List[List[Token]], from: Int = 0) = {    
-    t.zipWithIndex.foreach {
-      case (l,i) => 
-        if (tokens.isDefinedAt(from+i)) 
-          if (tokens(from + i) != l) {          
-            tokens(from+i) = l
-            js.ignore.updateLine(
-                line = from + i,
-                version = version,
-                tokens = l)
-          }
-        else {
-          tokens.insert(from+i, l)
-          js.ignore.updateLine(
-              line = from + i,
-              version = version,
-              tokens = l)
-        }                              
-    }
-  }      
+//  def updateTokens(t: List[List[Token]], from: Int = 0) = {    
+//    t.zipWithIndex.foreach {
+//      case (l,i) => 
+//        if (tokens.isDefinedAt(from+i)) 
+//          if (tokens(from + i) != l) {          
+//            tokens(from+i) = l
+//            js.ignore.updateLine(
+//                line = from + i,
+//                version = version,
+//                tokens = l)
+//          }
+//        else {
+//          tokens.insert(from+i, l)
+//          js.ignore.updateLine(
+//              line = from + i,
+//              version = version,
+//              tokens = l)
+//        }                              
+//    }
+//  }      
 
   var perspective = 0 to 0
   
@@ -233,39 +215,29 @@ class RemoteDocument[Context](newline: String = "\n") extends JSConnector {
       for (i <- (start.row+1) until end.row) 
         tokens(i) = List(Token(Nil,apply(i)))
     }
+  }  
+
+  def edit(deltas: Vector[Delta]): List[Text.Edit] = {
+    version_ += 1
+    val edits = Buffer[Text.Edit]()
+    Delta.optimize(Delta.optimize(deltas)).foreach {
+      case InsertNewline(range) =>
+        edits += splitLine(range.start.row, range.start.column)
+      case RemoveNewline(range) =>
+        edits += mergeLines(range.end.row)
+      case ReplaceText(range, text) =>
+        edits += removeText(range.start.row, range.start.column, text.length)
+        edits += insertText(range.start.row, range.start.column, text)
+      case InsertText(range, text) =>
+        edits += insertText(range.start.row, range.start.column, text)
+      case RemoveText(range, text) =>
+        edits += removeText(range.start.row, range.start.column, text.length)
+      case InsertLines(range, lines) =>
+        edits += insertLines(range.start.row, lines: _*)
+      case RemoveLines(range, lines) =>
+        edits += removeLines(range.start.row, lines.length)
+      case NoChange =>
+    }
+    edits.toList
   }
-  
-  val actions: PartialFunction[String,DynamicJsValue => Any] = {
-    case "getContent" => json =>
-      JsObject(
-	  "version" -> JsNumber(version) ::
-	  "content" -> JsString(mkString) ::
-	  Nil)
-	  
-    case "changePerspective" => json =>
-      perspective = (json.from.as[Int] to json.to.as[Int])
-      
-    case "edit" => json =>
-        version_ += 1    
-	    val deltas = json.as[Array[Delta]]
-	    Delta.optimize(Delta.optimize(deltas.toVector)).foreach {
-	      case InsertNewline(range) =>
-	        edits += splitLine(range.start.row, range.start.column)
-	      case RemoveNewline(range) =>
-	        edits += mergeLines(range.end.row)
-	      case ReplaceText(range, text) =>
-	        edits += removeText(range.start.row, range.start.column, text.length)
-	        edits += insertText(range.start.row, range.start.column, text)
-	      case InsertText(range,text) =>
-	        edits += insertText(range.start.row, range.start.column, text)
-	      case RemoveText(range, text) =>
-	        edits += removeText(range.start.row, range.start.column, text.length)
-	      case InsertLines(range, lines) =>
-	        edits += insertLines(range.start.row, lines :_*)
-	      case RemoveLines(range, lines) =>
-	        edits += removeLines(range.start.row, lines.length)
-	      case NoChange => 
-	    }
-	    push()
-  }    
 }

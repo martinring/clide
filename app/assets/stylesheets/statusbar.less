@@ -1,12 +1,62 @@
 #statusbar {
+  -webkit-transition: left @fancy-transition ease;
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: @ribbon-width;
   right: 0;
-  height: 24px;
-  background: fuchsia;
-
-  .phase {
-
+  background: @grayLight;
+  height: @statusbar-height;  
+  .statusMessages {
+    list-style: none;  
+    padding: 0;
+    margin: 0;
+    text-align: right;     
+    li {
+      line-height: @statusbar-height;
+      vertical-align: middle;
+      padding: 0 4px 0 8px;
+      margin: 0;
+      display: inline;
+    }
+    li.separator {
+      width: 1px;
+      height: @statusbar-height;
+      background: gray;
+    }
+    .phase {    
+      
+    }  
   }  
+}
+
+.sidebar #statusbar {
+  left: @ribbon-width + @sidebar-width;
+}
+
+#sessionStatus {
+  font-family: icon;
+  font-size: 16px;
+  color: @red;
+  -webkit-transition: all 0.5s ease;  
+
+  &.working {
+    text-shadow: 0 0 4px @green;
+  }
+
+  &.Startup {
+    color: @orange;
+  }
+
+  &.Ready {
+    color: @green;
+  }
+}
+
+#progress {
+  position: absolute;  
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: @accent;
 }

@@ -10,14 +10,20 @@
 @import 'search.less';
 @import 'tabs.less';
 @import 'statusbar.less';
+@import 'contextMenu.less';
 
 body {
-  font-family: "myriad-pro", Segoe UI, Helvetica;
+  font-family: "myriad-pro", "Myriad Pro", "Segoe UI", "Helvetica";
   font-size: 11pt;
   background-color: #ccc;
   -webkit-user-select: none;
   user-select: none;
   cursor: default;
+}
+
+.icon {
+  font-size: 16px;
+  font-family: icon;  
 }
 
 #content {
@@ -26,7 +32,7 @@ body {
   background-color: #ccc;
   left: @ribbon-width;
   top: 0;
-  bottom: 0;
+  bottom: @statusbar-height;
   right: 0;
   overflow: hidden;
 }
@@ -42,4 +48,46 @@ body {
 
 .hide {
   visibility: hidden;
+}
+
+.progress {
+  font-size: 0;
+  width: 100%;
+  div {          
+    display: inline;
+    height: 3px;
+  }
+  .finished {
+    background-color: @accent;
+  }  
+  .running {
+    background-color: white;
+  }
+  .warned {
+    background-color: yellow;    
+  }
+  .failed {
+    background-color: red;
+  }
+}
+
+.selected .progress {
+  font-size: 0;
+  width: 100%;
+  div {          
+    display: inline;
+    height: 3px;
+  }
+  .finished {
+    background-color: white;
+  }  
+  .running {
+    background-color: gray;
+  }
+  .warned {
+    background-color: yellow;    
+  }
+  .failed {
+    background-color: red;
+  }
 }

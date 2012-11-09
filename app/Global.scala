@@ -9,6 +9,5 @@ object Global extends GlobalSettings {
   
   override def onStop(app: Application) {
     Logger.info("releasing isabelle system")
-    Isabelle_System.find_logics.foreach(println)
   }
 }

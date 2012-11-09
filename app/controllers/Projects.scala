@@ -10,7 +10,6 @@ import akka.actor.ActorRef
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
 import akka.actor.Props
-import actors.SessionActor
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
@@ -31,57 +30,16 @@ object Projects extends Controller {
   def getProject(user: String, project: String) = Action {
     Users.find(user) match {
       case Some(user) => user.projects.find(_.name == project) match {
-        case Some(project) => Ok(Json.toJson(project.files))
+        case Some(project) => Ok(Json.toJson(project.theories))
         case None          => NotFound("project " + project + " does not exist")
       }
       case None       => NotFound("user " + user + " does not exist")
     }
   }
   
-  val projectActors = scala.collection.mutable.Map[(String,String),ActorRef]()
-  
-  def getProjectActor(project: Project) =     
-    projectActors.getOrElseUpdate((project.owner,project.name),
-    Akka.system.actorOf(Props(new SessionActor(project)), name = "project-" + project.owner + "-" + project.name)) 
-    
-  def close(username: String, projectname: String) = Action {
-    Users.find(username) match {
-      case Some(user) => user.projects.find(_.name == projectname) match {
-        case Some(project) =>
-          projectActors.remove((username,projectname))
-          Ok(Json.toJson(true))
-        case None          => NotFound("project " + projectname + " does not exist")
-      }
-      case None       => NotFound("user " + username + " does not exist")
-    }
-  }
-
-  def path(user: String, project: String, path: String) =
-    Path.basic(".") + Path.basic("data") + Path.basic(user) + Path.basic(project) + Path.explode(path)
-    
-  def nodeName(user: String, project: String, path: String) =
-    Document.Node.Name(this.path(user,project,path))
-  
   def getSession(user: String, project: String) = WebSocket.using[JsValue] { request =>
-    val session = new models.Session(user,project)
+    val p = Project(project,user)
+    val session = new models.Session(p)
     (session.in, session.out)
-  }
-    
-  def getFileSocket(user: String, project: String, path: String) = WebSocket.using[JsValue] { request =>
-    val projectActor = getProjectActor(Project(project, user))
-    val src = Source.fromFile("data/" + user + "/" + project + "/" + path)
-    val doc = new RemoteDocument[isabelle.Scan.Context]()
-    doc.insertLines(0, src.getLines.toSeq :_*)
-    val docActor = Await.result(
-        projectActor.ask
-           (SessionActor.Open(this.nodeName(user,project,path), doc))
-           (Timeout(10 seconds)).mapTo[ActorRef],
-        10 seconds)        
-    (doc.in, doc.out)
-  }
-
-  def getFileContent(user: String, project: String, path: String) = Action {
-    val src = Source.fromFile("data/" + user + "/" + project + "/" + path)
-    Ok(src.getLines.mkString("\n"))
-  }
+  }   
 }

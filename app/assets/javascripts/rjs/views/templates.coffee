@@ -1,0 +1,2 @@
+define ->
+  "div.test"

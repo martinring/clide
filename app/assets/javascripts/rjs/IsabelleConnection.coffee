@@ -1,23 +1,12 @@
-define ["ScalaConnector","ace/range"], (ScalaConnector,Range) ->
+define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle) ->
   Range = Range.Range
   # the remote tokenizer synchronizes with a websocket to
   # let a server do the tokenization
   class IsabelleConnection
-  	constructor: (@session, @route) ->      
+  	constructor: (@session, @path) ->      
       # connect to scala layer      
       @fallback = @session.bgTokenizer
-      @scala = new ScalaConnector @route.webSocketURL(), @, =>
-        console.log 'init'
-        @scala.call
-          action: 'getContent'
-          callback: (e) =>
-            console.log e
-            @version = e.version
-            @session.setValue(e.content)
-            @session.bgTokenizer = this
-            @session.on 'changeScollTop', (e) =>
-              console.log e            
-            @doc = @session.getDocument()
+      @session.bgTokenizer = this
 
     current_version: 0
     deltas: []
@@ -64,9 +53,11 @@ define ["ScalaConnector","ace/range"], (ScalaConnector,Range) ->
 
     $pushChanges: =>
       console.log("version #{ @current_version }")
-      @scala.call
+      isabelle.scala.call
         action: 'edit'
-        data: @deltas
+        data: 
+          path: @path.get 'path'
+          deltas: @deltas
       @history.unshift
         lines: @lines
         deltas: @deltas

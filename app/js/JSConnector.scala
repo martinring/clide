@@ -17,12 +17,6 @@ import scala.concurrent.duration._
 import scala.actors.Futures
 import ExecutionContext.Implicits.global
 
-class DynamicJsValue private[js](val json: JsValue) extends Dynamic {
-  def selectDynamic(name: String): DynamicJsValue = new DynamicJsValue(json \ name)
-  def as[T](implicit reads: Reads[T]): T = reads.reads(json).get
-  def asOpt[T](implicit reads: Reads[T]): Option[T] = reads.reads(json).asOpt
-}
-
 trait JSConnector {
   val (out, channel) = Concurrent.broadcast[JsValue] 
   
@@ -47,30 +41,30 @@ trait JSConnector {
     }
     
     object async extends Dynamic {
-      def selectDynamic(action: String): Future[DynamicJsValue] =
+      def selectDynamic(action: String): Future[JsValue] =
         applyDynamicNamed(action)()
 
-      def applyDynamicNamed(action: String)(args: (String, Any)*): Future[DynamicJsValue] = {
+      def applyDynamicNamed(action: String)(args: (String, Any)*): Future[JsValue] = {
         channel.push(JsObject(
           "action" -> JsString(action) ::
             "id" -> JsNumber(id) ::
             "args" -> JsArray(JsObject(args.map { case (n, a) => (n, convert(a)) }) :: Nil) ::
             Nil
         ))
-        val result = Promise[DynamicJsValue]()
+        val result = Promise[JsValue]()
         requests(id) = result
         id += 1
         result.future
       }
 
-      def applyDynamic(action: String)(args: Any*): Future[DynamicJsValue] = {
+      def applyDynamic(action: String)(args: Any*): Future[JsValue] = {
         channel.push(JsObject(
           "action" -> JsString(action) ::
             "id" -> JsNumber(id) ::
             "args" -> JsArray(args map convert) ::
             Nil
         ))
-        val result = Promise[DynamicJsValue]()
+        val result = Promise[JsValue]()
         requests(id) = result
         id += 1
         result.future
@@ -78,11 +72,11 @@ trait JSConnector {
     }
     
     object sync extends Dynamic {
-      def selectDynamic(action: String): DynamicJsValue = 
+      def selectDynamic(action: String): JsValue = 
         Await.result(async.selectDynamic(action), Duration(5,"seconds"))
-      def applyDynamicNamed(action: String)(args: (String, Any)*): DynamicJsValue =
+      def applyDynamicNamed(action: String)(args: (String, Any)*): JsValue =
         Await.result(async.applyDynamicNamed(action)(args :_*), Duration(5,"seconds"))
-      def applyDynamic(action: String)(args: Any*): DynamicJsValue =
+      def applyDynamic(action: String)(args: Any*): JsValue =
         Await.result(async.applyDynamic(action)(args :_*), Duration(5,"seconds"))      
     }
     
@@ -95,15 +89,16 @@ trait JSConnector {
       case t: models.ace.Token => Json.toJson(t)
       case r: models.ace.Range => Json.toJson(r)
       case p: models.ace.Position => Json.toJson(p)
+      case t: models.Theory => Json.toJson(t)      
       case js: JsValue => js
     }
     
-    val requests = scala.collection.mutable.Map[Long,Promise[DynamicJsValue]]()
+    val requests = scala.collection.mutable.Map[Long,Promise[JsValue]]()
     
     var id: Long = 1     
   }          
           
-  def actions: PartialFunction[String,DynamicJsValue => Any]    
+  def actions: PartialFunction[String,JsValue => Any]    
   
   def onClose(): Unit = {}
   
@@ -111,7 +106,7 @@ trait JSConnector {
     (json \ "action").asOpt[String] match {
       case Some(a) =>        
         require(actions.isDefinedAt(a))
-        scala.concurrent.future(actions(a)(new DynamicJsValue(json \ "data"))).onComplete {
+        scala.concurrent.future(actions(a)(json \ "data")).onComplete {
           case Success(result) =>           
             (json \ "id").asOpt[Long].map(id => channel.push(JsObject(
                 "resultFor" -> JsNumber(id) ::
@@ -122,11 +117,11 @@ trait JSConnector {
         }
       case None => (json \ "resultFor").asOpt[Long] match {
         case Some(id) =>          
-          val p: Promise[DynamicJsValue] = js.requests(id)
+          val p: Promise[JsValue] = js.requests(id)
           if (!(json \ "success").as[Boolean])
             p.failure(new Exception((json \ "message").as[String]))
           else
-            p.complete(Try(new DynamicJsValue(json \ "data")))
+            p.complete(Try(json \ "data"))
           js.requests.remove(id)
         case None =>
       }

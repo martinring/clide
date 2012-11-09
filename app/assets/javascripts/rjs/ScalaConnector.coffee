@@ -1,7 +1,8 @@
 define ->
   class ScalaConnector      
     constructor: (@url,@object,init) ->
-      recieve = (e) =>        
+      recieve = (e) =>       
+        @blink() 
         if e.action
           f = @object[e.action]
           if f
@@ -30,8 +31,16 @@ define ->
     id: 0
 
     results: []
+    
+    timeOut: null
+    
+    blink: () ->
+      clearTimeout(timeOut)
+      $('#sessionStatus').addClass('working')
+      timeOut = setTimeout((-> $('#sessionStatus').removeClass('working')), 500)
 
     call: (options) ->
+      @blink()
       console.log(options)
       if options and options.action        
         if options.callback

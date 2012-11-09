@@ -1,7 +1,10 @@
-define ->   
+define ['icons','contextMenu'], (icons,menu) ->   
   class TabView extends Backbone.View
     initialize: =>
       @$el.text(@model.get 'title')
+      close = $("<a class='icon'>#{icons.close}</a>")
+      @$el.append close
+      close.on 'click', @close
       @model.on 'change:active', (model,active) =>
         @$el.toggleClass 'active', active
         if active 
@@ -15,8 +18,22 @@ define ->
       @model.set active: true      
     deactivate: =>
       @model.set active: false      
+    close: =>
+      @model.trigger 'close'
+      @trigger 'close', @
     contextMenu: (e) =>
-      e.preventDefault()
+      e.preventDefault()      
+      menu.show(e.pageX,e.pageY,[          
+          text: 'Close'
+          command: @close
+        ,
+          text: 'Close Others'
+          command: @close
+        ,
+          text: 'Close All'
+          command: @close
+        ])
+      #@close()
       console.log('context menu')
 
   class Tabs extends Backbone.View
@@ -38,6 +55,10 @@ define ->
           @current.content.removeClass('active')
         @current = activated
         activated.content.addClass('active')
+      view.on 'close', (closed) =>
+        closed.$el.remove()
+        closed.content.remove()
+        @current = null if @current is closed
       @content.append(view.content)
       @pane.append(view.el)
       tab.set active: true

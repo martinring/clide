@@ -113,6 +113,7 @@
 
   .section {
     margin: 0;
+    margin-bottom: 8px;
     padding: 0;
     list-style: none;
     opacity: 0.2;
@@ -141,46 +142,62 @@
   }
 
   .treeview {
-  cursor: default;
-  list-style: none;
-  width: 100%;
-  padding: 0;
-  margin: 0px 0;
+    list-style: none;
+    width: 100%;
+    padding: 0;
+    margin: 0px 0;
 
-  li a {      
-    color: @textColor;
-    display: block;
-    vertical-align: middle;
-    line-height: 16pt;
+    li {
+      color: @textColor;
+      display: block;
+      vertical-align: middle;      
+      padding: 0px 16px;
+      padding-bottom: 2px;
+      -webkit-transition: all @quick-transition ease;      
+    }
+    li a {
+      position: static;
+      display: block;
+      z-index: 10;
+    }
+
+    li a:before {    
+      vertical-align: bottom;
+      margin-right: 4px;
+      font-family: 'icon';
+      font-size: 16px;
+      content: attr(data-icon);
+    }
+
+    li:hover {
+      text-decoration: none;
+      background-color: @grayLight;
+    }
+
+    li.selected {
+      background-color: @green;
+      color: @bodyBackground;
+    }
+  }
+  
+  .commandGroup {
+    list-style: none;
     padding: 0px 16px;
-    -webkit-transition: background-color @quick-transition ease;
+    margin: 0;
+    color: @textColor;    
+    li {
+      cursor: pointer;
+      margin: 0;
+      margin-right: 6px;
+      display: inline;      
+    }
+    li a:before {
+      margin-right: 4px;
+      font-family: 'icon';
+      font-size: 16px;
+      content: attr(data-icon); 
+    }
   }
-
-  li a:before {
-    margin-right: 4px;
-    font-family: 'icon';
-    content: 'f';
-  }
-
-  li a.folder:before {
-    content: 'F';
-  }
-
-  li a:hover {
-    text-decoration: none;
-    background-color: @grayLight;
-  }
-
-  li a.selected {
-    background-color: @green;
-    color: @bodyBackground;
-  }
-
-  li ul {
-    border-left: 1px solid @gray;
-    padding-left: 8px;
-  }
-}
 
 }
 

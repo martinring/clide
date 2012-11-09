@@ -10,10 +10,6 @@ GET     /assets/javascripts/routes.js  controllers.Application.javascriptRoutes
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                  controllers.Assets.at(path="/public", file)
 
-GET     /socket/:user/:project/*path   controllers.Projects.getFileSocket(user: String, project: String, path: String)
-
 # Projects
 GET     /:user/                        controllers.Projects.listProjects(user: String)
 GET     /:user/:project/               controllers.Projects.getSession(user: String, project: String)
-GET     /:user/:project/close          controllers.Projects.close(user: String, project: String)
-GET     /:user/:project/files/*path    controllers.Projects.getFileContent(user: String, project: String, path: String)

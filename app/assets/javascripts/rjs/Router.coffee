@@ -13,4 +13,4 @@ define ->
         # load project || display app
         currentApp = @currentApp
         $("#main").load "/projects/" + project + "/tasks", (tpl) ->
-            currentApp.render(project)    
+            currentApp.render(project)

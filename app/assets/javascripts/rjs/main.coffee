@@ -1,26 +1,37 @@
-require ['Editor','Tabs','Tab','session','sidebar'], (Editor,Tabs,Tab,session,sidebar) ->
-  tabs = new Tabs('#content')  
+require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','ace/ace'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,ace) ->
+  user = 'martinring'
+  project = 'test'
+
+  tabs = new Tabs('#content')
 
   openfiles = []
 
-  sidebar.on 'open', (file) ->
-    if openfiles[file]? 
-      openfiles[file].activate()
-    else 
-      editor = new Editor
-        user: 'martinring'
-        project: 'test'
-        path: file
+  commands.open.bind (file) ->    
+    path = file.get 'path'
+    name = file.get 'id'
+    if openfiles[file.cid]?
+      openfiles[file.cid].activate()
+    else
+      editor = new Editor model: file
       tab = new Tab
-        title: file
+        title: name
         content: editor.$el
-      openfiles[file] = tab
-      tabs.add tab    
+      openfiles[file.cid] = tab      
+      tab.on 'close', () ->
+        openfiles[file.cid] = null
+        file.set active: false
+      tab.on 'change:active', (m,a) ->
+        file.set active: a
+      tabs.add tab   
+      file.open()
 
-  session.on 'change:phase', (model,phase) ->
-    if phase is 'Ready' then  
+  isabelle.on 'change:phase', (model,phase) ->
+    $('#sessionStatus').addClass(model.get 'phase')
 
-  session.scala.call
-    action: 'getFiles'
-    callback: (files) ->
-      sidebar.set files: files  
+  isabelle.on 'change:logic', (model,logic) ->
+    $('#sessionLogic').text('logic: ' + logic)
+
+  isabelle.on 'println', (msg) ->
+    $('#syslog').text(msg)
+
+  isabelle.start user, project
