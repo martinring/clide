@@ -1,0 +1,26 @@
+#completion {
+  z-index: 10000;  
+  position: fixed;    
+  top: 200px;
+  left: 200px;
+  list-style: none;
+  font-family: Inconsolata;
+  background-color: white;
+  padding: 0;
+  margin: 0;
+  border: 3px solid gray;
+  li {    
+    padding: 4px 16px;
+    margin: 0;
+    &:hover {
+      background-color: #ddd;
+    }
+    &:active {
+      background-color: @accent;
+      color: white;
+    }    
+  }  
+  &.show {
+    visibility: visible;
+  }
+}

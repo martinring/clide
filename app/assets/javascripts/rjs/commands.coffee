@@ -17,7 +17,8 @@ define ->
     'close',
     'cut',
     'copy',
-    'paste'
+    'paste',
+    'search'
   ]
 
   exports = { }

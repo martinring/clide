@@ -3,14 +3,18 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
   # the remote tokenizer synchronizes with a websocket to
   # let a server do the tokenization
   class IsabelleConnection
-  	constructor: (@session, @path) ->      
+  	constructor: (@session, @model) ->      
       # connect to scala layer      
       @fallback = @session.bgTokenizer
       @session.bgTokenizer = this
+      @model.on 'change:states', (m,states) => 
+        for state, i in states          
+          prev = m.previous('states')?[i]
+          if prev? then @session.removeGutterDecoration(i,prev)
+          @session.addGutterDecoration(i,state)
 
     current_version: 0
     deltas: []
-    history: []
     lines: []
     annotations: []
 
@@ -56,12 +60,9 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
       isabelle.scala.call
         action: 'edit'
         data: 
-          path: @path.get 'path'
+          path: @model.get 'path'
           deltas: @deltas
-      @history.unshift
-        lines: @lines
-        deltas: @deltas
-      @deltas = []      
+      @deltas = []
 
     $applyDelta: (delta) =>
       range = delta.range

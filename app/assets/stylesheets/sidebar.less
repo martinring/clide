@@ -118,14 +118,25 @@
     list-style: none;
     opacity: 0.2;
     -webkit-transition: opacity @quick-transition ease;
+    
+    position: relative;
 
-    &:hover, .active {
+    .buttons {
+      position: absolute;
+      right: 16px;
+      top: 8px;      
+      .button {
+        font-family: icon;
+        opacity: 0.2;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+
+    &:hover, &.active {
       opacity: 1;
     }
-  }
-
-  .section.active {
-    opacity: 1;
   }
 
   h1 {
@@ -147,36 +158,51 @@
     padding: 0;
     margin: 0px 0;
 
-    li {
+    li.theory {
       color: @textColor;
       display: block;
-      vertical-align: middle;      
-      padding: 0px 16px;
-      padding-bottom: 2px;
-      -webkit-transition: all @quick-transition ease;      
-    }
-    li a {
-      position: static;
-      display: block;
-      z-index: 10;
-    }
+      height: 28px;
+      padding: 0px 16px;            
+      position: relative;
+      -webkit-transition: background-color @quick-transition ease;
 
-    li a:before {    
-      vertical-align: bottom;
-      margin-right: 4px;
-      font-family: 'icon';
-      font-size: 16px;
-      content: attr(data-icon);
-    }
+      .icon {        
+        float: left;
+        font-family: icon;
+        font-size: 20px;
+        width: 20px;
+        vertical-align: middle;
+        text-align: center;
+        height: 28px;            
+      }
+      
+      .title {        
+        margin-left: 28px;        
+        margin-top: 4px;
+        vertical-align: middle;
+        .name {          
+        }
+        .progress {
+          margin-top: 2px;
+          display: block;
+          line-height: 0 !important;          
+        }
+      }
 
-    li:hover {
-      text-decoration: none;
-      background-color: @grayLight;
-    }
+      &:hover {
+        text-decoration: none;
+        background-color: @grayLight;
+      } 
 
-    li.selected {
-      background-color: @green;
-      color: @bodyBackground;
+      &.selected {        
+        border-left: 8px solid @accent;        
+        padding-left: 8px;
+      }
+
+      li::before, li::after {
+        display: table;
+        content: "";
+      }
     }
   }
   

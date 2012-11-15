@@ -5,10 +5,12 @@ import isabelle._
 import scala.actors.Actor._
 import play.api.libs.json._
 import scala.io.Source
-import models.ace.RemoteDocument
+import models.ace._
 
 class Session(project: Project) extends JSConnector {
   val docs = scala.collection.mutable.Map[Document.Node.Name,RemoteDocument]()
+  
+  var current: Option[Document.Node.Name] = None
   
   val thyLoad = new Thy_Load {
     override def read_header(name: Document.Node.Name): Thy_Header = {
@@ -17,6 +19,8 @@ class Session(project: Project) extends JSConnector {
       Thy_Header.read(file)
     }
   }
+  
+  val thyInfo = new Thy_Info(thyLoad)
   
   val session = new isabelle.Session(thyLoad)    
   
@@ -36,14 +40,11 @@ class Session(project: Project) extends JSConnector {
   
   session.caret_focus += { x =>
     println("caret focus: " + x)
-  }
-  
-  session.global_settings += { x =>
-    println("settings: " + x)
-  }
+  }              
   
   session.commands_changed += { change =>
-    change.nodes.foreach { node =>      
+    change.nodes.foreach { node =>
+      delayedLoad(node)
       val snap = session.snapshot(node, Nil)      
       val status = Protocol.node_status(snap.state, snap.version, snap.node)
       js.ignore.status(
@@ -53,19 +54,32 @@ class Session(project: Project) extends JSConnector {
           status.finished,
           status.warned,
           status.failed)
+      if (current == Some(node)) for {
+        doc <- docs.get(node)
+        states = MarkupTree.getLineStates(snap, doc.ranges)
+      } js.ignore.states(node.toString, states)
     }
-    change.commands.foreach { cmd =>
+    change.commands.foreach { cmd =>      
       val node = cmd.node_name
+      if (cmd.name == "theory") {
+        println("header edit")                
+      }
       val snap = session.snapshot(node, Nil)
-      val start = snap.node.command_start(cmd)
+      val start = snap.node.command_start(cmd)      
       val state = snap.state.command_state(snap.version, cmd)
       state.results.foreach { case (a,b) =>
         //js.ignore.result(cmd.node_name, b)
       }
+      for {
+        doc <- docs.get(node)
+        s <- start
+        range = cmd.range + s
+        if doc.toOffset(doc.cursor).map(range.contains(_)).getOrElse(false)        
+      } updateCommandInfo(cmd)
       js.ignore.commandChanged(cmd.node_name.toString, cmd.name, cmd.span.map(_.content))
     }
   }
-    
+  
   def name(path: String) =
     Document.Node.Name(Path.explode(project.dir + path))  
    
@@ -96,8 +110,39 @@ class Session(project: Project) extends JSConnector {
     } 
   }
   
+  def updateCommandInfo(cmd: Command) {
+    val snap = session.snapshot(cmd.node_name, Nil)
+    val start = snap.node.command_start(cmd).map(docs(cmd.node_name).line(_)).get
+    val state = snap.state.command_state(snap.version, cmd)
+    val filtered = state.results.map(_._2).filter(
+	  {
+	    case XML.Elem(Markup(Isabelle_Markup.TRACING, _), _) => false 
+	    case _ => true
+	  }).toList	
+	val html_body =
+      filtered.flatMap(div =>
+	    Pretty.formatted(List(div), 0, Pretty.font_metric(null))
+	      .map(t =>
+	        XML.Elem(Markup(HTML.PRE, List((HTML.CLASS, Isabelle_Markup.MESSAGE))),
+          HTML.spans(t, true))))    
+    js.ignore.output(cmd.node_name.toString, start, Pretty.string_of(state.results.values.toList))
+  }
+  
+  def delayedLoad(thy: Document.Node.Name) {    
+    thyInfo.dependencies(List(thy)).foreach { case (name,header) =>      
+      if (!docs.isDefinedAt(name)) {
+        val text = Source.fromFile(project.dir + name + ".thy").getLines.toSeq // TODO!
+        val doc = new RemoteDocument     
+        doc.insertLines(0, text :_*)
+        session.init_node(name, node_header(name), Text.Perspective.full, doc.mkString)
+        docs(name) = doc
+        js.ignore.dependency(thy.toString, name.toString)
+      }
+    }
+  }
+  
   val actions: PartialFunction[String, JsValue => Any] = {     
-    case "getTheories" => json =>            
+    case "getTheories" => json =>
       project.theories
       
     case "open" => json => 
@@ -107,7 +152,7 @@ class Session(project: Project) extends JSConnector {
       
       val doc = this.docs.getOrElseUpdate(node, {
         val text = Source.fromFile(project.dir + path).getLines.toSeq
-        val doc = new RemoteDocument()        
+        val doc = new RemoteDocument     
         doc.insertLines(0, text :_*)        
        session.init_node(node, node_header(node), Text.Perspective.full, doc.mkString)
         doc
@@ -124,20 +169,42 @@ class Session(project: Project) extends JSConnector {
     case "edit" => json =>
       val nodeName = name((json \ "path").as[String])
       val deltas = (json \ "deltas").as[Array[ace.Delta]]
-      docs.get(nodeName).map(doc => 
-        session.edit_node(nodeName, node_header(nodeName), Text.Perspective.full, doc.edit(deltas.toVector))
-      )
+      docs.get(nodeName).map{ doc => 
+        val edits = doc.edit(deltas.toVector)        
+        session.edit_node(nodeName, node_header(nodeName), Text.Perspective.full, edits)        
+      }
       
     case "changePerspective" => json =>
       val nodeName = name((json \ "path").as[String])
       val start = (json \ "start").as[Int]
-      val end = (json \ "end").as[Int]      
+      val end = (json \ "end").as[Int]
+      for (doc <- docs.get(nodeName)) {
+        doc.perspective = (start,end)
+        session.edit_node(nodeName, node_header(nodeName), Text.Perspective.full, Nil)
+      }
       println("change perspective of " + nodeName + " to " + start + " -> " + end)
       
+    case "setCurrentDoc" => json =>        
+      current = Some(name(json.as[String]))      
+    
     case "moveCursor" => json =>
       val nodeName = name((json \ "path").as[String])
       val pos = (json \ "pos").as[ace.Position]
-      println("move cursor: " + nodeName + " " + pos)
+      docs.get(nodeName) match {
+        case Some(doc) => 
+          doc.cursor = (pos.row, pos.column)
+          val snap = session.snapshot(nodeName, Nil)
+          val cmd = for {
+            pos <- doc.toOffset((pos.row,pos.column))
+            (cmd,start) <- snap.node.command_at(pos)
+          } yield cmd            
+          if (doc.currentCommand != cmd) {
+            doc.currentCommand = cmd
+            cmd.map(updateCommandInfo(_))
+          }
+         
+        case None => sys.error("invalid node")
+      }
   }
   
   override def onClose() {

@@ -189,6 +189,25 @@
   border-bottom: 1px dotted blue !important 
 }
 
+.ace_gutter-cell {  
+  color: @grayDark;
+  &.finished {
+    background-color: transparent;
+  }
+  &.running {
+    background-color: @mustard;
+  }
+  &.unprocessed {
+    background-color: @gray;
+  }
+  &.error {
+    background-color: @red;
+  }
+  &.warning {
+    background-color: @orange;
+  }
+}
+
 /*
   val PROTOCOL = "protocol"
   val SYSTEM = "system"

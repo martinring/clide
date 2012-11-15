@@ -12,44 +12,34 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
     el: '#search'
     events:
       'click #searchButton': 'startSearch'
+      'keyup #searchBox': 'changeSearch'
       'change #searchBox': 'changeSearch'
     startSearch: =>
       $('body').addClass('sidebar')
       setTimeout((-> $('#searchBox').focus()), 200)
     changeSearch: (e) =>
-      #
+      commands.search.execute($('#searchBox').val())      
 
   class FileItemView extends Backbone.View
     tagName: 'li'
+    className: 'theory'
     initialize: =>
-      a = $("<a>#{@model.get 'id'}</a>")
-      a.attr('data-icon',icons.file)      
-      p = $("<div class='progress'></div>")
+      icon = $("<div class='icon'>#{icons.file}</div>")
+      title = $("<div class='title'><span class='name'>#{@model.get 'id'}</span></div>")      
+      message = $("<span class='message'>#{@model.get 'path'}</span>")
+      progress = $("<div class = 'progress'></div>")
       f = $("<div class='finished'></div>")
       r = $("<div class='running'></div>")
       w = $("<div class='warned'></div>")
       fl = $("<div class='failed'></div>")
-      p.append f
-      p.append r
-      p.append w
-      p.append fl
-      fadeOut = null
-      prevFinished = 0
+      progress.append f, r, w, fl
+      title.append progress
       @model.on 'change:finished', (m,finished) ->
-        if finished > prevFinished
-          f.animate width: (finished + "%")
-        else
-          f.css width: (finished + "%")
-        prevFinished = finished
+        f.animate width: (finished + "%")
         if finished is 100
-          a.attr('data-icon',icons.check)
-          fadeOut = setTimeout (() -> p.fadeOut()), 1000
-        else 
-          a.attr('data-icon',icons.clock)
-          if fadeOut?
-            clearTimeout(fadeOut)          
-            p.fadeIn()
-            fadeOut = null        
+          icon.text(icons.check)
+        else
+          icon.text(icons.clock)
       @model.on 'change:running', (m,running) ->
         r.animate
           width: running + "%"
@@ -61,8 +51,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
           width: failed + "%"
       @model.on 'change:active', (m,active) =>
         @$el.toggleClass 'selected', active
-      @$el.append a
-      @$el.append p
+      @$el.append icon, title
     events:
       'dblclick': 'open'      
       'contextmenu': 'contextMenu'
@@ -75,7 +64,8 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
           command: @open
         ,
           text: 'Delete'
-          command: -> alert('delete')
+          command: => if confirm("Do you really want to delete theory '#{@model.get 'id'}'?")
+            isabelle.delete(@model)
         ,
           text: 'Rename'
           command: => prompt('Enter new name',@model.get 'id')        
@@ -85,7 +75,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
     tagName: 'li'
     className: 'section'    
     events:
-      "click": "activate"      
+      "click": "activate"
     active: false
     timeout: null
     initialize: ->
@@ -97,6 +87,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
           @activate()
           @center()
       @$el.append "<h1>#{@options.title}</h1>"
+      @$el.append "<div class='buttons'><div class='button'>#{icons.plus}</div></div>"
       if @options.content.length        
         @$el.append x.$el for x in @options.content
       else 
@@ -167,7 +158,8 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
   class HelpView extends Backbone.View
     tagName: 'div'
     initialize: =>
-      @render
+      #isabelle.on 'change:output', (m,out) => @$el.html(out)
+      @render()
     render: =>
       @$el.text('Copyright 2012 by Martin Ring')
 

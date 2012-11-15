@@ -20,6 +20,7 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','ace/a
       tab.on 'close', () ->
         openfiles[file.cid] = null
         file.set active: false
+        _.head(openfiles)?.activate()
       tab.on 'change:active', (m,a) ->
         file.set active: a
       tabs.add tab   
@@ -32,6 +33,13 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','ace/a
     $('#sessionLogic').text('logic: ' + logic)
 
   isabelle.on 'println', (msg) ->
-    $('#syslog').text(msg)
+    $('#syslog').html(msg)
 
+  $('#consoleButton').on 'click', ->
+    $('#consoleButton').toggleClass 'active'
+    $('body').toggleClass 'extendedStatusbar'
+
+  isabelle.on 'change:output', (m,out) ->
+    $('#output').html(out)
+   
   isabelle.start user, project

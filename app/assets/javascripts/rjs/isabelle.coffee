@@ -27,15 +27,18 @@ define ['ScalaConnector'], (ScalaConnector) ->
     openFiles: new Theories
 
     start: (@user,@project) =>
-      console.log ("initializing session")
       @theories.on 'add', (thy) =>
         thy.on 'open', (x) => @open(x)
-        thy.on 'change:perspective', (t,p) => @scala.call
-          action: 'changePerspective'
-          data: 
-            path: t.get 'path'
-            start: p.start
-            end: p.end
+        thy.on 'change:active', (t,a) => if a then @scala.call
+          action: 'setCurrentDoc'
+          data: t.get 'path'
+        thy.on 'change:perspective', (t,p) =>           
+          @scala.call
+            action: 'changePerspective'
+            data: 
+              path: t.get 'path'
+              start: p.start
+              end: p.end
         thy.on 'change:cursor', (t,p) => @scala.call
           action: 'moveCursor'
           data:
@@ -48,10 +51,11 @@ define ['ScalaConnector'], (ScalaConnector) ->
       @set
         phase: phase
 
-    setFiles: (files) =>
-      console.log(files)
-      for thy in files        
-        @theories.add(thy)        
+    addTheory: (thy) =>
+      @theories.add(thy)      
+
+    setFiles: (files) =>      
+      @addTheory(thy) for thy in files              
 
     setLogic: (logic) =>
       @set logic: logic
@@ -59,19 +63,33 @@ define ['ScalaConnector'], (ScalaConnector) ->
     println: (msg) =>
       @trigger 'println', msg
 
+    output: (thy, line, msg) =>
+      console.log msg
+      @set output: msg     
+      @theories.get(thy).set 
+        output: 
+          line: line
+          message: msg
+
+    states: (node, states) =>
+      @theories.get(node).set
+        states: states
+
     status: (node, unprocessed, running, finished, warned, failed) =>
       total = unprocessed + running + finished + warned + failed
       # unprocessed = 100.0 * unprocessed / total
       running = 100.0 * running / total      
       finished = 100.0 * finished / total
       warned = 100.0 * warned / total
-      failed = 100.0 * warned / total
-      console.log node, @theories.get(node)
+      failed = 100.0 * warned / total      
       @theories.get(node).set 
         finished: finished
         running: running
         warned: warned
         failed: failed    
+
+    dependency: (thy, dep) =>
+      console.log "theory #{thy} depends on #{dep}"
 
     commandChanged: (node, command, span) =>      
       #console.log("#{command} in #{node} changed: ", span)
@@ -80,8 +98,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
       @scala.call
         action: 'open'
         data: thy.toJSON()
-        callback: (text) =>
-          console.log 'opened', thy
+        callback: (text) =>          
           thy.trigger 'opened', text
 
   session = new Session

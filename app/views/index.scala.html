@@ -27,18 +27,25 @@
         <input id="searchBox"></input>
       </div>
       <div id="statusbar">
+        <ul class="buttons">
+          <li id="consoleButton">Console</li>
+          <li id="outputButton">Output</li>
+        </ul>
         <ul class="statusMessages">
           <li id="syslog"></li>
           <li id="sessionLogic"></li>
           <li id="sessionStatus" class="phase">&#xE128;</li>
-        </ul>
-        <div id="progress"></div>
+        </ul>        
+        <div id="output"></div>
       </div>      
       <ul id="contextMenu">
         <li>Delete</li>
         <li>Save As</li>
         <li>Rename</li>
         <li>Properties ...</li>
+      </ul>
+      <ul id="completion">
+        <li>no matches...</li>
       </ul>      
     </body>
 </html>

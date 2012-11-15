@@ -21,6 +21,8 @@ define ['icons','contextMenu'], (icons,menu) ->
     close: =>
       @model.trigger 'close'
       @trigger 'close', @
+    closeOthers: => @trigger 'closeOthers', this
+    closeAll: => @trigger 'closeAll', this
     contextMenu: (e) =>
       e.preventDefault()      
       menu.show(e.pageX,e.pageY,[          
@@ -28,10 +30,10 @@ define ['icons','contextMenu'], (icons,menu) ->
           command: @close
         ,
           text: 'Close Others'
-          command: @close
+          command: @closeOthers
         ,
           text: 'Close All'
-          command: @close
+          command: @closeAll
         ])
       #@close()
       console.log('context menu')
@@ -58,7 +60,7 @@ define ['icons','contextMenu'], (icons,menu) ->
       view.on 'close', (closed) =>
         closed.$el.remove()
         closed.content.remove()
-        @current = null if @current is closed
+        @current = null if @current is closed      
       @content.append(view.content)
       @pane.append(view.el)
       tab.set active: true

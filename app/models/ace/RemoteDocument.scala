@@ -14,6 +14,27 @@ import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import scala.language.dynamics
 import play.api.libs.json._
+import scala.swing._
+
+trait Visualization { this: RemoteDocument =>
+  val textPane = new EditorPane
+    
+  textPane.font = java.awt.Font.decode("Inconsolata")  
+  
+  val frame = new Frame {
+    title = "Document Visualized"
+    contents = textPane
+  }
+  
+  frame.visible = true
+  
+  def update() {    
+    textPane.text = this.mkString    
+    this.toOffset(this.cursor).map {
+      textPane.caret.position = _
+    }     
+  }    
+}
 
 /** 
  * This is the main interface between the JavaScript ACE-Editor and the scala world. 
@@ -32,6 +53,13 @@ class RemoteDocument(newline: String = "\n") {
   private val offsets_ = Buffer[Int](0)
   private var listener: Option[ActorRef] = None
   private val tokens = Buffer[List[Token]]()
+  
+  var cursor: (Int,Int) = (0,0)
+  var currentCommand: Option[Command] = None
+  
+  def toOffset(position: (Int,Int)) = position match {
+    case (row, column) => offsets_.lift(row).map(_ + column) 
+  }
   
   private var version_ = 0: Long
   private var tokenId = 0: Long
@@ -84,7 +112,7 @@ class RemoteDocument(newline: String = "\n") {
     shiftOffsets(shiftStart, diff)
     
     /* update tokens */
-    tokens.insertAll(lineNumber, lines.map(line => List(Token(Nil, line))))
+//    tokens.insertAll(lineNumber, lines.map(line => List(Token(Nil, line))))
     
     return Edit.insert(start, elems)
   }
@@ -103,7 +131,7 @@ class RemoteDocument(newline: String = "\n") {
     require(text.length >= lines)
     
     /* update tokens */
-    tokens.remove(lineNumber,lines)
+//    tokens.remove(lineNumber,lines)
     
     return Edit.remove(start, text)
   }
@@ -117,7 +145,7 @@ class RemoteDocument(newline: String = "\n") {
     shiftOffsets(line+1, text.length)
     
     /* update tokens */    
-    
+  
     return Edit.insert(offset, text)
   }
   
@@ -139,23 +167,23 @@ class RemoteDocument(newline: String = "\n") {
     val offset = this.offsets(line) + column
     buffer.insertAll(offset, newline)
     
-    /* update offsets */        
+    /* update offsets */
     shiftOffsets(line+1,nllength)
     offsets_.insert(line+1,offsets(line) + column + nllength)
     
     /* update tokens */            
-    val (_,(lts,rts)) = tokens(line).foldLeft((0,(Vector[Token](),Vector[Token]()))){
-      case ((pos,(l,r)),t) => 
-        if (pos + t.length <= column) (pos+t.length,(l:+t,r))
-        else if (pos == column) (pos+t.length,(l,r:+t))
-        else if (pos < column) {
-          val (lv,rv) = t.splitAt(column-pos)
-          (pos+t.length,(l:+lv,r:+rv))
-        }
-        else (pos,(l,r:+t))
-    }    
-    tokens(line) = lts.toList
-    tokens.insert(line+1, rts.toList)
+//    val (_,(lts,rts)) = tokens(line).foldLeft((0,(Vector[Token](),Vector[Token]()))){
+//      case ((pos,(l,r)),t) => 
+//        if (pos + t.length <= column) (pos+t.length,(l:+t,r))
+//        else if (pos == column) (pos+t.length,(l,r:+t))
+//        else if (pos < column) {
+//          val (lv,rv) = t.splitAt(column-pos)
+//          (pos+t.length,(l:+lv,r:+rv))
+//        }
+//        else (pos,(l,r:+t))
+//    }    
+//    tokens(line) = lts.toList
+//    tokens.insert(line+1, rts.toList)
     
     return Edit.insert(offset, newline)
   }
@@ -170,8 +198,8 @@ class RemoteDocument(newline: String = "\n") {
     shiftOffsets(line,-nllength)
     
     /* update tokens */
-    tokens(line) ++= tokens(line + 1)
-    tokens.remove(line + 1)
+//    tokens(line) ++= tokens(line + 1)
+//    tokens.remove(line + 1)
     
     return Edit.remove(offset, newline)
   }           
@@ -197,7 +225,13 @@ class RemoteDocument(newline: String = "\n") {
 //    }
 //  }      
 
-  var perspective = 0 to 0
+  var perspective = (0, 0)
+  
+  var active = false
+  
+  def isabellePerspective: Text.Perspective = perspective match {
+    case (start,end) => if (active) Text.Perspective(Seq(Text.Range(start,end))) else Text.Perspective.empty
+  }
   
   def invalidate(start: Position, end: Position) {
     if (start.row == end.row)
@@ -215,29 +249,34 @@ class RemoteDocument(newline: String = "\n") {
       for (i <- (start.row+1) until end.row) 
         tokens(i) = List(Token(Nil,apply(i)))
     }
-  }  
+  }
+  
+  def applyDelta(delta: Delta): List[Text.Edit] = delta match {
+    case InsertNewline(range) =>
+      List(splitLine(range.start.row, range.start.column))
+    case RemoveNewline(range) =>
+      List(mergeLines(range.end.row))
+    case ReplaceText(range, text) =>
+      List(removeText(range.start.row, range.start.column, text.length),
+		   insertText(range.start.row, range.start.column, text))
+    case InsertText(range, text) =>
+      List(insertText(range.start.row, range.start.column, text))
+    case RemoveText(range, text) =>
+      List(removeText(range.start.row, range.start.column, text.length))
+    case InsertLines(range, lines) =>
+      List(insertLines(range.start.row, lines: _*))
+    case RemoveLines(range, lines) =>
+      List(removeLines(range.start.row, lines.length))
+    case NoChange => Nil
+  }
 
-  def edit(deltas: Vector[Delta]): List[Text.Edit] = {
+  def edit(delta: Delta): List[Text.Edit] = {
     version_ += 1
-    val edits = Buffer[Text.Edit]()
-    Delta.optimize(Delta.optimize(deltas)).foreach {
-      case InsertNewline(range) =>
-        edits += splitLine(range.start.row, range.start.column)
-      case RemoveNewline(range) =>
-        edits += mergeLines(range.end.row)
-      case ReplaceText(range, text) =>
-        edits += removeText(range.start.row, range.start.column, text.length)
-        edits += insertText(range.start.row, range.start.column, text)
-      case InsertText(range, text) =>
-        edits += insertText(range.start.row, range.start.column, text)
-      case RemoveText(range, text) =>
-        edits += removeText(range.start.row, range.start.column, text.length)
-      case InsertLines(range, lines) =>
-        edits += insertLines(range.start.row, lines: _*)
-      case RemoveLines(range, lines) =>
-        edits += removeLines(range.start.row, lines.length)
-      case NoChange =>
-    }
-    edits.toList
+    applyDelta(delta)
+  }   
+  
+  def edit(deltas: Vector[Delta]): List[Text.Edit] = {
+    version_ += 1    
+    Delta.optimize(Delta.optimize(deltas)).toList.flatMap(applyDelta)
   }
 }

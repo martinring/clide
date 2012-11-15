@@ -35,13 +35,13 @@ define ->
     timeOut: null
     
     blink: () ->
-      clearTimeout(timeOut)
+      clearTimeout(@timeOut)
       $('#sessionStatus').addClass('working')
-      timeOut = setTimeout((-> $('#sessionStatus').removeClass('working')), 500)
+      @timeOut = setTimeout((-> $('#sessionStatus').removeClass('working')), 500)
 
     call: (options) ->
       @blink()
-      console.log(options)
+      #console.log(options)
       if options and options.action        
         if options.callback
           @results[@id] = options.callback
