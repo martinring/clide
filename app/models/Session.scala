@@ -58,25 +58,37 @@ class Session(project: Project) extends JSConnector {
         doc <- docs.get(node)
         states = MarkupTree.getLineStates(snap, doc.ranges)
       } js.ignore.states(node.toString, states)
-    }
+    }    
     change.commands.foreach { cmd =>      
       val node = cmd.node_name
-      if (cmd.name == "theory") {
-        println("header edit")                
-      }
       val snap = session.snapshot(node, Nil)
       val start = snap.node.command_start(cmd)      
-      val state = snap.state.command_state(snap.version, cmd)
-      state.results.foreach { case (a,b) =>
-        //js.ignore.result(cmd.node_name, b)
-      }
-      for {
-        doc <- docs.get(node)
-        s <- start
-        range = cmd.range + s
-        if doc.toOffset(doc.cursor).map(range.contains(_)).getOrElse(false)        
-      } updateCommandInfo(cmd)
-      js.ignore.commandChanged(cmd.node_name.toString, cmd.name, cmd.span.map(_.content))
+      val state = snap.state.command_state(snap.version, cmd)            
+      
+      for (doc <- docs.get(node); start <- start) {
+        val docStartLine = doc.line(start)
+        val docEndLine   = doc.line(start + cmd.length)
+        val ranges = (docStartLine to docEndLine).map(doc.ranges(_)).toVector
+        val tokens = MarkupTree.getTokens(snap, ranges).map { _.map { token =>
+          JsObject(
+            "value" -> JsString(doc.getRange(token.range.start, token.range.stop)) ::
+            "type" -> JsString(token.info.distinct.mkString(".")) ::
+            Nil
+          )
+        } }        
+        val json = JsObject(
+	      "id" -> JsNumber(cmd.id) ::
+	      "version" -> JsNumber(doc.version) ::
+	      "name" -> JsString(cmd.name) ::
+	      "range" -> JsObject(
+	        "start" -> JsNumber(docStartLine) ::
+	        "end" -> JsNumber(docEndLine) :: Nil
+	      ) ::
+	      "tokens" -> Json.toJson(tokens) ::
+	      "output" -> JsString(commandInfo(cmd)) ::
+	      Nil)
+	    js.ignore.commandChanged(cmd.node_name.toString, json)
+      }            
     }
   }
   
@@ -110,7 +122,7 @@ class Session(project: Project) extends JSConnector {
     } 
   }
   
-  def updateCommandInfo(cmd: Command) {
+  def commandInfo(cmd: Command) = {
     val snap = session.snapshot(cmd.node_name, Nil)
     val start = snap.node.command_start(cmd).map(docs(cmd.node_name).line(_)).get
     val state = snap.state.command_state(snap.version, cmd)
@@ -125,7 +137,7 @@ class Session(project: Project) extends JSConnector {
 	      .map(t =>
 	        XML.Elem(Markup(HTML.PRE, List((HTML.CLASS, Isabelle_Markup.MESSAGE))),
           HTML.spans(t, true))))    
-    js.ignore.output(cmd.node_name.toString, start, Pretty.string_of(state.results.values.toList))
+    Pretty.string_of(state.results.values.toList)
   }
   
   def delayedLoad(thy: Document.Node.Name) {    
@@ -188,23 +200,22 @@ class Session(project: Project) extends JSConnector {
       current = Some(name(json.as[String]))      
     
     case "moveCursor" => json =>
-      val nodeName = name((json \ "path").as[String])
-      val pos = (json \ "pos").as[ace.Position]
-      docs.get(nodeName) match {
-        case Some(doc) => 
-          doc.cursor = (pos.row, pos.column)
-          val snap = session.snapshot(nodeName, Nil)
-          val cmd = for {
-            pos <- doc.toOffset((pos.row,pos.column))
-            (cmd,start) <- snap.node.command_at(pos)
-          } yield cmd            
-          if (doc.currentCommand != cmd) {
-            doc.currentCommand = cmd
-            cmd.map(updateCommandInfo(_))
-          }
-         
-        case None => sys.error("invalid node")
-      }
+//      val nodeName = name((json \ "path").as[String])
+//      val pos = (json \ "pos").as[ace.Position]
+//      docs.get(nodeName) match {
+//        case Some(doc) => 
+//          doc.cursor = (pos.row, pos.column)
+//          val snap = session.snapshot(nodeName, Nil)
+//          val cmd = for {
+//            pos <- doc.toOffset((pos.row,pos.column))
+//            (cmd,start) <- snap.node.command_at(pos)
+//          } yield cmd            
+//          if (doc.currentCommand != cmd) {
+//            doc.currentCommand = cmd            
+//          }
+//         
+//        case None => sys.error("invalid node")
+//      }
   }
   
   override def onClose() {

@@ -73,7 +73,7 @@ class RemoteDocument(newline: String = "\n") {
   def ranges = 
     offsets_.tail.foldLeft(Vector((0,0))){
       case (v,o) => v :+ (v.last._2, o)
-    }.tail
+    }.tail.map { case (start,end) => (start,end - newline.length) }     
   
   def getRange(start: Int, end: Int) = buffer.slice(start, end).mkString
     

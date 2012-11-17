@@ -1,7 +1,7 @@
 header {* Finite sequences *}
 
 theory Seq
-imports Main
+imports Main ex Editor
 begin
 
 datatype 'a seq = Empty | Seq 'a "'a seq"

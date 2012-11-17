@@ -7,11 +7,26 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
       # connect to scala layer      
       @fallback = @session.bgTokenizer
       @session.bgTokenizer = this
+      @lines.push(false) for line in [0 .. @session.getLength()]
       @model.on 'change:states', (m,states) => 
-        for state, i in states          
+        for state, i in states
           prev = m.previous('states')?[i]
           if prev? then @session.removeGutterDecoration(i,prev)
           @session.addGutterDecoration(i,state)
+      @model.get('commands').forEach (cmd) => (includeCommand(cmd) if cmd.get 'version' is @current_version)
+      @model.get('commands').on 'add', (cmd) =>
+        if cmd.get 'version' is @current_version
+          @includeCommand(cmd)
+      @model.get('commands').on 'change:version', (cmd,version) =>
+        if version is @current_version
+          @includeCommand(cmd)                
+
+    includeCommand: (cmd) =>
+      console.log @lines
+      range = cmd.get 'range'
+      console.log cmd.get('tokens')
+      @lines.splice(range.start, 1 + range.end - range.start, (cmd.get 'tokens')...)
+      @fireUpdateEvent(range.start,range.end)
 
     current_version: 0
     deltas: []
@@ -38,7 +53,7 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
     stop: =>
       @fallback.stop()
 
-    getTokens: (row) =>
+    getTokens: (row) =>      
       @lines[row] or @fallback.getTokens(row)
 
     getState: (row) =>

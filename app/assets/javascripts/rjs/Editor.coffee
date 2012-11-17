@@ -21,13 +21,12 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
         commands.search.bind (text) => if @model.get 'active'
           @ace.findAll(text)
 
-        @ace.on 'changeSelection', (args...) =>         
-          cursor = @ace.getCursorPosition()          
+        @ace.on 'changeSelection', (args...) =>
+          cursor = @ace.getCursorPosition()
           f = =>
             r = @ace.renderer
             pos = r.$cursorLayer.$pixelPos
             offset = @editorEl.offset()
-            console.log offset
             pos.top += offset.top + r.lineHeight + 4
             pos.left += offset.left + (if r.showGutter then r.$gutter.offsetWidth else 0)
             $('#completion').css pos
