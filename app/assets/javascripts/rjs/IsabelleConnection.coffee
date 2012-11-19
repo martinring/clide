@@ -7,7 +7,7 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
       # connect to scala layer      
       @fallback = @session.bgTokenizer
       @session.bgTokenizer = this
-      @lines.push(false) for line in [0 .. @session.getLength()]
+      @lines[i] = false for i in [0 .. @session.getLength()]
       @model.on 'change:states', (m,states) => 
         for state, i in states
           prev = m.previous('states')?[i]
@@ -15,17 +15,16 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
           @session.addGutterDecoration(i,state)
       @model.get('commands').forEach (cmd) => (includeCommand(cmd) if cmd.get 'version' is @current_version)
       @model.get('commands').on 'add', (cmd) =>
-        if cmd.get 'version' is @current_version
+        if (cmd.get 'version') is @current_version
           @includeCommand(cmd)
-      @model.get('commands').on 'change:version', (cmd,version) =>
-        if version is @current_version
-          @includeCommand(cmd)                
+      @model.get('commands').on 'change', (cmd) =>        
+        if (cmd.get 'version') is @current_version
+          @includeCommand(cmd)
 
     includeCommand: (cmd) =>
-      console.log @lines
       range = cmd.get 'range'
-      console.log cmd.get('tokens')
-      @lines.splice(range.start, 1 + range.end - range.start, (cmd.get 'tokens')...)
+      length = range.end - range.start
+      @lines.splice(range.start, length + 1, (cmd.get 'tokens')...)
       @fireUpdateEvent(range.start,range.end)
 
     current_version: 0
@@ -53,8 +52,11 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
     stop: =>
       @fallback.stop()
 
-    getTokens: (row) =>      
-      @lines[row] or @fallback.getTokens(row)
+    getTokens: (row) =>
+      cmd = @model.get('commands').getCommandAt(row)
+      if cmd? and cmd.get('version') is @current_version
+        cmd.get('tokens')[row - cmd.get('range').start]
+      else @lines[row] or @fallback.getTokens(row)
 
     getState: (row) =>
       @fallback.getState(row)
@@ -70,14 +72,13 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
       else if diff <= @history.length
         console.warn('todo: integrate older versions')
 
-    $pushChanges: =>
-      console.log("version #{ @current_version }")
+    $pushChanges: =>      
       isabelle.scala.call
         action: 'edit'
         data: 
           path: @model.get 'path'
-          deltas: @deltas
-      @deltas = []
+          version: @current_version
+          deltas: @deltas.splice(0)      
 
     $applyDelta: (delta) =>
       range = delta.range
@@ -120,17 +121,10 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
 
     $updateOnChange: (delta) =>
       @$applyDelta(delta)
-      @session.addMarker(
-        new Range(1, 1, 1, 5),
-        'ace_error',
-        'text',
-        false)
       @fallback.$updateOnChange(delta)
       if @deltas.length is 0
+        @model.get('commands').cleanUp(@current_version)
         @current_version += 1
-        #for marker in @markers 
-        #  @session.removeMarker(marker)
-        #@markers = []
         @annotations = []
         @session.setAnnotations []
       @deltas.push(delta)

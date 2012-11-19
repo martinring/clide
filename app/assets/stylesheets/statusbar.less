@@ -67,12 +67,16 @@
   }
 }
 
-.extendedStatusbar #statusbar {
-  height: @statusbar-height + 200px;  
+#statusbar {
+  height: @statusbar-height;  
 }
 
 .sidebar #statusbar {
   left: @ribbon-width + @sidebar-width;
+}
+
+.extendedStatusbar #statusbar {
+  height: @statusbar-height + @output-height;
 }
 
 #sessionStatus {

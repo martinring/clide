@@ -59,23 +59,28 @@ class Session(project: Project) extends JSConnector {
         states = MarkupTree.getLineStates(snap, doc.ranges)
       } js.ignore.states(node.toString, states)
     }    
-    change.commands.foreach { cmd =>      
+    change.commands.foreach { cmd =>          
       val node = cmd.node_name
       val snap = session.snapshot(node, Nil)
-      val start = snap.node.command_start(cmd)      
-      val state = snap.state.command_state(snap.version, cmd)            
-      
-      for (doc <- docs.get(node); start <- start) {
+      val start = snap.node.command_start(cmd)         
+      val state = snap.state.command_state(snap.version, cmd)                                 
+      if (!cmd.is_ignored) for (doc <- docs.get(node); start <- start) {
         val docStartLine = doc.line(start)
-        val docEndLine   = doc.line(start + cmd.length)
+        val docEndLine   = doc.line(start + cmd.length - 1)
         val ranges = (docStartLine to docEndLine).map(doc.ranges(_)).toVector
         val tokens = MarkupTree.getTokens(snap, ranges).map { _.map { token =>
+          val classes = token.info.map{                       
+            case x => x
+          }.distinct match {
+            case List("text") => "text"
+            case x => x.filter(_ != "text").mkString(".")            
+          }
           JsObject(
             "value" -> JsString(doc.getRange(token.range.start, token.range.stop)) ::
-            "type" -> JsString(token.info.distinct.mkString(".")) ::
+            "type" -> JsString(classes) ::
             Nil
           )
-        } }        
+        } }
         val json = JsObject(
 	      "id" -> JsNumber(cmd.id) ::
 	      "version" -> JsNumber(doc.version) ::

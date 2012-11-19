@@ -25,7 +25,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
     className: 'theory'
     initialize: =>
       icon = $("<div class='icon'>#{icons.file}</div>")
-      title = $("<div class='title'><span class='name'>#{@model.get 'id'}</span></div>")      
+      title = $("<div class='title'><span class='name'>#{@model.get 'path'}</span></div>")      
       message = $("<span class='message'>#{@model.get 'path'}</span>")
       progress = $("<div class = 'progress'></div>")
       f = $("<div class='finished'></div>")
@@ -165,16 +165,12 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
 
   class Sidebar extends Backbone.View
     el: '#sidebar'    
-
     search: new Search
-
     ribbon: new Ribbon   
-
     theories: new Section
       title: 'Theories'
       icon: icons.list
       content: new TheoriesView
-
     edit: new Section
       title: 'Edit'
       icon: icons.edit
@@ -195,7 +191,6 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
               command: commands.paste
           ]
       ]
-
     view: new Section
       title: 'View'
       icon: icons.view

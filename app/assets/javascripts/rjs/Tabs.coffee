@@ -1,31 +1,35 @@
 define ['icons','contextMenu'], (icons,menu) ->   
   class TabView extends Backbone.View
-    initialize: =>
-      @$el.text(@model.get 'title')
-      close = $("<a class='icon'>#{icons.close}</a>")
-      @$el.append close
-      close.on 'click', @close
-      @model.on 'change:active', (model,active) =>
-        @$el.toggleClass 'active', active
-        if active 
-          @trigger 'activate', @
-      @activate
     tagName: 'li'
     events:
       'click': 'activate'
       'contextmenu': 'contextMenu'
+    initialize: =>
+      @$el.text(@model.get 'title')
+      close = $("<a class='icon'>#{icons.close}</a>")
+      @$el.append close
+      close.on 'click', @model.close
+      @model.on 'change:active', (model,active) =>
+        if active          
+          @$el.addClass 'active'
+          @model.get('content').addClass 'active'
+        else
+          @$el.removeClass 'active'
+          @model.get('content').removeClass 'active'
+      @model.on 'close', @close
     activate: =>
-      @model.set active: true      
+      @model.set active: true
     deactivate: =>
-      @model.set active: false      
+      @model.set active: false
     close: =>
-      @model.trigger 'close'
-      @trigger 'close', @
-    closeOthers: => @trigger 'closeOthers', this
-    closeAll: => @trigger 'closeAll', this
+      @$el.remove()
+    closeOthers: =>
+      @options.tabs.closeOthers(@model)
+    closeAll: => 
+      @options.tabs.closeAll()
     contextMenu: (e) =>
-      e.preventDefault()      
-      menu.show(e.pageX,e.pageY,[          
+      e.preventDefault()
+      menu.show(e.pageX,e.pageY,[
           text: 'Close'
           command: @close
         ,
@@ -46,21 +50,39 @@ define ['icons','contextMenu'], (icons,menu) ->
       @pane = $ "<ul class='tabpane'></ul>"
       @content = $ "<div class='tabcontent'></div>"
       @$el.append(@pane).append(@content)
-    current: null
+    stack: []        
+    push: (tab) =>
+      @remove(tab)
+      @stack.unshift(tab)
+    pop: =>
+      @stack.shift()
+    top: =>
+      @stack[0]
+    remove: (tab) =>
+      @stack = _.filter(@stack, (x) -> x isnt tab)
+    closeAll: () =>
+      for tab in @stack 
+        tab.close()
+    closeOthers: (that) =>
+      for tab in @stack when tab isnt that
+        tab.close()
     render: => @
     add: (tab) =>
-      view = new TabView model: tab
-      view.content = $(tab.get 'content')
-      view.on 'activate', (activated) =>
-        if @current?
-          @current.deactivate()
-          @current.content.removeClass('active')
-        @current = activated
-        activated.content.addClass('active')
-      view.on 'close', (closed) =>
-        closed.$el.remove()
-        closed.content.remove()
-        @current = null if @current is closed      
-      @content.append(view.content)
+      view = new TabView 
+        model: tab
+        tabs: this
+      tab.on 'change:active', (activated,active) => if active
+        current = @top()
+        if current?
+          current.deactivate()
+        @push(tab)
+      tab.on 'close', =>
+        if @top() is tab
+          @remove(tab)
+          @top()?.activate()
+        else
+          @remove(tab)
+        tab.off()
+      @content.append(view.model.get 'content')
       @pane.append(view.el)
       tab.set active: true

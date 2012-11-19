@@ -6,3 +6,9 @@ define ->
       content: $('<div></div>')
     activate: =>
       @set active: true
+    deactivate: =>
+      @set active: false
+    close: =>
+      @deactivate()
+      @get('content')?.remove?()
+      @trigger 'close'

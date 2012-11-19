@@ -11,11 +11,11 @@ define ['ScalaConnector'], (ScalaConnector) ->
 
   class Commands extends Backbone.Collection
     model: Command
-    cleanUp: (currentVersion) => @filter (x) ->
-      x.get 'version' is currentVersion
+    cleanUp: (currentVersion) => @forEach (x) =>
+      @remove(x) if x.get 'version' isnt currentVersion
     getCommandAt: (line) => @find (x) ->      
       range = x.get 'range'
-      range.start <= line && range.end >= line
+      range.start <= line && range.end >= line    
 
   class Theory extends Backbone.Model
     constructor: (args...) ->      
@@ -25,8 +25,11 @@ define ['ScalaConnector'], (ScalaConnector) ->
       name: "unnamed"
     open: =>
       @trigger 'open', @
-    close: =>
-      @set progress: 0
+    close: =>      
+      @set 
+        opened: false
+        active: false
+        progress: 0
       @trigger 'close', @
 
   class Theories extends Backbone.Collection
@@ -49,8 +52,9 @@ define ['ScalaConnector'], (ScalaConnector) ->
               path: t.get 'path'
               start: p.start
               end: p.end
-        thy.on 'change:cursor', (t,p) =>           
-          console.log (t.get('commands').getCommandAt(p.row)?.get 'output')
+        thy.on 'change:cursor', (t,p) =>
+          @set
+            output: t.get('commands').getCommandAt(p.row)?.get 'output'
       @route = routes.controllers.Projects.getSession(@user,@project)
       @scala = new ScalaConnector(@route.webSocketURL(),@,@getTheories)
 
@@ -70,13 +74,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
     println: (msg) =>
       @trigger 'println', msg
 
-    output: (thy, line, msg) =>
-      console.log msg
-      @set output: msg     
-      @theories.get(thy).set 
-        output: 
-          line: line
-          message: msg
+
 
     states: (node, states) =>
       @theories.get(node).set
@@ -99,19 +97,22 @@ define ['ScalaConnector'], (ScalaConnector) ->
       console.log "theory #{thy} depends on #{dep}"
 
     commandChanged: (node, command) =>
+      console.log 'command changed'
       node = @theories.get(node)
       old = node.get('commands').get(command.id)
       if old?
         old.set(command)
       else
-        node.get('commands').add(command)        
+        node.get('commands').add(command)
       #console.log("#{command} in #{node} changed: ", span)
 
     open: (thy) =>
       @scala.call
         action: 'open'
         data: thy.toJSON()
-        callback: (text) =>          
+        callback: (text) =>  
+          thy.set
+            opened: true        
           thy.trigger 'opened', text
 
   session = new Session

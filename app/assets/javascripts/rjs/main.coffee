@@ -1,4 +1,4 @@
-require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','ace/ace'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,ace) ->
+require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Router'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,router) ->
   user = 'martinring'
   project = 'test'
 
@@ -9,18 +9,18 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','ace/a
   commands.open.bind (file) ->    
     path = file.get 'path'
     name = file.get 'id'
-    if openfiles[file.cid]?
-      openfiles[file.cid].activate()
+    router.navigate "/martinring/test/" + name
+    if openfiles[name]?
+      openfiles[name].activate()
     else
       editor = new Editor model: file
       tab = new Tab
         title: name
         content: editor.$el
-      openfiles[file.cid] = tab      
+      openfiles[name] = tab      
       tab.on 'close', () ->
-        openfiles[file.cid] = null
-        file.set active: false
-        _.head(openfiles)?.activate()
+        openfiles[name] = null
+        file.close()
       tab.on 'change:active', (m,a) ->
         file.set active: a
       tabs.add tab   
@@ -41,5 +41,15 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','ace/a
 
   isabelle.on 'change:output', (m,out) ->
     $('#output').html(out)
-   
+  
+  Backbone.history.start()
+
+  router.navigate "/martinring/test/",
+    replace: true
+
+  router.on 'node', (node) ->
+    console.log node
+    thy = isabelle.theories.get(node)
+    commands.open.execute(thy) if thy?
+
   isabelle.start user, project
