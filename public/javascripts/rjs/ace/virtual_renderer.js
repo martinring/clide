@@ -44,7 +44,7 @@ var CursorLayer = require("./layer/cursor").Cursor;
 var ScrollBar = require("./scrollbar").ScrollBar;
 var RenderLoop = require("./renderloop").RenderLoop;
 var EventEmitter = require("./lib/event_emitter").EventEmitter;
-var editorCss = require("ace/requirejs/text!./css/editor.css");
+var editorCss = require("./requirejs/text!./css/editor.css");
 
 dom.importCssString(editorCss, "ace_editor");
 
@@ -104,7 +104,6 @@ var VirtualRenderer = function(container, theme) {
     this.$markerFront = new MarkerLayer(this.content);
 
     this.$cursorLayer = new CursorLayer(this.content);
-    this.$cursorPadding = 8;
 
     // Indicates whether the horizontal scrollbar is visible
     this.$horizScroll = false;
@@ -164,8 +163,8 @@ var VirtualRenderer = function(container, theme) {
     );
     this.$loop.schedule(this.CHANGE_FULL);
 
-    this.setPadding(4);
     this.updateCharacterSize();
+    this.setPadding(4);
 };
 
 (function() {
@@ -509,13 +508,11 @@ var VirtualRenderer = function(container, theme) {
     };
     
     this.$updatePrintMargin = function() {
-        var containerEl;
-
         if (!this.$showPrintMargin && !this.$printMarginEl)
             return;
 
         if (!this.$printMarginEl) {
-            containerEl = dom.createElement("div");
+            var containerEl = dom.createElement("div");
             containerEl.className = "ace_layer ace_print-margin-layer";
             this.$printMarginEl = dom.createElement("div");
             this.$printMarginEl.className = "ace_print-margin";
@@ -1326,18 +1323,19 @@ var VirtualRenderer = function(container, theme) {
                 _self.container.ownerDocument
             );
 
-            if (_self.$theme)
-                dom.removeCssClass(_self.container, _self.$theme);
+            if (_self.theme)
+                dom.removeCssClass(_self.container, _self.theme.cssClass);
 
-            _self.$theme = theme ? theme.cssClass : null;
+            // this is kept only for backwards compatibility
+            _self.$theme = theme.cssClass;
 
-            if (_self.$theme)
-                dom.addCssClass(_self.container, _self.$theme);
+            _self.theme = theme;
+            dom.addCssClass(_self.container, theme.cssClass);
+            dom.setCssClass(_self.container, "ace_dark", theme.isDark);
 
-            if (theme && theme.isDark)
-                dom.addCssClass(_self.container, "ace_dark");
-            else
-                dom.removeCssClass(_self.container, "ace_dark");
+            var padding = theme.padding || 4;
+            if (_self.$padding && padding != _self.$padding)
+                _self.setPadding(padding);
 
             // force re-measure of the gutter width
             if (_self.$size) {

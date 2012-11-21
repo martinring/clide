@@ -148,17 +148,14 @@ var SearchHighlight = require("./search_highlight").SearchHighlight;
  **/
 
 var EditSession = function(text, mode) {
-    this.$modified = true;
     this.$breakpoints = [];
     this.$decorations = [];
     this.$frontMarkers = {};
     this.$backMarkers = {};
     this.$markerId = 1;
-    this.$resetRowCache(0);
-    this.$wrapData = [];
-    this.$foldData = [];
-    this.$rowLengthCache = [];
     this.$undoSelect = true;
+    
+    this.$foldData = [];
     this.$foldData.toString = function() {
         var str = "";
         this.forEach(function(foldLine) {
@@ -166,12 +163,13 @@ var EditSession = function(text, mode) {
         });
         return str;
     }
+    this.on("changeFold", this.onChangeFold.bind(this));
+    this.$onChange = this.onChange.bind(this);
+    
+    if (typeof text != "object" || !text.getLine)
+        text = new Document(text);
 
-    if (typeof text == "object" && text.getLine) {
-        this.setDocument(text);
-    } else {
-        this.setDocument(new Document(text));
-    }
+    this.setDocument(text);
 
     this.selection = new Selection(this);
     this.setMode(mode);
@@ -191,16 +189,15 @@ var EditSession = function(text, mode) {
      **/
     this.setDocument = function(doc) {
         if (this.doc)
-            throw new Error("Document is already set");
+            this.doc.removeListener("change", this.$onChange);
 
         this.doc = doc;
-        doc.on("change", this.onChange.bind(this));
-        this.on("changeFold", this.onChangeFold.bind(this));
+        doc.on("change", this.$onChange);
 
-        if (this.bgTokenizer) {
+        if (this.bgTokenizer)
             this.bgTokenizer.setDocument(this.getDocument());
-            this.bgTokenizer.start(0);
-        }
+
+        this.resetCaches();
     };
 
     /**
@@ -251,6 +248,15 @@ var EditSession = function(text, mode) {
         }
 
         return low && low -1;
+    };
+
+    this.resetCaches = function() {
+        this.$modified = true;
+        this.$wrapData = [];
+        this.$rowLengthCache = [];
+        this.$resetRowCache(0);
+        if (this.bgTokenizer)
+            this.bgTokenizer.start(0);
     };
 
     this.onChangeFold = function(e) {
@@ -318,7 +324,7 @@ var EditSession = function(text, mode) {
     };
 
     /**
-    * EditSession.getSelection() -> String
+    * EditSession.getSelection() -> Selection
     *
     * Returns the string of the current selection.
     **/
@@ -349,11 +355,11 @@ var EditSession = function(text, mode) {
     };
 
     /**
-    * EditSession.getTokenAt(row, column) -> Array
+    * EditSession.getTokenAt(row, column) -> Object
     * - row (Number): The row number to retrieve from
     * - column (Number): The column number to retrieve from
     *
-    * Returns an array of tokens at the indicated row and column.
+    * Returns an object indicating the token at the current row. The object has two properties: `index` and `start`.
     **/
     this.getTokenAt = function(row, column) {
         var tokens = this.bgTokenizer.getTokens(row);
@@ -375,14 +381,7 @@ var EditSession = function(text, mode) {
         token.start = c - token.value.length;
         return token;
     };
-
-    this.highlight = function(re) {
-        if (!this.$searchHighlight) {
-            var highlight = new SearchHighlight(null, "ace_selected-word", "text");
-            this.$searchHighlight = this.addDynamicMarker(highlight);
-        }
-        this.$searchHighlight.setRegexp(re);
-    }
+ 
     /**
     * EditSession.setUndoManager(undoManager)
     * - undoManager (UndoManager): The new undo manager
@@ -736,6 +735,30 @@ var EditSession = function(text, mode) {
         return inFront ? this.$frontMarkers : this.$backMarkers;
     };
 
+    this.highlight = function(re) {
+        if (!this.$searchHighlight) {
+            var highlight = new SearchHighlight(null, "ace_selected-word", "text");
+            this.$searchHighlight = this.addDynamicMarker(highlight);
+        }
+        this.$searchHighlight.setRegexp(re);
+    }
+    
+    // experimental
+    this.highlightLines = function(startRow, endRow, clazz, inFront) {
+        if (typeof endRow != "number") {
+            clazz = endRow;
+            endRow = startRow;
+        }
+        if (!clazz)
+            clazz = "ace_step";
+        
+        var range = new Range(startRow, 0, endRow, Infinity);
+        
+        var id = this.addMarker(range, clazz, "fullLine", inFront);
+        range.id = id;
+        return range;
+    },
+   
     /*
      * Error:
      *  {
@@ -762,7 +785,7 @@ var EditSession = function(text, mode) {
     * Returns the annotations for the `EditSession`.
     **/
     this.getAnnotations = function() {
-        return this.$annotations || {};
+        return this.$annotations || [];
     };
 
     /**
@@ -1204,8 +1227,8 @@ var EditSession = function(text, mode) {
     };
 
     /** related to: Document.getTextRange
-    * EditSession.getTextRange(range) -> Array
-    * - range (String): The range to work with
+    * EditSession.getTextRange(range) -> String
+    * - range (Range): The range to work with
     *
     * {:Document.getTextRange.desc}
     **/
@@ -1876,10 +1899,9 @@ var EditSession = function(text, mode) {
                 row ++;
             } else {
                 tokens = [];
-                foldLine.walk(
-                    function(placeholder, row, column, lastColumn) {
+                foldLine.walk(function(placeholder, row, column, lastColumn) {
                         var walkTokens;
-                        if (placeholder) {
+                        if (placeholder != null) {
                             walkTokens = this.$getDisplayTokens(
                                             placeholder, tokens.length);
                             walkTokens[0] = PLACEHOLDER_START;
