@@ -173,7 +173,7 @@ class Session(project: Project) extends JSConnector {
         val text = Source.fromFile(project.dir + path).getLines.toSeq
         val doc = new RemoteDocument     
         doc.insertLines(0, text :_*)        
-       session.init_node(node, node_header(node), Text.Perspective.full, doc.mkString)
+        session.init_node(node, node_header(node), Text.Perspective.full, doc.mkString)
         doc
       })
             
@@ -200,8 +200,7 @@ class Session(project: Project) extends JSConnector {
       for (doc <- docs.get(nodeName)) {
         doc.perspective = (start,end)
         session.edit_node(nodeName, node_header(nodeName), Text.Perspective.full, Nil)
-      }
-      println("change perspective of " + nodeName + " to " + start + " -> " + end)
+      }      
       
     case "setCurrentDoc" => json =>        
       current = Some(name(json.as[String]))      

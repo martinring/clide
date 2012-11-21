@@ -1,17 +1,15 @@
 @()
-@play.api.Logger.info("into view")
 <!DOCTYPE html>
 <html>
     <head>
         <title></title>
         <link rel="stylesheet" media="screen" href="/assets/stylesheets/main.css">
         <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.png">
-        <script type="text/javascript" src="/assets/javascripts/lib/jquery.js"></script>
-        <script type="text/javascript" src="/assets/javascripts/lib/underscore.js"></script>
-        <script type="text/javascript" src="/assets/javascripts/lib/backbone.js"></script>
-        <script type="text/javascript" src="/assets/javascripts/routes.js"></script>
-        <script type="text/javascript" src="/assets/javascripts/require.js" data-main="/assets/javascripts/rjs/main.js"></script>
-        @play.api.Logger.info("assets done")        
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/underscore.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/backbone.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/routes.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/require.js")" data-main="@routes.Assets.at("javascripts/rjs/main.js")"></script>
     </head>
     <body>
       <nav id="ribbon">
