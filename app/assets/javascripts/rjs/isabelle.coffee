@@ -15,7 +15,21 @@ define ['ScalaConnector'], (ScalaConnector) ->
       @remove(x) if x.get 'version' isnt currentVersion
     getCommandAt: (line) => @find (x) ->      
       range = x.get 'range'
-      range.start <= line && range.end >= line    
+      range.start <= line && range.end >= line
+    getTokenAt: (line,column) =>
+      cmd = @getCommandAt(line)
+      if (cmd?)
+        range = cmd.get('range')
+        tokens = cmd.get('tokens')
+        tokenLine = tokens[line - range.start]
+        i = 0
+        token = tokenLine[i]
+        pos = tokenLine[i].value.length          
+        while pos < column
+          i += 1
+          token = tokenLine[i]
+          pos += tokenLine[i].value.length
+        return token
 
   class Theory extends Backbone.Model
     constructor: (args...) ->      
@@ -57,6 +71,8 @@ define ['ScalaConnector'], (ScalaConnector) ->
             output: t.get('commands').getCommandAt(p.row)?.get 'output'
       @route = routes.controllers.Projects.getSession(@user,@project)
       @scala = new ScalaConnector(@route.webSocketURL(),@,@getTheories)
+      @scala.socket.onclose = =>
+        @set phase: 'disconnected'
 
     setPhase: (phase) =>
       @set
@@ -74,8 +90,6 @@ define ['ScalaConnector'], (ScalaConnector) ->
     println: (msg) =>
       @trigger 'println', msg
 
-
-
     states: (node, states) =>
       @theories.get(node).set
         states: states
@@ -87,11 +101,12 @@ define ['ScalaConnector'], (ScalaConnector) ->
       finished = 100.0 * finished / total
       warned = 100.0 * warned / total
       failed = 100.0 * warned / total      
-      @theories.get(node).set
+      @theories.get(node).set status:
         finished: finished
         running: running
         warned: warned
         failed: failed
+        done: (running + unprocessed is 0)
 
     dependency: (thy, dep) =>
       console.log "theory #{thy} depends on #{dep}"

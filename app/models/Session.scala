@@ -66,7 +66,7 @@ class Session(project: Project) extends JSConnector {
       val state = snap.state.command_state(snap.version, cmd)                                 
       if (!cmd.is_ignored) for (doc <- docs.get(node); start <- start) {
         val docStartLine = doc.line(start)
-        val docEndLine   = doc.line(start + cmd.length - 1)
+        val docEndLine   = doc.line(start + cmd.length - 1)        
         val ranges = (docStartLine to docEndLine).map(doc.ranges(_)).toVector
         val tokens = MarkupTree.getTokens(snap, ranges).map { _.map { token =>
           val classes = token.info.map{                       
@@ -75,9 +75,11 @@ class Session(project: Project) extends JSConnector {
             case List("text") => "text"
             case x => x.filter(_ != "text").mkString(".")            
           }
+          val tooltip = MarkupTree.tooltip(snap, token.range)          
           JsObject(
             "value" -> JsString(doc.getRange(token.range.start, token.range.stop)) ::
             "type" -> JsString(classes) ::
+            "tooltip" -> Json.toJson(tooltip) ::
             Nil
           )
         } }
@@ -90,9 +92,9 @@ class Session(project: Project) extends JSConnector {
 	        "end" -> JsNumber(docEndLine) :: Nil
 	      ) ::
 	      "tokens" -> Json.toJson(tokens) ::
-	      "output" -> JsString(commandInfo(cmd)) ::
+	      "output" -> JsString(commandInfo(cmd)) ::	      
 	      Nil)
-	    js.ignore.commandChanged(cmd.node_name.toString, json)
+	    js.ignore.commandChanged(cmd.node_name.toString, json)	    
       }            
     }
   }

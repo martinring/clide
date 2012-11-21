@@ -27,7 +27,8 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
       file.open()
 
   isabelle.on 'change:phase', (model,phase) ->
-    $('#sessionStatus').addClass(model.get 'phase')
+    $('#sessionStatus').removeClass(model.previous 'phase')
+                       .addClass(model.get 'phase')
 
   isabelle.on 'change:logic', (model,logic) ->
     $('#sessionLogic').text('logic: ' + logic)
@@ -41,6 +42,10 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
 
   isabelle.on 'change:output', (m,out) ->
     $('#output').html(out)
+
+  isabelle.on 'change:currentToken', (m,t) ->
+    if t?.tooltip?      
+      $('#output').html(t.tooltip)
   
   Backbone.history.start()
 

@@ -14,7 +14,7 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
 
     initModel: (text) =>
       @ace = ace.edit @editorEl[0]
-      @ace.setValue(text)
+      @ace.setValue(text)      
 
       # setup search
       commands.search.bind (text) => if @model.get 'active'
@@ -23,24 +23,32 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
       oldPos = null
       pushPosTimeout = null
 
+      editSession = @ace.getSession()
+
       @ace.on 'changeSelection', (args...) =>
         cursor = @ace.getCursorPosition()
-        f = =>
-          #r = @ace.renderer
-          #pos = r.$cursorLayer.$pixelPos
-          #offset = @editorEl.offset()          
-          #pos.top += offset.top + r.lineHeight + 4 if offset?
-          #pos.left += offset.left + (if r.showGutter then r.$gutter.offsetWidth else 0) if offset?
-          #$('#completion').css pos
-        setTimeout(f,50)
-        unless cursor.row is oldPos?.row and cursor.column is oldPos?.column
-          clearTimeout(pushPosTimeout)
-          pushPosTimeout = setTimeout((=>
-            oldPos = cursor
-            @model.set 'cursor', cursor
-            ),200)
-
-      editSession = @ace.getSession()
+        token = editSession.getTokenAt(cursor.row, cursor.column)        
+        @model.set
+          cursor: cursor
+          currentToken: token
+        isabelle.set
+          currentToken: token
+        #f = =>
+        #  r = @ace.renderer
+        #  pos = r.$cursorLayer.$pixelPos
+        #  offset = @editorEl.offset()          
+        #  pos.top += offset.top + r.lineHeight + 4 if offset?
+        #  pos.left += offset.left + (if r.showGutter then r.$gutter.offsetWidth else 0) if offset?
+        #  $('#completion').css pos
+        #  console.log editSession.getTokenAt(cursor.row,cursor.column)
+        #setTimeout(f,50)
+        #unless cursor.row is oldPos?.row and cursor.column is oldPos?.column
+        #  clearTimeout(pushPosTimeout)
+        #  pushPosTimeout = setTimeout((=>
+        #    oldPos = cursor
+        #    @model.set 'cursor', cursor
+        #    ),200)
+      
       #@model.on 'change:output', (model, out) =>
       #  pos = editSession.documentToScreenPosition(out.line, 100)
       #  #@outputEl.css 
@@ -50,13 +58,11 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
       range =
         start: 0
         end: 0
-      editSession.on 'changeScrollTop', (args...) =>          
-        start = @ace.getFirstVisibleRow()
-        end = @ace.getLastVisibleRow()
-        unless range.start is start and range.end is end
-          range.start = start
-          range.end = end
-          @model.set 'perspective', range
+      editSession.on 'changeScrollTop', (args...) =>                  
+        @model.set 
+          perspective:
+            start: @ace.getFirstVisibleRow()
+            end: @ace.getLastVisibleRow()                
       # Reset the undo manager so that the user cant undo the file load
       editSession.getUndoManager().reset()
       #session.setMode('ace/mode/isabelle')

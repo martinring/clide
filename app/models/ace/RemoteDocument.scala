@@ -233,24 +233,6 @@ class RemoteDocument(newline: String = "\n") {
     case (start,end) => if (active) Text.Perspective(Seq(Text.Range(start,end))) else Text.Perspective.empty
   }
   
-  def invalidate(start: Position, end: Position) {
-    if (start.row == end.row)
-      tokens(start.row) = {
-        val line = Line(tokens(start.row))
-        val l = line.take(start.column)
-        val r = line.drop(end.column)
-        l ++ ((Token(Nil,apply(start.row).substring(start.column, end.column))) :: r)
-      }
-    else {
-      tokens(start.row) = Line(tokens(start.row)).take(start.column) :+ 
-        Token(Nil,apply(start.row).drop(start.column))
-      tokens(end.row) = Token(Nil,apply(end.row).take(end.column)) ::
-        Line(tokens(end.row)).drop(end.column)
-      for (i <- (start.row+1) until end.row) 
-        tokens(i) = List(Token(Nil,apply(i)))
-    }
-  }
-  
   def applyDelta(delta: Delta): List[Text.Edit] = delta match {
     case InsertNewline(range) =>
       List(splitLine(range.start.row, range.start.column))

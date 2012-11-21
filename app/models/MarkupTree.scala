@@ -2,6 +2,7 @@ package models
 
 import isabelle._
 import play.api.libs.json._
+import scala.collection.SortedMap
 
 object MarkupTree {
   def getLineStates(
@@ -43,6 +44,71 @@ object MarkupTree {
         SORT,TYP,TERM,PROP,TYPING,ATTRIBUTE,METHOD,ANTIQ,ML_KEYWORD,ML_DELIMITER,
         ML_TVAR,ML_NUMERAL,ML_CHAR,ML_STRING,ML_COMMENT,ML_MALFORMED,ML_DEF,ML_OPEN,
         ML_STRUCT,ML_TYPING)
+  
+  def tooltip_message(snapshot: Document.Snapshot, range: Text.Range): Option[String] =
+  {
+    val msgs =
+      snapshot.cumulate_markup[SortedMap[Long, String]](range, SortedMap.empty,
+        Some(Set(Isabelle_Markup.WRITELN, Isabelle_Markup.WARNING, Isabelle_Markup.ERROR)),
+        {
+          case (msgs, Text.Info(_, msg @ XML.Elem(Markup(markup, Isabelle_Markup.Serial(serial)), _)))
+          if markup == Isabelle_Markup.WRITELN ||
+              markup == Isabelle_Markup.WARNING ||
+              markup == Isabelle_Markup.ERROR =>
+            msgs + (serial ->
+              Pretty.string_of(List(msg), margin = 40))
+        }).toList.flatMap(_.info)
+    if (msgs.isEmpty) None else Some(cat_lines(msgs.iterator.map(_._2)))
+  }        
+     
+  private val tooltips: Map[String, String] =
+    Map(
+      Isabelle_Markup.SORT -> "sort",
+      Isabelle_Markup.TYP -> "type",
+      Isabelle_Markup.TERM -> "term",
+      Isabelle_Markup.PROP -> "proposition",
+      Isabelle_Markup.TOKEN_RANGE -> "inner syntax token",
+      Isabelle_Markup.FREE -> "free variable",
+      Isabelle_Markup.SKOLEM -> "skolem variable",
+      Isabelle_Markup.BOUND -> "bound variable",
+      Isabelle_Markup.VAR -> "schematic variable",
+      Isabelle_Markup.TFREE -> "free type variable",
+      Isabelle_Markup.TVAR -> "schematic type variable",
+      Isabelle_Markup.ML_SOURCE -> "ML source",
+      Isabelle_Markup.DOC_SOURCE -> "document source")
+
+  private val tooltip_elements =
+    Set(Isabelle_Markup.ENTITY, Isabelle_Markup.TYPING, Isabelle_Markup.ML_TYPING) ++
+    tooltips.keys
+
+  private def string_of_typing(kind: String, body: XML.Body): String =
+    Pretty.string_of(List(Pretty.block(XML.Text(kind) :: Pretty.Break(1) :: body)),
+      margin = 40)
+
+  def tooltip(snapshot: Document.Snapshot, range: Text.Range): Option[String] =
+  {
+    def add(prev: Text.Info[List[(Boolean, String)]], r: Text.Range, p: (Boolean, String)) =
+      if (prev.range == r) Text.Info(r, p :: prev.info) else Text.Info(r, List(p))
+
+    val tips =
+      snapshot.cumulate_markup[Text.Info[(List[(Boolean, String)])]](
+        range, Text.Info(range, Nil), Some(tooltip_elements),
+        {
+          case (prev, Text.Info(r, XML.Elem(Isabelle_Markup.Entity(kind, name), _))) =>
+            add(prev, r, (true, kind + " " + quote(name)))
+          case (prev, Text.Info(r, XML.Elem(Markup(Isabelle_Markup.TYPING, _), body))) =>
+            add(prev, r, (true, string_of_typing("::", body)))
+          case (prev, Text.Info(r, XML.Elem(Markup(Isabelle_Markup.ML_TYPING, _), body))) =>
+            add(prev, r, (false, string_of_typing("ML:", body)))
+          case (prev, Text.Info(r, XML.Elem(Markup(name, _), _)))
+          if tooltips.isDefinedAt(name) => add(prev, r, (true, tooltips(name)))
+        }).toList.flatMap(_.info.info)
+
+    val all_tips =
+      (tips.filter(_._1) ++ tips.filter(!_._1).lastOption.toList).map(_._2)
+    if (all_tips.isEmpty) None else Some(cat_lines(all_tips))
+  }
+
   
   def getTokens(
     snapshot: Document.Snapshot,

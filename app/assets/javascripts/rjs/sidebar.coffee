@@ -34,21 +34,21 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       fl = $("<div class='failed'></div>")
       progress.append f, r, w, fl
       title.append progress
-      @model.on 'change:finished', (m,finished) ->
-        f.animate width: (finished + "%")
-        if finished is 100
-          icon.text(icons.check)
+      @model.on 'change:status', (m,s) ->
+        f.animate width: (s.finished + "%")
+        if s.failed > 0
+          icon.text(icons.minus)
+        if s.warned > 0
+          icon.text(icons.shield)        
+        else if s.running > 0
+          icon.text(icons.clock)          
         else
-          icon.text(icons.clock)
-      @model.on 'change:running', (m,running) ->
-        r.animate
-          width: running + "%"
-      @model.on 'change:warned', (m,warned) ->
-        w.animate
-          width: warned + "%"
-      @model.on 'change:failed', (m,failed) ->
-        fl.animate
-          width: failed + "%"
+          icon.text(icons.check)
+          
+        r.animate width: s.running + "%"
+        w.animate width: s.warned + "%"
+
+        fl.animate width: s.failed + "%"
       @model.on 'change:active', (m,active) =>
         @$el.toggleClass 'selected', active
       @$el.append icon, title

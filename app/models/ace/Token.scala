@@ -4,7 +4,8 @@ import play.api.libs.json._
 
 case class Token(
     types: List[String], 
-    value: String
+    value: String,
+    tooltip: Option[String]
     ) {
   
   val id = {
@@ -20,17 +21,17 @@ case class Token(
   
   def length = value.length
   
-  def take(n: Int): Token = Token(types,value.take(n))
-  def drop(n: Int): Token = Token(types,value.drop(n))
+  def take(n: Int): Token = Token(types,value.take(n),tooltip)
+  def drop(n: Int): Token = Token(types,value.drop(n),tooltip)
   
   def splitAt(n: Int): (Token,Token) = {
     val (left,right) = value.splitAt(n)
-    (Token(types,left),Token(types,right))
+    (Token(types,left,tooltip),Token(types,right,tooltip))
   }
   
   def splitLine: (Token,Token) = {
     val (left,right) = value.splitAt(value.indexOf(newline))
-    (Token(types,left),Token(types,right.drop(newline.length)))
+    (Token(types,left,tooltip),Token(types,right.drop(newline.length),tooltip))
   }
 }
 
@@ -40,7 +41,10 @@ object Token {
   implicit object Writes extends Writes[Token] {
     def writes(token: Token) = JsObject(
         "type" -> JsString((token.id :: token.types).mkString(".")) ::
-        "value" -> JsString(token.value) :: Nil)
+        "value" -> JsString(token.value) :: (token.tooltip match {
+          case Some(tooltip) => "tooltip" -> JsString(tooltip) :: Nil
+          case None          => Nil
+        }))
   }        
 
   def lines(tokens: List[Token]): List[List[Token]] = {    
