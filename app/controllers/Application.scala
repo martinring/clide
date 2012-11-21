@@ -7,7 +7,9 @@ import isabelle.Isabelle_System
 object Application extends Controller {  
   def index = Action {
     Logger.info("request for index")
-    val ok = Ok(views.html.index())
+    val view = views.html.index()
+    Logger.info("created view")
+    val ok = Ok(view)
     Logger.info("served")
     ok
   }    
