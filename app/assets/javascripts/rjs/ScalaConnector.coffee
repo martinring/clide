@@ -1,5 +1,5 @@
 define ->
-  class ScalaConnector      
+  class ScalaConnector 
     constructor: (@url,@object,init) ->
       recieve = (e) =>       
         @blink() 

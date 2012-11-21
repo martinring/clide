@@ -9,8 +9,6 @@ import models.ace._
 import play.api.Logger
 
 class Session(project: Project) extends JSConnector {
-  Logger.info("new session")
-  
   val docs = scala.collection.mutable.Map[Document.Node.Name,RemoteDocument]()
   
   var current: Option[Document.Node.Name] = None
@@ -79,11 +77,10 @@ class Session(project: Project) extends JSConnector {
             case x => x.filter(_ != "text").mkString(".")            
           }
           val tooltip = MarkupTree.tooltip(snap, token.range)          
-          JsObject(
-            "value" -> JsString(doc.getRange(token.range.start, token.range.stop)) ::
-            "type" -> JsString(classes) ::
-            "tooltip" -> Json.toJson(tooltip) ::
-            Nil
+          Json.obj(
+            "value"   -> doc.getRange(token.range.start, token.range.stop),
+            "type"    -> classes,
+            "tooltip" -> tooltip            
           )
         } }
         val json = JsObject(
