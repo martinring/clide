@@ -10,7 +10,7 @@ object ApplicationBuild extends Build {
       "org.scala-lang" % "scala-swing" % "2.10.0-RC1"      
     )
 
-    val main = PlayProject(appName, appVersion, appDependencies).settings(
+    val main = play.Project(appName, appVersion, appDependencies).settings(
       scalaVersion := "2.10.0-RC1",
       //coffeescriptOptions := Seq("bare"),
       lessEntryPoints <<= baseDirectory(d => (d / "app" / "assets" / "stylesheets" ** "main.less"))
