@@ -6,8 +6,11 @@ import scala.actors.Actor._
 import play.api.libs.json._
 import scala.io.Source
 import models.ace._
+import play.api.Logger
 
 class Session(project: Project) extends JSConnector {
+  Logger.info("new session")
+  
   val docs = scala.collection.mutable.Map[Document.Node.Name,RemoteDocument]()
   
   var current: Option[Document.Node.Name] = None

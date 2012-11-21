@@ -6,6 +6,7 @@ import isabelle.Isabelle_System
 
 object Application extends Controller {  
   def index = Action {
+    Logger.info("request for index")
     Ok(views.html.index())
   }    
 
