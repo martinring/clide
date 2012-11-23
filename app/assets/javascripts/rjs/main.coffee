@@ -42,10 +42,6 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
 
   isabelle.on 'change:output', (m,out) ->
     $('#output').html(out)
-
-  isabelle.on 'change:currentToken', (m,t) ->
-    if t?.tooltip?      
-      $('#output').html(t.tooltip)
   
   Backbone.history.start()
 

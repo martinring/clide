@@ -11,8 +11,7 @@ object ApplicationBuild extends Build {
     )
 
     val main = play.Project(appName, appVersion, appDependencies).settings(
-      scalaVersion := "2.10.0-RC1",
-      //coffeescriptOptions := Seq("bare"),
+      scalaVersion := "2.10.0-RC1",      
       lessEntryPoints <<= baseDirectory(d => (d / "app" / "assets" / "stylesheets" ** "main.less"))
     )
 }
