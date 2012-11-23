@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+#
+# Author: Markus Wenzel, TU Muenchen
+#
+# DESCRIPTION: prepare theory session document
+
+
+PRG="$(basename "$0")"
+
+function usage()
+{
+  echo
+  echo "Usage: isabelle $PRG [OPTIONS] [DIR]"
+  echo
+  echo "  Options are:"
+  echo "    -c           cleanup -- be aggressive in removing old stuff"
+  echo "    -n NAME      specify document name (default 'document')"
+  echo "    -o FORMAT    specify output format: dvi (default), dvi.gz, ps, ps.gz, pdf"
+  echo "    -t TAGS      specify tagged region markup"
+  echo
+  echo "  Prepare the theory session document in DIR (default 'document')"
+  echo "  producing the specified output format."
+  echo
+  exit 1
+}
+
+function fail()
+{
+  echo "$1" >&2
+  exit 2
+}
+
+
+## process command line
+
+# options
+
+CLEAN=""
+NAME="document"
+OUTFORMAT=dvi
+declare -a TAGS=()
+
+while getopts "cn:o:t:" OPT
+do
+  case "$OPT" in
+    c)
+      CLEAN=true
+      ;;
+    n)
+      NAME="$OPTARG"
+      ;;
+    o)
+      OUTFORMAT="$OPTARG"
+      ;;
+    t)
+      splitarray "," "$OPTARG"; TAGS=("${SPLITARRAY[@]}")
+      ;;
+    \?)
+      usage
+      ;;
+  esac
+done
+
+shift $(($OPTIND - 1))
+
+
+# args
+
+DIR="document"
+[ "$#" -ge 1 ] && { DIR="$1"; shift; }
+
+[ "$#" -ne 0 ] && usage
+
+
+## main
+
+# check format
+
+case "$OUTFORMAT" in
+  dvi | dvi.gz | ps | ps.gz | pdf)
+    ;;
+  *)
+    fail "Bad output format '$OUTFORMAT'"
+    ;;
+esac
+
+
+# tagged region markup
+
+function prep_tags ()
+{
+  (
+    for TAG in "${TAGS[@]}"
+    do
+      case "$TAG" in
+        /*)
+          echo "\\isafoldtag{${TAG:1}}"
+          ;;
+        -*)
+          echo "\\isadroptag{${TAG:1}}"
+          ;;
+        +*)
+          echo "\\isakeeptag{${TAG:1}}"
+          ;;
+        *)
+          echo "\\isakeeptag{${TAG}}"
+          ;;
+      esac
+    done
+  ) > isabelletags.sty
+}
+
+
+# prepare document
+
+function pre_latex ()
+{
+  local FMT="$1"
+  [ -n "$CLEAN" ] && rm -f *.aux *.out *.ind *.idx *.ilg *.bbl *.blg *.log
+  "$ISABELLE_TOOL" latex -o sty && \
+  "$ISABELLE_TOOL" latex -o "$FMT" && \
+  { [ ! -f root.bib ] || "$ISABELLE_TOOL" latex -o bbl; } && \
+  { [ ! -f root.idx ] || "$ISABELLE_TOOL" latex -o idx; } && \
+  "$ISABELLE_TOOL" latex -o "$FMT"
+}
+
+(
+  cd "$DIR" || fail "Bad directory '$DIR'"
+
+  [ -n "$CLEAN" ] && rm -f "../$NAME.$OUTFORMAT"
+
+  prep_tags
+
+  if [ -f IsaMakefile ]; then
+    "$ISABELLE_TOOL" make "$OUTFORMAT"
+    RC="$?"
+  elif [ "$OUTFORMAT" = pdf ]; then
+    pre_latex pdf && \
+    "$ISABELLE_TOOL" latex -o pdf
+    RC="$?"
+  else
+    pre_latex dvi && \
+    "$ISABELLE_TOOL" latex -o "$OUTFORMAT"
+    RC="$?"
+  fi
+
+  if [ "$RC" -eq 0 -a -f "root.$OUTFORMAT" ]; then
+    cp -f "root.$OUTFORMAT" "../$NAME.$OUTFORMAT"
+  fi
+
+  exit "$RC"
+)
+RC="$?"
+
+
+# install
+
+[ "$RC" -ne 0 ] && fail "Document preparation failure in directory '$DIR'"
+
+#beware!
+[ -n "$CLEAN" ] && rm -rf "$DIR"
+
+exit "$RC"

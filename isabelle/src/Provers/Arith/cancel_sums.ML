@@ -1,0 +1,74 @@
+(*  Title:      Provers/Arith/cancel_sums.ML
+    Author:     Markus Wenzel and Stefan Berghofer, TU Muenchen
+
+Cancel common summands of balanced expressions:
+
+  A + x + B ~~ A' + x + B'  ==  A + B ~~ A' + B'
+
+where + is AC0 and ~~ an appropriate balancing operation (e.g. =, <=, <, -).
+*)
+
+signature CANCEL_SUMS_DATA =
+sig
+  (*abstract syntax*)
+  val mk_sum: term list -> term
+  val dest_sum: term -> term list
+  val mk_bal: term * term -> term
+  val dest_bal: term -> term * term
+  (*rules*)
+  val prove_conv: tactic -> (simpset -> tactic) -> simpset -> term * term -> thm
+  val norm_tac: simpset -> tactic            (*AC0 etc.*)
+  val uncancel_tac: cterm -> tactic          (*apply A ~~ B  ==  x + A ~~ x + B*)
+end;
+
+signature CANCEL_SUMS =
+sig
+  val proc: simpset -> term -> thm option
+end;
+
+
+functor CancelSumsFun(Data: CANCEL_SUMS_DATA): CANCEL_SUMS =
+struct
+
+
+(* cancel *)
+
+fun cons1 x (xs, y, z) = (x :: xs, y, z);
+fun cons2 y (x, ys, z) = (x, y :: ys, z);
+
+(*symmetric difference of multisets -- assumed to be sorted wrt. Term_Ord.term_ord*)
+fun cancel ts [] vs = (ts, [], vs)
+  | cancel [] us vs = ([], us, vs)
+  | cancel (t :: ts) (u :: us) vs =
+      (case Term_Ord.term_ord (t, u) of
+        EQUAL => cancel ts us (t :: vs)
+      | LESS => cons1 t (cancel ts (u :: us) vs)
+      | GREATER => cons2 u (cancel (t :: ts) us vs));
+
+
+(* uncancel *)
+
+fun uncancel_sums_tac _ [] = all_tac
+  | uncancel_sums_tac thy (t :: ts) =
+      Data.uncancel_tac (Thm.cterm_of thy t) THEN
+      uncancel_sums_tac thy ts;
+
+
+(* the simplification procedure *)
+
+fun proc ss t =
+  (case try Data.dest_bal t of
+    NONE => NONE
+  | SOME bal =>
+      let
+        val thy = Proof_Context.theory_of (Simplifier.the_context ss);
+        val (ts, us) = pairself (sort Term_Ord.term_ord o Data.dest_sum) bal;
+        val (ts', us', vs) = cancel ts us [];
+      in
+        if null vs then NONE
+        else SOME
+          (Data.prove_conv (uncancel_sums_tac thy vs) Data.norm_tac ss
+            (t, Data.mk_bal (Data.mk_sum ts', Data.mk_sum us')))
+      end);
+
+end;

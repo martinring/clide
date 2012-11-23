@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+#
+# Author: Markus Wenzel, TU Muenchen
+#
+# DESCRIPTION: get values from Isabelle settings environment
+
+
+## diagnostics
+
+PRG="$(basename "$0")"
+
+function usage()
+{
+  echo
+  echo "Usage: isabelle $PRG [OPTIONS] [VARNAMES ...]"
+  echo
+  echo "  Options are:"
+  echo "    -a           display complete environment"
+  echo "    -b           print values only (doesn't work for -a)"
+  echo "    -d FILE      dump complete environment to FILE"
+  echo "                 (null terminated entries)"
+  echo
+  echo "  Get value of VARNAMES from the Isabelle settings."
+  echo
+  exit 1
+}
+
+
+## process command line
+
+# options
+
+ALL=""
+BASE=""
+DUMP=""
+
+while getopts "abd:" OPT
+do
+  case "$OPT" in
+    a)
+      ALL=true
+      ;;
+    b)
+      BASE=true
+      ;;
+    d)
+      DUMP="$OPTARG"
+      ;;
+    \?)
+      usage
+      ;;
+  esac
+done
+
+shift $(($OPTIND - 1))
+
+
+# args
+
+[ -n "$ALL" -a "$#" -ne 0 ] && usage
+
+
+## main
+
+if [ -n "$ALL" ]; then
+  env
+else
+  for VAR in "$@"
+  do
+    if [ -n "$BASE" ]; then
+      eval "echo \$$VAR"
+    else
+      eval "echo $VAR=\$$VAR"
+    fi
+  done
+fi
+
+if [ -n "$DUMP" ]; then
+  export PATH_JVM="$(jvmpath "$PATH")"
+  exec perl -w -e 'for $key (keys %ENV) { print $key, "=", $ENV{$key}, "\x00"; }' > "$DUMP"
+fi
+

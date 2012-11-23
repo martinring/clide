@@ -1,0 +1,38 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{graphicx,isabelle,isabellesym}
+\usepackage{amssymb}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% proper setup for best-style documents
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{ZF}
+\author{Lawrence C Paulson and others}
+\maketitle
+
+\tableofcontents
+
+\begin{center}
+  \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{session_graph}
+\end{center}
+
+\newpage
+
+\renewcommand{\isamarkupheader}[1]%
+{\section{\isabellecontext: #1}\markright{THEORY~``\isabellecontext''}}
+
+\parindent 0pt\parskip 0.5ex
+
+% include generated text of all theories
+\input{session}
+
+%\bibliographystyle{abbrv}
+%\bibliography{root}
+
+\end{document}

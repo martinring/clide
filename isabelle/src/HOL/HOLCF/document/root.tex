@@ -1,0 +1,36 @@
+
+% HOLCF/document/root.tex
+
+\documentclass[11pt,a4paper]{article}
+\usepackage{graphicx,isabelle,isabellesym,latexsym}
+\usepackage[only,bigsqcap]{stmaryrd}
+\usepackage{textcomp}
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+\pagestyle{myheadings}
+\newcommand{\isasymas}{\textsf{as}}
+\newcommand{\isasymlazy}{\isamath{\sim}}
+\newcommand{\isasymnotsqsubseteq}{\isamath{\not\sqsubseteq}}
+
+\begin{document}
+
+\title{Isabelle/HOLCF --- Higher-Order Logic of Computable Functions}
+\maketitle
+
+\tableofcontents
+
+\begin{center}
+  \includegraphics[scale=0.45]{session_graph}
+\end{center}
+
+\newpage
+
+\renewcommand{\isamarkupheader}[1]%
+{\section{\isabellecontext: #1}\markright{THEORY~``\isabellecontext''}}
+
+\parindent 0pt\parskip 0.5ex
+\input{session}
+
+\end{document}

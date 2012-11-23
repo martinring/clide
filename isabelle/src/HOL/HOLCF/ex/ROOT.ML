@@ -1,0 +1,10 @@
+(*  Title:      HOL/HOLCF/ex/ROOT.ML
+
+Misc HOLCF examples.
+*)
+
+use_thys ["Dnat", "Dagstuhl", "Focus_ex", "Fix2", "Hoare",
+  "Concurrency_Monad",
+  "Loop", "Powerdomain_ex", "Domain_Proofs",
+  "Letrec",
+  "Pattern_Match"];

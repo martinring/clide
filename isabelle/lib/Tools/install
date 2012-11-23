@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#
+# Author: Markus Wenzel, TU Muenchen
+#
+# DESCRIPTION: install standalone Isabelle executables
+
+
+PRG=$(basename "$0")
+
+function usage()
+{
+  echo
+  echo "Usage: isabelle $PRG [OPTIONS]"
+  echo
+  echo "  Options are:"
+  echo "    -d DISTDIR   refer to DISTDIR as Isabelle distribution"
+  echo "                 (default ISABELLE_HOME)"
+  echo "    -p DIR       install standalone binaries in DIR"
+  echo
+  echo "  Install Isabelle executables with absolute references to the current"
+  echo "  distribution directory."
+  echo
+  exit 1
+}
+
+function fail()
+{
+  echo "$1" >&2
+  exit 2
+}
+
+
+## process command line
+
+# options
+
+NO_OPTS=true
+
+DISTDIR="$ISABELLE_HOME"
+BINDIR=""
+
+while getopts "d:p:" OPT
+do
+  NO_OPTS=""
+  case "$OPT" in
+    d)
+      DISTDIR="$OPTARG"
+      ;;
+    p)
+      BINDIR="$OPTARG"
+      ;;
+    \?)
+      usage
+      ;;
+  esac
+done
+
+shift $(($OPTIND - 1))
+
+
+# args
+
+[ "$#" -ne 0 -o -n "$NO_OPTS" ] && usage
+
+
+## main
+
+echo "referring to distribution at $DISTDIR"
+
+
+# standalone binaries
+
+if [ -n "$BINDIR" ]; then
+  mkdir -p "$BINDIR" || fail "Bad directory: $BINDIR"
+
+  for NAME in isabelle isabelle-process
+  do
+    BIN="$BINDIR/$NAME"
+    DIST="$DISTDIR/bin/$NAME"
+    echo "installing $BIN"
+    rm -f "$BIN"
+    echo "#!/usr/bin/env bash" > "$BIN" || fail "Cannot write file: $BIN"
+    echo >> "$BIN"
+    echo "exec \"$DIST\" \"\$@\"" >> "$BIN"
+    chmod +x "$BIN"
+  done
+fi
