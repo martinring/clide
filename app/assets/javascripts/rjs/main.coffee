@@ -34,6 +34,7 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
     $('#sessionLogic').text('logic: ' + logic)
 
   isabelle.on 'println', (msg) ->
+    console.log("server says: '#{msg}'")
     $('#syslog').html(msg)
 
   $('#consoleButton').on 'click', ->
