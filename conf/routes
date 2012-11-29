@@ -1,15 +1,13 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
-
-# Home page
 GET     /                              controllers.Application.index
 
 # Javascript routing
 GET     /assets/javascripts/routes.js  controllers.Application.javascriptRoutes
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                  controllers.Assets.at(path="/public", file)
 
 # Projects
-GET     /:user/                        controllers.Projects.listProjects(user: String)
-GET     /:user/:project/               controllers.Projects.getSession(user: String, project: String)
+GET     /api/:user/                    controllers.Projects.listProjects(user: String)
+GET     /api/:user/:project/           controllers.Projects.getSession(user: String, project: String)
+GET     /:user/:project/               controllers.Projects.project(user: String, project: String, path="")
+GET     /:user/:project/*path          controllers.Projects.project(user: String, project: String, path: String)

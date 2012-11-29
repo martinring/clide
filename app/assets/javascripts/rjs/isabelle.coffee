@@ -53,6 +53,8 @@ define ['ScalaConnector'], (ScalaConnector) ->
     theories: new Theories
     openFiles: new Theories
 
+    ready: false
+
     start: (@user,@project) =>
       @theories.on 'add', (thy) =>
         thy.on 'open', (x) => @open(x)
@@ -83,6 +85,9 @@ define ['ScalaConnector'], (ScalaConnector) ->
 
     setFiles: (files) =>      
       @addTheory(thy) for thy in files              
+      unless @ready
+        @trigger 'ready' 
+        @ready = true
 
     setLogic: (logic) =>
       @set logic: logic

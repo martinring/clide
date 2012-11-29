@@ -1,7 +1,10 @@
 define ->
-  class ScalaConnector 
+  class ScalaConnector
+    bytesUp: 0
+    bytesDown: 0
+
     constructor: (@url,@object,init) ->
-      recieve = (e) =>       
+      recieve = (e) =>
         @blink() 
         if e.action
           f = @object[e.action]
@@ -25,8 +28,11 @@ define ->
       ready = false
       @isReady = () -> ready
       @socket = new WebSocket(@url)      
-      @socket.onmessage = (e) -> recieve(JSON.parse(e.data))
+      @socket.onmessage = (e) =>
+        @bytesDown += e.data.length
+        recieve(JSON.parse(e.data))
       if init? then @socket.onopen = (e) -> init()
+      window.getTraffic = => "up: #{@bytesUp / 1000} KB, down: #{@bytesDown / 1000} KB"
 
     id: 0
 
@@ -34,12 +40,12 @@ define ->
     
     timeOut: null
     
-    blink: () ->
+    blink: () =>
       clearTimeout(@timeOut)
       $('#sessionStatus').addClass('working')
       @timeOut = setTimeout((-> $('#sessionStatus').removeClass('working')), 500)
 
-    call: (options) ->
+    call: (options) =>
       @blink()
       #console.log(options)
       if options and options.action        
@@ -47,6 +53,8 @@ define ->
           @results[@id] = options.callback
           options.id = @id
           @id += 1
+        msg = JSON.stringify(options)
+        @bytesUp += msg.length
         @socket.send JSON.stringify(options)
       else
         console.error 'no action defined'

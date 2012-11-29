@@ -1,7 +1,10 @@
 define ->
   class Router extends Backbone.Router
     routes:
-        "/martinring/test/"        : "project"
-        "/martinring/test/:node"   : "node"
+        "/"        : "project"
+        "/:node"   : "node"
+
+    node: (node) =>
+      console.log node
 
   return new Router

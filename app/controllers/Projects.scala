@@ -41,5 +41,9 @@ object Projects extends Controller {
     val p = Project(project,user)
     val session = new models.Session(p)
     (session.in, session.out)
-  }   
+  }
+  
+  def project(user: String, project: String, path: String) = Action {
+    Ok(views.html.index(user,project,path))
+  }
 }

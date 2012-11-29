@@ -1,10 +1,17 @@
-@()
+@(user: String, project: String, path: String)
 <!DOCTYPE html>
 <html>
     <head>
         <title></title>
         <link rel="stylesheet" media="screen" href="/assets/stylesheets/main.css">
         <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.png">
+        <script>
+          var globalOptions = {
+            user    : "@user",
+            project : "@project",
+            path    : "@path"
+          }          
+        </script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/underscore.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/backbone.js")"></script>

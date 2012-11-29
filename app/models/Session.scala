@@ -15,9 +15,13 @@ class Session(project: Project) extends JSConnector {
   
   val thyLoad = new Thy_Load {
     override def read_header(name: Document.Node.Name): Thy_Header = {
-      val file = new java.io.File(name.node)
-      if (!file.exists || !file.isFile) error("No such file: " + quote(file.toString))
-      Thy_Header.read(file)
+      if (docs.isDefinedAt(name)) {
+        Thy_Header.read(docs(name).mkString)
+      } else {
+	    val file = new java.io.File(name.node)
+	    if (!file.exists || !file.isFile) error("No such file: " + quote(file.toString))
+	    Thy_Header.read(file)
+      }
     }
   }
   
@@ -68,7 +72,7 @@ class Session(project: Project) extends JSConnector {
       if (!cmd.is_ignored) for (doc <- docs.get(node); start <- start) {
         val docStartLine = doc.line(start)
         val docEndLine   = doc.line(start + cmd.length - 1)        
-        val ranges = (docStartLine to docEndLine).map(doc.ranges(_)).toVector
+        val ranges = (docStartLine to docEndLine).map(doc.ranges.lift(_)).flatten.toVector
         val tokens = MarkupTree.getTokens(snap, ranges).map { _.map { token =>
           val classes = token.info.map{                       
             case x => x
@@ -149,13 +153,15 @@ class Session(project: Project) extends JSConnector {
   
   def delayedLoad(thy: Document.Node.Name) {    
     thyInfo.dependencies(List(thy)).foreach { case (name,header) =>      
-      if (!docs.isDefinedAt(name)) {
+      if (!docs.isDefinedAt(name)) try {
         val text = Source.fromFile(project.dir + name + ".thy").getLines.toSeq // TODO!
         val doc = new RemoteDocument     
         doc.insertLines(0, text :_*)
         session.init_node(name, node_header(name), Text.Perspective.full, doc.mkString)
         docs(name) = doc
         js.ignore.dependency(thy.toString, name.toString)
+      } catch {
+        case e => // TODO: Import not available
       }
     }
   }

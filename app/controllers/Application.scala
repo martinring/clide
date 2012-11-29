@@ -5,9 +5,8 @@ import play.api.mvc._
 import isabelle.Isabelle_System
 
 object Application extends Controller {  
-  def index = Action {
-    Isabelle_System.init(new java.io.File("isabelle").getAbsolutePath())
-    Ok(views.html.index())
+  def index = Action {    
+    Ok(views.html.index("","",""))
   }    
 
   // -- Javascript routing
