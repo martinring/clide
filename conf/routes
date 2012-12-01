@@ -1,4 +1,7 @@
-GET     /                              controllers.Application.index
+# Authentication
+GET     /                              controllers.Application.login
+POST    /login                         controllers.Application.authenticate
+GET     /logout                        controllers.Application.logout
 
 # Javascript routing
 GET     /assets/javascripts/routes.js  controllers.Application.javascriptRoutes
@@ -9,5 +12,6 @@ GET     /assets/*file                  controllers.Assets.at(path="/public", fil
 # Projects
 GET     /api/:user/                    controllers.Projects.listProjects(user: String)
 GET     /api/:user/:project/           controllers.Projects.getSession(user: String, project: String)
+GET     /:user/                        controllers.Projects.index(user)
 GET     /:user/:project/               controllers.Projects.project(user: String, project: String, path="")
 GET     /:user/:project/*path          controllers.Projects.project(user: String, project: String, path: String)

@@ -1,0 +1,894 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "/C/Users/Martin/bin/eclipse/eclipse.ini",
+			"settings":
+			{
+				"buffer_size": 467,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/isabelle.coffee",
+			"settings":
+			{
+				"buffer_size": 3888,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/main.coffee",
+			"settings":
+			{
+				"buffer_size": 1758,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/isabelle/bin/isabelle",
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/.isabelle/Isabelle2012/etc/settings",
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/stylesheets/main.less",
+			"settings":
+			{
+				"buffer_size": 1668,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/isabelle/lib/scripts/polyml-version",
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/isabelle/etc/settings",
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "#main object logics\nsrc/Pure\nsrc/FOL\nsrc/HOL\nsrc/ZF\nsrc/CCL\nsrc/CTT\nsrc/Cube\nsrc/FOLP\nsrc/LCF\nsrc/Sequents\n#src/Tools/Code\n#src/Tools/jEdit\n#src/Tools/WWW_Find\n#src/HOL/Mirabelle\n#src/HOL/Mutabelle\n#src/HOL/Library/Sum_of_Squares\n#src/HOL/Tools/ATP\n#src/HOL/Tools/Predicate_Compile\n#src/HOL/Tools/SMT\n#src/HOL/TPTP\n#bundled components\n#contrib/cvc3-2.2\n#contrib/e-1.4\n#contrib/Haskabelle2012\n#contrib/kodkodi-1.2.16\n#contrib/ProofGeneral-4.1\n#contrib/spass-3.8ds\n#contrib/z3-3.2\n#contrib/jdk-6u31_x86-linux",
+			"file": "/C/Users/Martin/Documents/Projects/clide/isabelle/etc/components",
+			"file_size": 507,
+			"file_write_time": 129981577790158879,
+			"settings":
+			{
+				"buffer_size": 506,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/conf/application.conf",
+			"settings":
+			{
+				"buffer_size": 217,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "isabelle.home=\"\"",
+			"file": "/C/Users/Martin/Documents/Projects/clide/conf/isabelle.conf",
+			"file_size": 0,
+			"file_write_time": 129985858062120389,
+			"settings":
+			{
+				"buffer_size": 16,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/app/Global.scala",
+			"settings":
+			{
+				"buffer_size": 462,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "package controllers\n\nimport play.api._\nimport play.api.mvc._\nimport isabelle.Isabelle_System\n\nobject Application extends Controller {  \n  def index = Action {\n    Isabelle_System.init(new java.io.File(\"isabelle\").getAbsolutePath())\n    Ok(views.html.index())\n  }\n\n  // -- Javascript routing\n  def javascriptRoutes = Action { implicit request =>\n    import routes.javascript._\n    Ok(\n      Routes.javascriptRouter(\"routes\")(\n        routes.javascript.Application.index,\n        Projects.listProjects,        \n        Projects.getSession\n      )\n    ).as(\"text/javascript\") \n  }\n}",
+			"file": "/C/Users/Martin/Documents/Projects/clide/app/controllers/Application.scala",
+			"file_size": 583,
+			"file_write_time": 129981592888286136,
+			"settings":
+			{
+				"buffer_size": 579,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/conf/routes",
+			"settings":
+			{
+				"buffer_size": 747,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/Router.coffee",
+			"settings":
+			{
+				"buffer_size": 184,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/ScalaConnector.coffee",
+			"settings":
+			{
+				"buffer_size": 1775,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "Searching 15 files for \"routes.\"\n\nC:\\Users\\Martin\\Documents\\Projects\\clide\\app\\assets\\javascripts\\rjs\\Backstage.coffee:\n    7      constructor: (@user) ->\n    8      model: Project\n    9:     url:   routes.controllers.Projects.listProjects(@user).url\n   10  \n   11    class ProjectView extends Backbone.View\n\nC:\\Users\\Martin\\Documents\\Projects\\clide\\app\\assets\\javascripts\\rjs\\isabelle.coffee:\n   72            @set\n   73              output: t.get('commands').getCommandAt(p.row)?.get 'output'\n   74:       @route = routes.controllers.Projects.getSession(@user,@project)\n   75        @scala = new ScalaConnector(@route.webSocketURL(),@,@getTheories)\n   76        @scala.socket.onclose = =>\n\n2 matches across 2 files\n",
+			"settings":
+			{
+				"buffer_size": 717,
+				"line_ending": "Windows",
+				"name": "Find Results",
+				"scratch": true
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/sidebar.coffee",
+			"settings":
+			{
+				"buffer_size": 6998,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/Fahrplan",
+			"settings":
+			{
+				"buffer_size": 431,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Windows.old/Users/Martin/Documents/advkld",
+			"settings":
+			{
+				"buffer_size": 1227,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"coffe",
+				"Set Syntax: CoffeeScript"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"syntax sca",
+				"Set Syntax: Scala"
+			],
+			[
+				"package",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 400.0
+	},
+	"console":
+	{
+		"height": 188.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+	],
+	"find":
+	{
+		"height": 40.0
+	},
+	"find_in_files":
+	{
+		"height": 108.0,
+		"where_history":
+		[
+			"C:\\Users\\Martin\\Documents\\Projects\\clide\\app\\assets\\javascripts\\rjs"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"routes.",
+			"routes",
+			"\\",
+			"isabelle_home"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 19,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "/C/Users/Martin/bin/eclipse/eclipse.ini",
+					"settings":
+					{
+						"buffer_size": 467,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								342,
+								342
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/isabelle.coffee",
+					"settings":
+					{
+						"buffer_size": 3888,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2089,
+								2099
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1322.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/main.coffee",
+					"settings":
+					{
+						"buffer_size": 1758,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1598,
+								1598
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/C/Users/Martin/Documents/Projects/clide/isabelle/bin/isabelle",
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1080.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/C/Users/Martin/.isabelle/Isabelle2012/etc/settings",
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/stylesheets/main.less",
+					"settings":
+					{
+						"buffer_size": 1668,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								398,
+								398
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "/C/Users/Martin/Documents/Projects/clide/isabelle/lib/scripts/polyml-version",
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/C/Users/Martin/Documents/Projects/clide/isabelle/etc/settings",
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 914.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "/C/Users/Martin/Documents/Projects/clide/isabelle/etc/components",
+					"settings":
+					{
+						"buffer_size": 506,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								506,
+								506
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/C/Users/Martin/Documents/Projects/clide/conf/application.conf",
+					"settings":
+					{
+						"buffer_size": 217,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								217,
+								217
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Play 2.0/configuration.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "/C/Users/Martin/Documents/Projects/clide/conf/isabelle.conf",
+					"settings":
+					{
+						"buffer_size": 16,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								16,
+								16
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Play 2.0/configuration.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "/C/Users/Martin/Documents/Projects/clide/app/Global.scala",
+					"settings":
+					{
+						"buffer_size": 462,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								334,
+								334
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Scala/Scala.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "/C/Users/Martin/Documents/Projects/clide/app/controllers/Application.scala",
+					"settings":
+					{
+						"buffer_size": 579,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								258,
+								258
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Scala/Scala.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "/C/Users/Martin/Documents/Projects/clide/conf/routes",
+					"settings":
+					{
+						"buffer_size": 747,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								747,
+								747
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Play 2.0/Play-Routes.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/Router.coffee",
+					"settings":
+					{
+						"buffer_size": 184,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								184,
+								184
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/ScalaConnector.coffee",
+					"settings":
+					{
+						"buffer_size": 1775,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1752,
+								1754
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 986.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"settings":
+					{
+						"buffer_size": 717,
+						"regions":
+						{
+							"match":
+							{
+								"flags": 112,
+								"regions":
+								[
+									[
+										199,
+										206
+									],
+									[
+										517,
+										524
+									]
+								],
+								"scope": ""
+							}
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"detect_indentation": false,
+							"output_tag": 1,
+							"result_base_dir": "",
+							"result_file_regex": "^([A-Za-z\\\\/<].*):$",
+							"result_line_regex": "^ +([0-9]+):",
+							"scroll_past_end": true,
+							"syntax": "Packages/Default/Find Results.hidden-tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 17,
+					"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/sidebar.coffee",
+					"settings":
+					{
+						"buffer_size": 6998,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1662,
+								1662
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 216.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 18,
+					"file": "/C/Users/Martin/Documents/Projects/clide/app/assets/javascripts/rjs/Fahrplan",
+					"settings":
+					{
+						"buffer_size": 431,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 19,
+					"file": "/C/Windows.old/Users/Martin/Documents/advkld",
+					"settings":
+					{
+						"buffer_size": 1227,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1089,
+								1089
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"cl",
+				"/C/Users/Martin/Documents/Projects/clide/project/clide.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 322.0,
+	"status_bar_visible": true
+}

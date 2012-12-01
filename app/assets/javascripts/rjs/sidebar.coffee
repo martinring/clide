@@ -53,8 +53,8 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
         @$el.toggleClass 'selected', active
       @$el.append icon, title
     events:
-      'dblclick': 'open'      
-      'contextmenu': 'contextMenu'
+      'click'       : 'open'      
+      'contextmenu' : 'contextMenu'
     open: =>
       commands.open.execute(@model)
     contextMenu: (e) =>
@@ -120,8 +120,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
     className: 'commandGroup'
     initialize: =>
       @render()
-    render: =>
-      console.log @options.content
+    render: =>      
       @$el.append x for x in @options.content
 
   class Command extends Backbone.View
@@ -143,7 +142,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
 
   class TheoriesView extends Backbone.View
     tagName: 'ul'
-    className: 'treeview'
+    className: 'treeview'      
     initialize: =>
       @collection = isabelle.theories      
       @collection.on 'add', @render

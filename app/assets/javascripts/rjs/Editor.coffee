@@ -66,8 +66,7 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
       # Reset the undo manager so that the user cant undo the file load
       editSession.getUndoManager().reset()
       #session.setMode('ace/mode/isabelle')
-      connect = new IsabelleConnection editSession, @model
-      console.log connect
+      connect = new IsabelleConnection editSession, @model      
       # Clear selesction and move cursor to top (needs to be done for some reason)
       @ace.selection.clearSelection()
       @ace.gotoLine 0
@@ -75,8 +74,7 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
       @ace.focus()      
       @model.off 'opened', @initModel
 
-    remove: =>
-      console.log "release editor"
+    remove: =>      
       @ace.destroy()
       super.remove()
     render: => @

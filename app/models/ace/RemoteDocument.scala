@@ -12,29 +12,8 @@ import play.api.libs.json.Json
 import js._
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
-import scala.language.dynamics
 import play.api.libs.json._
 import scala.swing._
-
-trait Visualization { this: RemoteDocument =>
-  val textPane = new EditorPane
-    
-  textPane.font = java.awt.Font.decode("Inconsolata")  
-  
-  val frame = new Frame {
-    title = "Document Visualized"
-    contents = textPane
-  }
-  
-  frame.visible = true
-  
-  def update() {    
-    textPane.text = this.mkString    
-    this.toOffset(this.cursor).map {
-      textPane.caret.position = _
-    }     
-  }    
-}
 
 /** 
  * This is the main interface between the JavaScript ACE-Editor and the scala world. 
@@ -42,9 +21,11 @@ trait Visualization { this: RemoteDocument =>
 class RemoteDocument(newline: String = "\n") {
   import RemoteDocument._  
   
-  def apply(line: Int) = if (line < length)  
+  def apply(line: Int) = 
+    if (line < length)  
       buffer.slice(offset(line), offset(line + 1) - nllength).mkString
     else ""
+      
   def length = offsets_.length - 1
 
   private var edits = Buffer[Text.Edit]()
@@ -52,19 +33,17 @@ class RemoteDocument(newline: String = "\n") {
   private val buffer = Buffer[Char]()
   private val offsets_ = Buffer[Int](0)
   private var listener: Option[ActorRef] = None
-  private val tokens = Buffer[List[Token]]()
-  
-  var cursor: (Int,Int) = (0,0)
-  var currentCommand: Option[Command] = None
-  
+    
   def toOffset(position: (Int,Int)) = position match {
     case (row, column) => offsets_.lift(row).map(_ + column) 
   }
   
   private var version_ = 0: Long
-  private var tokenId = 0: Long
   
-  def lines = ranges.map{ case (start,stop) => buffer.slice(start, stop - newline.length).mkString }
+  def lines = ranges.map { 
+    case (start,stop) => 
+      buffer.slice(start, stop - newline.length).mkString 
+  }
   
   def version = version_
     
@@ -98,7 +77,7 @@ class RemoteDocument(newline: String = "\n") {
     /* insert lines */
     val start = offsets(lineNumber)
     val elems = lines.mkString(newline) + newline
-
+    
     buffer.insertAll(start, elems)
 
     /* update offsets */
@@ -110,10 +89,7 @@ class RemoteDocument(newline: String = "\n") {
     val shiftStart = lineNumber + lines.length
     val diff = newOffsets.last - startOffset
     shiftOffsets(shiftStart, diff)
-    
-    /* update tokens */
-//    tokens.insertAll(lineNumber, lines.map(line => List(Token(Nil, line))))
-    
+        
     return Edit.insert(start, elems)
   }
   
@@ -129,10 +105,7 @@ class RemoteDocument(newline: String = "\n") {
     shiftOffsets(lineNumber + 1, -count)
     
     require(text.length >= lines)
-    
-    /* update tokens */
-//    tokens.remove(lineNumber,lines)
-    
+        
     return Edit.remove(start, text)
   }
   
@@ -158,7 +131,6 @@ class RemoteDocument(newline: String = "\n") {
     /* update offsets */
     shiftOffsets(line+1,-length)    
     
-    /* update tokens */ 
     return Edit.remove(offset, text)
   }
   
@@ -170,21 +142,7 @@ class RemoteDocument(newline: String = "\n") {
     /* update offsets */
     shiftOffsets(line+1,nllength)
     offsets_.insert(line+1,offsets(line) + column + nllength)
-    
-    /* update tokens */            
-//    val (_,(lts,rts)) = tokens(line).foldLeft((0,(Vector[Token](),Vector[Token]()))){
-//      case ((pos,(l,r)),t) => 
-//        if (pos + t.length <= column) (pos+t.length,(l:+t,r))
-//        else if (pos == column) (pos+t.length,(l,r:+t))
-//        else if (pos < column) {
-//          val (lv,rv) = t.splitAt(column-pos)
-//          (pos+t.length,(l:+lv,r:+rv))
-//        }
-//        else (pos,(l,r:+t))
-//    }    
-//    tokens(line) = lts.toList
-//    tokens.insert(line+1, rts.toList)
-    
+        
     return Edit.insert(offset, newline)
   }
   
@@ -196,35 +154,10 @@ class RemoteDocument(newline: String = "\n") {
     /* update offsets */
     offsets_.remove(line)
     shiftOffsets(line,-nllength)
-    
-    /* update tokens */
-//    tokens(line) ++= tokens(line + 1)
-//    tokens.remove(line + 1)
-    
+     
     return Edit.remove(offset, newline)
   }           
    
-//  def updateTokens(t: List[List[Token]], from: Int = 0) = {    
-//    t.zipWithIndex.foreach {
-//      case (l,i) => 
-//        if (tokens.isDefinedAt(from+i)) 
-//          if (tokens(from + i) != l) {          
-//            tokens(from+i) = l
-//            js.ignore.updateLine(
-//                line = from + i,
-//                version = version,
-//                tokens = l)
-//          }
-//        else {
-//          tokens.insert(from+i, l)
-//          js.ignore.updateLine(
-//              line = from + i,
-//              version = version,
-//              tokens = l)
-//        }                              
-//    }
-//  }      
-
   var perspective = (0, 0)
   
   var active = false
@@ -258,7 +191,24 @@ class RemoteDocument(newline: String = "\n") {
   }   
   
   def edit(deltas: Vector[Delta]): List[Text.Edit] = {
-    version_ += 1    
-    Delta.optimize(Delta.optimize(deltas)).toList.flatMap(applyDelta)
+    version_ += 1
+    deltas.toList.flatMap(applyDelta)
   }
+}
+
+trait Visualization { this: RemoteDocument =>
+  val textPane = new EditorPane
+    
+  textPane.font = java.awt.Font.decode("Inconsolata")  
+  
+  val frame = new Frame {
+    title = "Document Visualized"
+    contents = textPane
+  }
+  
+  frame.visible = true
+  
+  def update() {    
+    textPane.text = this.mkString            
+  }    
 }

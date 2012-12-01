@@ -7,6 +7,7 @@ import play.api.libs.json._
 import scala.io.Source
 import models.ace._
 import play.api.Logger
+import java.lang.Throwable
 
 class Session(project: Project) extends JSConnector {
   val docs = scala.collection.mutable.Map[Document.Node.Name,RemoteDocument]()
@@ -161,7 +162,7 @@ class Session(project: Project) extends JSConnector {
         docs(name) = doc
         js.ignore.dependency(thy.toString, name.toString)
       } catch {
-        case e => // TODO: Import not available
+        case e: Throwable => // TODO: Import not available
       }
     }
   }

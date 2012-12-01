@@ -14,21 +14,29 @@ import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.concurrent.Await
-import models.Users
+import models.User
 import models.Project
 import models.ace.Delta
 import models.ace.RemoteDocument
 
 object Projects extends Controller {
-  def listProjects(user: String) = Action {
-    Users.find(user) match {
-      case Some(user) => Ok(Json.toJson(user.projects))
+  def index(user: String) = Action {
+    User.find(user) match {
+      case Some(user) => Ok(views.html.projects(user))
+      case None => NotFound("user " + user + " does not exist")
+    }    
+  }
+  
+  def listProjects(user: String) = Action {    
+    User.find(user) match {
+      case Some(user) =>        
+        Ok(Json.toJson(user.projects))
       case None       => NotFound("user " + user + " does not exist")
     }
   }
 
   def getProject(user: String, project: String) = Action {
-    Users.find(user) match {
+    User.find(user) match {
       case Some(user) => user.projects.find(_.name == project) match {
         case Some(project) => Ok(Json.toJson(project.theories))
         case None          => NotFound("project " + project + " does not exist")
@@ -38,12 +46,12 @@ object Projects extends Controller {
   }
   
   def getSession(user: String, project: String) = WebSocket.using[JsValue] { request =>
-    val p = Project(project,user)
+    val p = Project(project)(user)
     val session = new models.Session(p)
     (session.in, session.out)
   }
   
   def project(user: String, project: String, path: String) = Action {
-    Ok(views.html.index(user,project,path))
+    Ok(views.html.ide(user,project,path))
   }
 }

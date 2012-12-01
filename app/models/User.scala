@@ -1,29 +1,39 @@
 package models
 
+import play.api.libs.json._
+import scala.io.Source
+
 case class User(name: String, password: String) {
-  val dir = "data/" + name + "/"
+  implicit val projectFormat = Project.readsFor(name)
+  
   def projects: Array[Project] = {
-    val d = new java.io.File(dir)
-    if (d.isDirectory()) {
-      d.listFiles.filter(_.isDirectory())
-       .map(file => Project(file.getName(),name))
-    }
-    else sys.error(dir + " is not a directory")
-  }   
+    val file = new java.io.File(f"data/$name/.projects")
+    val content = Source.fromFile(file).mkString    
+    Json.parse(content).as[Array[Project]]
+  }
 }
 
-object Users {
-  def users: Array[User] = {
-    val d = new java.io.File("data/")
-    if (d.isDirectory()) {
-      d.listFiles.filter(_.isDirectory())
-       .map(file => User(file.getName(),"password"))
-    }
-    else sys.error("no data directory")
+object User {
+  implicit object Format extends Format[User] {
+    def reads(json: JsValue) = for {
+      name     <- Json.fromJson[String](json \ "name")
+      password <- Json.fromJson[String](json \ "password")
+    } yield User(name,password)
+    def writes(user: User) = Json.obj(
+      "name"     -> user.name,
+      "password" -> user.password
+    )
+  }  
+  
+  val users: Array[User] = {    
+    val file = new java.io.File("data/.users")
+    val content = Source.fromFile(file).mkString
+    Json.parse(content).as[Array[User]]    
   }
-
-  def find(name: String) = name match {
-    case "martinring" | "test" => Some(User(name, "password"))
-    case _ => None
-  }
+  
+  def find(name: String) = 
+    users.find(_.name == name)
+  
+  def authenticate(name: String, password: String) = 
+    find(name).filter(_.password == password)  
 }

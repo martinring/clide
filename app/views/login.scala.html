@@ -1,0 +1,44 @@
+@(form: Form[(String,String)])(implicit flash: Flash)
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <link rel="stylesheet" media="screen" href="/assets/stylesheets/login.css">
+        <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.png">
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/underscore.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/backbone.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/routes.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/require.js")" data-main="@routes.Assets.at("javascripts/rjs/login.js")"></script>
+    </head>
+    <body>                
+        @helper.form(routes.Application.authenticate) {        
+            <h1>clide</h1>            
+            @form.globalError.map { error =>
+                <p class="error">
+                    @error.message
+                </p>
+            }            
+            @flash.get("success").map { message =>
+                <p class="success">
+                    @message
+                </p>
+            }            
+            <p>
+                <input type="text" name="username" placeholder="username" id="username" value="@form("username").value">
+            </p>
+            <p>
+                <input type="password" name="password" id="password" placeholder="password">
+            </p>
+            <p>
+                <button type="submit" id="loginbutton">Login</button>
+            </p>            
+        }        
+        <p class="note">
+            Try <em>martinring</em> with <em>secret</em> as password.
+        </p>        
+    </body>
+</html>
+    
+
+
