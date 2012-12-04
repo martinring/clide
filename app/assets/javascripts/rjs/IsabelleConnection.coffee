@@ -32,7 +32,7 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
     lines: []
     annotations: []
 
-    pushDelay: 700
+    pushDelay: 500
 
     setDocument: (document) =>
       @fallback.setDocument(document)

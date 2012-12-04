@@ -74,7 +74,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
       @route = routes.controllers.Projects.getSession(@user,@project)
       @scala = new ScalaConnector(@route.webSocketURL(),@,@getTheories)
       @scala.socket.onclose = =>
-        @set phase: 'disconnected'
+        @set phase: 'failed'
 
     setPhase: (phase) =>
       @set

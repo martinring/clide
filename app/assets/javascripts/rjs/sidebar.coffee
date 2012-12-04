@@ -87,7 +87,13 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
           @activate()
           @center()
       @$el.append "<h1>#{@options.title}</h1>"
-      @$el.append "<div class='buttons'><div class='button'>#{icons.plus}</div></div>"
+      if @options.buttons?
+        @buttons = $("<div class='buttons'></div>")
+        @$el.append @buttons        
+        for button in @options.buttons        
+          bv = $("<div class='button'>#{button.icon}</div>")
+          bv.on 'click', => @options.content[button.action]()
+          @buttons.append bv
       if @options.content.length        
         @$el.append x.$el for x in @options.content
       else 
@@ -142,7 +148,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
 
   class TheoriesView extends Backbone.View
     tagName: 'ul'
-    className: 'treeview'      
+    className: 'treeview'
     initialize: =>
       @collection = isabelle.theories      
       @collection.on 'add', @render
@@ -153,6 +159,8 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       @collection.forEach (theory) =>        
         view = new FileItemView model: theory
         @$el.append(view.el)
+    new: =>
+      prompt("new")
 
   class HelpView extends Backbone.View
     tagName: 'div'
@@ -170,6 +178,10 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       title: 'Theories'
       icon: icons.list
       content: new TheoriesView
+      buttons: [
+        icon: icons.plus
+        action: "new"
+      ]
     edit: new Section
       title: 'Edit'
       icon: icons.edit

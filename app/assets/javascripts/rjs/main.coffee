@@ -26,7 +26,10 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
       tabs.add tab
       file.open()
 
-  isabelle.on 'change:phase', (model,phase) ->
+  isabelle.on 'change:phase', (model,phase) -> 
+    $('#loadingStatus').append("<li>Session #{phase}</li>".toLowerCase())
+    if phase is 'Ready' then $('#loading').fadeOut()
+    else $('#loading').fadeIn()
     $('#sessionStatus').removeClass(model.previous 'phase')
                        .addClass(model.get 'phase')
 
@@ -46,8 +49,8 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
     $('#consoleButton').toggleClass 'active'
     $('body').toggleClass 'extendedStatusbar'
 
-  isabelle.on 'change:output', (m,out) ->
-    $('#output').html(out)
+  isabelle.on 'change:currentToken', (m,tok) ->
+    $('#output').html(tok.tooltip)
   
   Backbone.history.start
     root: "/#{user}/#{project}/"
@@ -61,4 +64,5 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
     thy = isabelle.theories.get(node)
     commands.open.execute(thy) if thy?
 
+  $('#loadingStatus').append("<li>connecting</li>")
   isabelle.start user, project

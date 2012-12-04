@@ -193,6 +193,7 @@ class Session(project: Project) extends JSConnector {
       println("close " + nodeName)      
       
     case "edit" => json =>
+      session.cancel_execution()
       val nodeName = name((json \ "path").as[String])
       val deltas = (json \ "deltas").as[Array[ace.Delta]]
       docs.get(nodeName).map{ doc => 

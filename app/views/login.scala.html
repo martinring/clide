@@ -11,7 +11,8 @@
         <script type="text/javascript" src="@routes.Assets.at("javascripts/routes.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/require.js")" data-main="@routes.Assets.at("javascripts/rjs/login.js")"></script>
     </head>
-    <body>                
+    <body>
+      <div id="content">
         @helper.form(routes.Application.authenticate) {        
             <h1>clide</h1>            
             @form.globalError.map { error =>
@@ -37,6 +38,7 @@
         <p class="note">
             Try <em>martinring</em> with <em>secret</em> as password.
         </p>        
+      </div>
     </body>
 </html>
     
