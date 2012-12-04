@@ -6,6 +6,7 @@ import play.api.test.Helpers._
 import scala.collection.mutable.Buffer
 import org.specs2.specification.Scope
 import models.ace.RemoteDocument
+import models.RemoteDocument
 
 class RemoteDocumentTest extends Specification {
   trait initDoc extends Scope {    

@@ -16,8 +16,6 @@ import scala.concurrent.duration._
 import scala.concurrent.Await
 import models.User
 import models.Project
-import models.ace.Delta
-import models.ace.RemoteDocument
 
 object Projects extends Controller {
   def index(user: String) = Action {

@@ -6,162 +6,162 @@
 @comment: rgb(76, 136, 107);
 
  /* outer syntax */
-.ace_line {
-  .ace_keyword {
-    color: @keyword !important;
+.cm-s-default {
+  span.keyword {
+    color: @keyword;
   }
-  .ace_operator {
+  span.operator {
 
   }
-  .ace_command {
-    color: @keyword !important;
+  span.command {
+    color: @keyword;
     font-weight: bold;
   }
-  .ace_string {
-    background: rgba(0,0,0,0.02) !important;
+  span.string {
+    background: rgba(0,0,0,0.05);
   }  
-  .ace_altstring {
+  span.altstring {
     color: @string;
   }
-  .ace_verbatim {
-    background: rgba(0,0,0,0.02) !important;
+  span.verbatim {
+    background: rgba(0,0,0,0.05);
     color: @verbatim;
   }
-  .ace_comment {
+  span.comment {
     color: @comment;
   }
-  .ace_control {
+  span.control {
 
   }
-  .ace_malformed {
+  span.malformed {
     text-decoration: line-through;
   }
 
-  .ace_command_span {
+  span.command_span {
 
   }
-  .ace_ignored_span {
+  span.ignored_span {
 
   }
-  .ace_malformed_span {
+  span.malformed_span {
 
   }
 
 
   /* inner syntax */
-  .ace_tfree {
-    color: @type !important
+  span.tfree {
+    color: @type 
   }
-  .ace_tvar {
-    color: @type !important
+  span.tvar {
+    color: @type 
   }
-  .ace_entity {
-    color: black !important;
+  span.entity {
+    color: black ;
   }
-  .ace_free {
+  span.free {
     font-style: italic;
-    color: @purple !important;
+    color: @purple ;
   }
-  .ace_skolem {
-    color: #d2691e !important
+  span.skolem {
+    color: #d2691e 
   }
-  .ace_bound {
-    color: green !important
+  span.bound {
+    color: green 
   }
-  .ace_var {
-    color: @variable !important
+  span.var {
+    color: @variable 
   }
-  .ace_numeral {
+  span.numeral {
 
   }
-  .ace_literal {
+  span.literal {
 
   }
-  .ace_delimiter {
-    color: gray !important
+  span.delimiter {
+    color: gray 
   }
-  .ace_inner_string {
+  span.inner_string {
     
   }
-  .ace_inner_comment {
+  span.inner_comment {
 
   }
-  .ace_token_range {
+  span.token_range {
 
   }
-  .ace_sort {
+  span.sort {
 
   }
-  .ace_typ {
+  span.typ {
 
   }
-  .ace_term {
+  span.term {
 
   }
-  .ace_prop {
+  span.prop {
 
   }
 
-  .ace_typing {
-    
-  }
-
-  .ace_attribute {
+  span.typing {
     
   }
 
-  .ace_method {
+  span.attribute {
+    
+  }
+
+  span.method {
 
   }
 
 
   /* embedded source text */
-  .ace_ML_source {
+  span.ML_source {
 
   }
-  .ace_doc_source {
+  span.doc_source {
 
   }
-  .ace_antiq {
+  span.antiq {
 
   }
 
     /* ML syntax */
 
-  .ace_ML_keyword {
-    color: @keyword !important
+  span.ML_keyword {
+    color: @keyword
   }
-  .ace_ML_delimiter {
+  span.ML_delimiter {
 
   }
-  .ace_ML_tvar {
+  span.ML_tvar {
 
   }
-  .ace_ML_numeral {
-    color: red !important
+  span.ML_numeral {
+    color: red
   }
-  .ace_ML_char {
-    color: @string !important
+  span.ML_char {
+    color: @string
   }
-  .ace_ML_string {
-    color: @string !important
+  span.ML_string {
+    color: @string
   }
-  .ace_ML_comment {
-    color: #8b0000 !important
+  span.ML_comment {
+    color: #8b0000
   }
-  .ace_ML_malform {
-    color: #ff6a6a !important
+  span.ML_malform {
+    color: #ff6a6a
   }
-  .ace_ML_def {
+  span.ML_def {
 
   }
-  .ace_ML_open {
+  span.ML_open {
 
   }
-  .ace_ML_struct {
+  span.ML_struct {
 
   }
-  .ace_ML_typing {
+  span.ML_typing {
 
   }
 
@@ -174,44 +174,41 @@
     val TRACING = "tracing"
     val WARNING = "warning"
   */
-  .ace_error{
+  span.error{
     border-bottom: 1px dotted red;
     text-decoration-line: underline;
     text-decoration-style: wavy;
     text-decoration-color: red;
   }
 
-  .ace_warning{  
+  span.warning{  
     border-bottom: 1px dotted @orange;
     text-decoration-line: underline;
     text-decoration-style: wavy;
     text-decoration-color: yellow;
   }
 
-  .ace_accepted {
-    border-bottom: 1px dotted green !important  
+  span.accepted {
+    border-bottom: 1px dotted green  
   }
 
-  .ace_forked {
-    border-bottom: 1px dotted blue !important 
+  span.forked {
+    border-bottom: 1px dotted blue 
   }
-}
 
-.ace_gutter-cell {  
-  color: @grayDark;
-  &.finished {
+  pre.finished {
     background-color: transparent;
   }
-  &.running {
+  pre.running {
     background-color: @mustard;
   }
-  &.unprocessed {
+  pre.unprocessed {
     background-color: @gray;
   }
-  &.error {
+  pre.error {
     background-color: @red;
   }
-  &.warning {
+  pre.warning {
     background-color: @orange;
   }
 }

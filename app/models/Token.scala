@@ -1,6 +1,7 @@
-package models.ace
+package models
 
 import play.api.libs.json._
+import scala.collection.immutable.List.apply
 
 case class Token(
     types: List[String], 
@@ -36,7 +37,7 @@ case class Token(
 }
 
 object Token {
-  private[ace] var id = 0: Long
+  private[models] var id = 0: Long
 
   implicit object Writes extends Writes[Token] {
     def writes(token: Token) = JsObject(

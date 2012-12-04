@@ -11,7 +11,6 @@ import scala.language.dynamics
 import scala.util.Success
 import scala.util.Failure
 import scala.concurrent.ExecutionContext
-import models.ace.Token
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.actors.Futures
@@ -86,9 +85,6 @@ trait JSConnector {
       case s: String => JsString(s)
       case t: Traversable[_] => JsArray(t.map(convert).toSeq)
       case a: Array[_] => JsArray(a.map(convert))
-      case t: models.ace.Token => Json.toJson(t)
-      case r: models.ace.Range => Json.toJson(r)
-      case p: models.ace.Position => Json.toJson(p)
       case t: models.Theory => Json.toJson(t)      
       case js: JsValue => js
     }

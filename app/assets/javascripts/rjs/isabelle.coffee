@@ -114,17 +114,15 @@ define ['ScalaConnector'], (ScalaConnector) ->
         done: (running + unprocessed is 0)
 
     dependency: (thy, dep) =>
-      console.log "theory #{thy} depends on #{dep}"
+      #console.log "theory #{thy} depends on #{dep}"
 
-    commandChanged: (node, command) =>
-      console.log 'command changed'
+    commandChanged: (node, command) =>      
       node = @theories.get(node)
       old = node.get('commands').get(command.id)
       if old?
         old.set(command)
       else
-        node.get('commands').add(command)
-      #console.log("#{command} in #{node} changed: ", span)
+        node.get('commands').add(command)      
 
     open: (thy) =>
       @scala.call

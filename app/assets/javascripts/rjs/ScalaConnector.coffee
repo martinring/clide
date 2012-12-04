@@ -48,7 +48,8 @@ define ->
     call: (options) =>
       @blink()
       #console.log(options)
-      if options and options.action        
+      if options and options.action
+        console.log options
         if options.callback
           @results[@id] = options.callback
           options.id = @id
