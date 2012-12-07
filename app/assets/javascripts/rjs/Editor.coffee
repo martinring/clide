@@ -27,10 +27,12 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
 
       @ace.on 'changeSelection', (args...) =>
         cursor = @ace.getCursorPosition()
-        token = editSession.getTokenAt(cursor.row, cursor.column)        
+        token = editSession.getTokenAt(cursor.row, cursor.column)
         @model.set
           cursor: cursor
-          currentToken: token
+        if token?.tooltip?
+          @model.set
+            currentToken: token
         isabelle.set
           currentToken: token
         #f = =>

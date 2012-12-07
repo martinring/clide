@@ -135,6 +135,18 @@ define ['ScalaConnector'], (ScalaConnector) ->
             opened: true        
           thy.trigger 'opened', text
 
+    new: (name) =>      
+      if @theories.get(name)?
+        return false
+      else 
+        @scala.call
+          action: 'new'
+          data:   name
+
+    save: (all) =>
+      alert(if all then "save all" else "save active")       
+
+
   session = new Session
   
   return session

@@ -1,6 +1,14 @@
 [
 {
-  "name": "test",
+  "name": "examples",
+  "logic": "HOL"
+},
+{
+  "name": "Ordinal",
+  "logic": "HOL"
+},
+{
+  "name": "CoreC++",
   "logic": "HOL"
 }
 ]

@@ -186,7 +186,21 @@ class Session(project: Project) extends JSConnector {
             
       doc.mkString
       
-    case "new" => json =>      
+    case "new" => json =>
+      val name = json.as[String]
+      val path = name + ".thy"
+      val node = this.name(path)
+      val doc = new RemoteDocument
+      doc.insertLines(0,
+        f"theory $name",
+        "imports Main",
+        "begin",
+        "",      
+        "end"
+      )
+      docs(node) = doc
+      session.init_node(node, node_header(node), Text.Perspective.full, doc.mkString)
+      js.ignore.addTheory(Theory(name,path))
       
     case "close" => json =>
       val nodeName = json.as[String]

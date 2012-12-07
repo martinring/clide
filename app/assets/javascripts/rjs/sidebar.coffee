@@ -159,8 +159,16 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       @collection.forEach (theory) =>        
         view = new FileItemView model: theory
         @$el.append(view.el)
-    new: =>
-      prompt("new")
+    new: (again) =>
+      name = prompt(if again then "Invalid name. Enter different name" else "Enter name")
+      if /^[a-zA-Z0-9]+$/.test(name)
+        unless isabelle.new(name)
+          @new(true)        
+      else if name?
+        @new(true)
+        
+    save: =>
+      isabelle.save()
 
   class HelpView extends Backbone.View
     tagName: 'div'
@@ -179,8 +187,11 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       icon: icons.list
       content: new TheoriesView
       buttons: [
+        icon: icons.save
+        action: "save"
+      ,
         icon: icons.plus
-        action: "new"
+        action: "new"      
       ]
     edit: new Section
       title: 'Edit'

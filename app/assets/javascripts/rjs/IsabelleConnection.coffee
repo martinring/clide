@@ -53,10 +53,7 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
       @fallback.stop()
 
     getTokens: (row) =>
-      cmd = @model.get('commands').getCommandAt(row)
-      if cmd? and cmd.get('version') is @current_version
-        cmd.get('tokens')[row - cmd.get('range').start]
-      else @lines[row] or @fallback.getTokens(row)
+      @lines[row] or @fallback.getTokens(row)
 
     getState: (row) =>
       @fallback.getState(row)

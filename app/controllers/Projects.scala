@@ -37,7 +37,7 @@ object Projects extends Controller {
 
   def getProject(user: String, project: String) = Action {
     User.find(user) match {
-      case Some(user) => user.projects.find(_.name == project) match {
+      case Some(user) => user.projects.find(_.name == java.net.URLDecoder.decode(project,"UTF-8")) match {
         case Some(project) => Ok(Json.toJson(project.theories))
         case None          => NotFound("project " + project + " does not exist")
       }
@@ -46,12 +46,19 @@ object Projects extends Controller {
   }
   
   def getSession(user: String, project: String) = WebSocket.using[JsValue] { request =>
-    val p = Project(project)(user)
+    val p = Project(java.net.URLDecoder.decode(project,"UTF-8"))(user)
     val session = new models.Session(p)
     (session.in, session.out)
   }
   
   def project(user: String, project: String, path: String) = Action {
-    Ok(views.html.ide(user,project,path))
+    User.find(user) match {
+      case Some(user) => user.projects.find(_.name == java.net.URLDecoder.decode(project,"UTF-8")) match {
+        case Some(project) => Ok(views.html.ide(user.name,project.name,path))
+        case None          => NotFound("project " + project + " does not exist")
+      }
+      case None       => NotFound("user " + user + " does not exist")
+    } 
+    
   }
 }
