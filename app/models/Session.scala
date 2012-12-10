@@ -7,6 +7,7 @@ import play.api.libs.json._
 import scala.io.Source
 import play.api.Logger
 import java.lang.Throwable
+import isabelle.Thy_Info
 
 class Session(project: Project) extends JSConnector {
   val docs = scala.collection.mutable.Map[Document.Node.Name,RemoteDocumentModel]()
@@ -16,8 +17,8 @@ class Session(project: Project) extends JSConnector {
   val thyLoad = new Thy_Load {
     override def read_header(name: Document.Node.Name): Thy_Header = {
       if (docs.isDefinedAt(name)) {
-        Thy_Header.read(docs(name).buffer.mkString)
-      } else {
+        Thy_Header.read(docs(name).buffer.mkString)        
+      } else {        
 	    val file = new java.io.File(name.node)
 	    if (!file.exists || !file.isFile) error("No such file: " + quote(file.toString))
 	    Thy_Header.read(file)
@@ -38,66 +39,74 @@ class Session(project: Project) extends JSConnector {
       case _ =>
     }
   }
-      
+  
   session.syslog_messages += { msg =>
     js.ignore.println(Pretty.str_of(msg.body))    
-  }      
+  }
   
   session.caret_focus += { x =>
     println("caret focus: " + x)
   }
   
-  session.commands_changed += { change =>
-    change.nodes.foreach { node =>
-      delayedLoad(node)
-      val snap = session.snapshot(node, Nil)      
-      val status = Protocol.node_status(snap.state, snap.version, snap.node)
+  session.commands_changed += { change =>    
+    change.nodes.foreach { node =>      
+      val snap = session.snapshot(node, Nil)
+      snap.node.keywords.foreach(println)
+      val status = Protocol.node_status(snap.state, snap.version, snap.node)      
       js.ignore.status(
           node.toString, 
           status.unprocessed,
           status.running,
           status.finished,
           status.warned,
-          status.failed)
+          status.failed)      
       if (current == Some(node)) for {
         doc <- docs.get(node)
         states = MarkupTree.getLineStates(snap, doc.buffer.ranges)
       } js.ignore.states(node.toString, states)
     }    
-    change.commands.foreach { cmd =>          
-      val node = cmd.node_name
-      val snap = session.snapshot(node, Nil)
-      val start = snap.node.command_start(cmd)         
-      val state = snap.state.command_state(snap.version, cmd)                                 
-      if (!cmd.is_ignored && current == Some(node)) for (doc <- docs.get(node); start <- start) {
-        val docStartLine = doc.buffer.line(start)
-        val docEndLine   = doc.buffer.line(start + cmd.length - 1)        
-        val ranges = (docStartLine to docEndLine).map(doc.buffer.ranges.lift(_)).flatten.toVector
-        val tokens = MarkupTree.getTokens(snap, ranges).map { _.map { token =>
-          val classes = token.info.map{                       
-            case x => x
-          }.distinct match {
-            case List("text") => "text"
-            case x => x.filter(_ != "text").mkString(".")            
-          }
-          val tooltip = MarkupTree.tooltip(snap, token.range)          
-          Json.obj(
-            "value"   -> doc.buffer.chars.slice(token.range.start, token.range.stop).mkString,
-            "type"    -> classes,
-            "tooltip" -> tooltip            
-          )
-        } }
-        val json = Json.obj(
-	      "id"      -> cmd.id,
-	      "version" -> doc.version,
-	      "name"    -> cmd.name,
-	      "range" -> Json.obj(
-	        "start" -> docStartLine,
-	        "end"   -> docEndLine),
-	      "tokens" -> tokens,
-	      "output" -> commandInfo(cmd))
-	    js.ignore.commandChanged(cmd.node_name.toString, json)	    
-      }            
+    change.commands.foreach(pushCommand)    
+  }
+
+  def pushCommand(cmd: Command) = {
+    val node = cmd.node_name
+    val snap = session.snapshot(node, Nil)
+    val start = snap.node.command_start(cmd)
+    val state = snap.state.command_state(snap.version, cmd)
+    if (!cmd.is_ignored) for (doc <- docs.get(node); start <- start) {
+      val docStartLine = doc.buffer.line(start)
+      val docEndLine = doc.buffer.line(start + cmd.length - 1)
+      if (true) {//docStartLine >= doc.perspective._1 && docEndLine <= doc.perspective._2) {
+	      val ranges = (docStartLine to docEndLine).map(doc.buffer.ranges.lift(_)).flatten.toVector
+	      val tokens = MarkupTree.getTokens(snap, ranges).map {
+	        _.map { token =>
+	          val classes = token.info.map {
+	            case x => x
+	          }.distinct match {
+	            case List("text") => "text"
+	            case x            => x.filter(_ != "text").mkString(".")
+	          }
+	          val tooltip = MarkupTree.tooltip(snap, token.range)
+	          Json.obj(
+	            "value" -> doc.buffer.chars.slice(token.range.start, token.range.stop).mkString,
+	            "type" -> classes,
+	            "tooltip" -> tooltip
+	          )
+	        }
+	      }
+	      val json = Json.obj(
+	        "id" -> cmd.id,
+	        "version" -> doc.version,
+	        "name" -> cmd.name,
+	        "range" -> Json.obj(
+	          "start" -> docStartLine,
+	          "end" -> docEndLine),
+	        "tokens" -> tokens,
+	        "output" -> commandInfo(cmd))
+	      if (doc.commands.get(cmd.id) != Some(json))
+	        doc.commands(cmd.id) = json
+	        js.ignore.commandChanged(cmd.node_name.toString, json)
+      }
     }
   }
   
@@ -146,21 +155,20 @@ class Session(project: Project) extends JSConnector {
   def delayedLoad(thy: Document.Node.Name) {    
     thyInfo.dependencies(List(thy)).foreach { case (name,header) =>      
       if (!docs.isDefinedAt(name)) try {
-        val text = Source.fromFile(project.dir + name + ".thy").getLines.toTraversable // TODO
-        val doc = new RemoteDocumentModel     
+        val text = Source.fromFile(project.dir + name + ".thy").getLines.toTraversable // TODO        
+        val doc = new RemoteDocumentModel()
         doc.buffer.lines.insertAll(0, text)
         session.init_node(name, node_header(name), Text.Perspective.full, doc.buffer.mkString)
         docs(name) = doc
         js.ignore.dependency(thy.toString, name.toString)
       } catch {
-        case e: Throwable => // TODO: Import not available
-      }
+        case e: Throwable => Logger.error(f"$thy could not be loaded")
+      }     
     }
   }
   
   val actions: PartialFunction[String, JsValue => Any] = {     
-    case "getTheories" => json =>
-      project.theories
+    case "getTheories" => json => project.theories
       
     case "open" => json => 
       val name = (json \ "id").as[String]
@@ -178,33 +186,52 @@ class Session(project: Project) extends JSConnector {
       doc.buffer.mkString
       
     case "new" => json =>
-      val path = (json \ "path").as[String]      
+      val name = json.as[String]
+      val path = "data/" + project.owner + "/" + project.name + "/" + name + ".thy"
+      val node = this.name(path)
+      val doc = new RemoteDocumentModel
+      doc.buffer.lines.insertAll(0,List(
+        f"theory $name",
+        "imports Main",
+        "begin",
+        "",
+        "end"
+      ))
+      
+      val out = scalax.io.Resource.fromFile(path)
+      out.write(doc.buffer.mkString)      
+      docs(node) = doc
+      session.init_node(node, node_header(node), Text.Perspective.full, doc.buffer.mkString)
+      js.ignore.addTheory(Theory(name,path))
       
     case "close" => json =>
       val nodeName = json.as[String]
       println("close " + nodeName)      
       
     case "edit" => json =>
+      session.cancel_execution()
       val nodeName = name((json \ "path").as[String])
       val changes = (json \ "changes").as[Array[Change]]
-      docs.get(nodeName).map{ doc =>         
-        val edits = changes.toList.flatMap(c => doc.change(c.from, c.to, c.text))    
+      val version = (json \ "version").as[Int]
+      docs.get(nodeName).map{ doc =>        
+        val edits = changes.toList.flatMap(c => doc.change(c.from, c.to, c.text))
         session.edit_node(nodeName, node_header(nodeName), Text.Perspective.full, edits)
-        println(edits)
-        println(doc.buffer.mkString)
+        doc.version = version
       }
       
     case "changePerspective" => json =>
       val nodeName = name((json \ "path").as[String])
       val start = (json \ "start").as[Int]
       val end = (json \ "end").as[Int]
+      println("changePerspective: " + start + " to " + end)
       for (doc <- docs.get(nodeName)) {
-        doc.perspective = (start,end)
-        session.edit_node(nodeName, node_header(nodeName), Text.Perspective.full, Nil)
+        doc.perspective = (start,end)               
       }      
       
-    case "setCurrentDoc" => json =>        
-      current = Some(name(json.as[String]))      
+    case "setCurrentDoc" => json =>
+      println("currentDoc " + json)
+      current = Some(name(json.as[String]))
+      
   }
   
   override def onClose() {

@@ -12,7 +12,8 @@ define ['ScalaConnector'], (ScalaConnector) ->
   class Commands extends Backbone.Collection
     model: Command
     cleanUp: (currentVersion) => @forEach (x) =>
-      @remove(x) if x.get 'version' isnt currentVersion
+      console.log('removed ', x)
+      @remove(x) if x.get 'version' < currentVersion
     getCommandAt: (line) => @find (x) ->      
       range = x.get 'range'
       range.start <= line && range.end >= line
@@ -36,7 +37,9 @@ define ['ScalaConnector'], (ScalaConnector) ->
       super(args...)
       @set commands: new Commands
     defaults:
-      name: "unnamed"
+      name:           "unnamed"
+      currentVersion: 0
+      remoteVersion:  0
     open: =>
       @trigger 'open', @
     close: =>      
@@ -44,7 +47,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
         opened: false
         active: false
         progress: 0
-      @trigger 'close', @
+      @trigger 'close', @    
 
   class Theories extends Backbone.Collection
     model: Theory
@@ -71,17 +74,20 @@ define ['ScalaConnector'], (ScalaConnector) ->
         thy.on 'change:cursor', (t,p) =>
           @set
             output: t.get('commands').getCommandAt(p.row)?.get 'output'
+        thy.on 'change:remoteVersion', (t,v) ->
+          console.log "remoteVersion: #{v}"
+          t.get('commands').cleanUp(v-1)
       @route = routes.controllers.Projects.getSession(@user,@project)
       @scala = new ScalaConnector(@route.webSocketURL(),@,@getTheories)
       @scala.socket.onclose = =>
-        @set phase: 'disconnected'
+        @set phase: 'failed'      
 
     setPhase: (phase) =>
       @set
         phase: phase
 
     addTheory: (thy) =>
-      @theories.add(thy)      
+      @theories.add(thy)
 
     setFiles: (files) =>      
       @addTheory(thy) for thy in files              
@@ -116,13 +122,17 @@ define ['ScalaConnector'], (ScalaConnector) ->
     dependency: (thy, dep) =>
       #console.log "theory #{thy} depends on #{dep}"
 
-    commandChanged: (node, command) =>      
+    commandChanged: (node, command) =>
+      console.log "change ", command
       node = @theories.get(node)
-      old = node.get('commands').get(command.id)
+      cmds = node.get('commands')
+      node.set 
+        remoteVersion: Math.max(node.get 'remoteVersion', command.version)
+      old = cmds.get(command.id)
       if old?
         old.set(command)
       else
-        node.get('commands').add(command)      
+        node.get('commands').add(command)
 
     open: (thy) =>
       @scala.call
@@ -132,6 +142,18 @@ define ['ScalaConnector'], (ScalaConnector) ->
           thy.set
             opened: true        
           thy.trigger 'opened', text
+
+    new: (name) =>      
+      if @theories.get(name)?
+        return false
+      else 
+        @scala.call
+          action: 'new'
+          data:   name
+
+    save: (all) =>
+      alert(if all then "save all" else "save active")       
+
 
   session = new Session
   

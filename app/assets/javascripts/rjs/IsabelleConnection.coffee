@@ -1,4 +1,4 @@
-define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle) ->
+define ["ScalaConnector",'isabelle'], (ScalaConnector,isabelle) ->
   Range = Range.Range
   # the remote tokenizer synchronizes with a websocket to
   # let a server do the tokenization
@@ -32,7 +32,7 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
     lines: []
     annotations: []
 
-    pushDelay: 700
+    pushDelay: 500
 
     setDocument: (document) =>
       @fallback.setDocument(document)
@@ -53,10 +53,7 @@ define ["ScalaConnector","ace/range",'isabelle'], (ScalaConnector,Range,isabelle
       @fallback.stop()
 
     getTokens: (row) =>
-      cmd = @model.get('commands').getCommandAt(row)
-      if cmd? and cmd.get('version') is @current_version
-        cmd.get('tokens')[row - cmd.get('range').start]
-      else @lines[row] or @fallback.getTokens(row)
+      @lines[row] or @fallback.getTokens(row)
 
     getState: (row) =>
       @fallback.getState(row)

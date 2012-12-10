@@ -13,7 +13,8 @@ case class Project(
        .map(file => Theory(file.getName().dropRight(4), file.getName()))
     }
     else sys.error(dir + " is not a directory")
-  }     
+  }
+  val url = java.net.URLEncoder.encode(name,"UTF-8")
 }
 
 case class Theory(

@@ -4,6 +4,7 @@
     <head>
         <title></title>
         <link rel="stylesheet" media="screen" href="/assets/stylesheets/ide.css">
+        <link rel="stylesheet" media="screen" href="/javascripts/lib/util/simple-hint.css">
         <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.png">
         <script>
           var globalOptions = {
@@ -16,10 +17,20 @@
         <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/underscore.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/backbone.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/codemirror.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/util/overlay.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/util/simple-hint.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/mode/isabelle.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/routes.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/require.js")" data-main="@routes.Assets.at("javascripts/rjs/main.js")"></script>
     </head>
-    <body>
+    <body class="sidebar">
+      <div id="loading">
+        <div class="content">
+          <h1>clide</h1>
+          <ul id="loadingStatus">
+          </ul>
+        </div>
+      </div>
       <nav id="ribbon">
         <ul class="nav menu">
         </ul>

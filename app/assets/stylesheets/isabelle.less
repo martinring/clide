@@ -6,162 +6,306 @@
 @comment: rgb(76, 136, 107);
 
  /* outer syntax */
-.cm-s-default {
-  span.keyword {
+.cm-s-default {   
+  span.cm-sup { 
+    font-size: 66%;
+    line-height: 0;
+    vertical-align: super;
+  }
+  span.cm-sub { 
+    font-size: 66%;
+    line-height: 0;
+    vertical-align: sub;    
+  }
+  span.cm-control {
+    font-size: 0;
+  }   
+  span.cm-keyword {
     color: @keyword;
   }
-  span.operator {
+  span.cm-operator {
 
   }
-  span.command {
+  span.cm-command {
     color: @keyword;
     font-weight: bold;
   }
-  span.string {
-    background: rgba(0,0,0,0.05);
+  span.cm-string {
+    /*background: rgba(0,0,0,0.05);*/
   }  
-  span.altstring {
+  span.cm-altstring {
     color: @string;
   }
-  span.verbatim {
-    background: rgba(0,0,0,0.05);
+  span.cm-verbatim {
+    /*background: rgba(0,0,0,0.05);*/
     color: @verbatim;
   }
-  span.comment {
+  span.cm-comment {
     color: @comment;
   }
-  span.control {
+  span.cm-control {
 
   }
-  span.malformed {
+  span.cm-malformed {
     text-decoration: line-through;
   }
 
-  span.command_span {
+  span.cm-command_span {
 
   }
-  span.ignored_span {
+  span.cm-ignored_span {
 
   }
-  span.malformed_span {
+  span.cm-malformed_span {
 
   }
 
 
   /* inner syntax */
-  span.tfree {
+  span.cm-tfree {
     color: @type 
   }
-  span.tvar {
+  span.cm-tvar {
     color: @type 
   }
-  span.entity {
+  span.cm-entity {
     color: black ;
   }
-  span.free {
+  span.cm-free {
     font-style: italic;
     color: @purple ;
   }
-  span.skolem {
+  span.cm-skolem {
     color: #d2691e 
   }
-  span.bound {
+  span.cm-bound {
     color: green 
   }
-  span.var {
+  span.cm-var {
     color: @variable 
   }
-  span.numeral {
+  span.cm-numeral {
 
   }
-  span.literal {
+  span.cm-literal {
 
   }
-  span.delimiter {
-    color: gray 
-  }
-  span.inner_string {
+  span.cm-delimiter {
+    color: gray;
+    &:after {
+      /*font-family: 'Cambria Math';*/
+      background-color: inherit;
+      font-size:   16px;
+      line-height: 0;
+    }
+    
+    &.cm-rightarrow { font-size: 0; line-height: 0; }
+    &.cm-rightarrow:after { content: '\2192' }
+    &.cm-Rightarrow { font-size: 0; line-height: 0; }
+    &.cm-Rightarrow:after { content: '\21D2' }
+    &.cm-longrightarrow { font-size: 0; line-height: 0; }
+    &.cm-longrightarrow:after { content: '\27f6' }
+    &.cm-Longrightarrow { font-size: 0; line-height: 0; }
+    &.cm-Longrightarrow:after { content: '\27f9' }
+    &.cm-exists { font-size: 0; line-height: 0; }
+    &.cm-exists:after { content: '\2203' }
+    &.cm-forall { font-size: 0; line-height: 0; }
+    &.cm-forall:after { content: '\2200' }
+    &.cm-and { font-size: 0; line-height: 0; }
+    &.cm-and:after { content: '\2227' }
+    &.cm-or { font-size: 0; line-height: 0; }
+    &.cm-or:after { content: '\2228' }
+    &.cm-times { font-size: 0; line-height: 0; }
+    &.cm-times:after { content: '\00D7' }
+    &.cm-subseteq { font-size: 0; line-height: 0; }
+    &.cm-subseteq:after { content: '\2286' }
+    &.cm-union { font-size: 0; line-height: 0; }
+    &.cm-union:after { content: '\222A' }
+    &.cm-notin { font-size: 0; line-height: 0; }
+    &.cm-notin:after { content: '\2209' }
+    &.cm-not { font-size: 0; line-height: 0; }
+    &.cm-not:after { content: '\00ac' }
+
+    &.cm-alpha { font-size: 0; line-height: 0; }
+    &.cm-alpha:after { content: '\03b1' }
+    &.cm-beta { font-size: 0; line-height: 0; }
+    &.cm-beta:after { content: '\03b2' }
+    &.cm-gamma { font-size: 0; line-height: 0; }
+    &.cm-gamma:after { content: '\03b3' }
+    &.cm-delta { font-size: 0; line-height: 0; }
+    &.cm-delta:after { content: '\03b4' }
+    &.cm-epsilon { font-size: 0; line-height: 0; }
+    &.cm-epsilon:after { content: '\03b5' }
+    &.cm-zeta { font-size: 0; line-height: 0; }
+    &.cm-zeta:after { content: '\03b6' }
+    &.cm-eta { font-size: 0; line-height: 0; }
+    &.cm-eta:after { content: '\03b7' }
+    &.cm-theta { font-size: 0; line-height: 0; }
+    &.cm-theta:after { content: '\03b8' }
+    &.cm-iota { font-size: 0; line-height: 0; }
+    &.cm-iota:after { content: '\03b9' }
+    &.cm-kappa { font-size: 0; line-height: 0; }
+    &.cm-kappa:after { content: '\03ba' }
+    &.cm-lambda { font-size: 0; line-height: 0; }
+    &.cm-lambda:after { content: '\03bb' }
+    &.cm-mu { font-size: 0; line-height: 0; }
+    &.cm-mu:after { content: '\03bc' }
+    &.cm-nu { font-size: 0; line-height: 0; }
+    &.cm-nu:after { content: '\03bd' }
+    &.cm-xi { font-size: 0; line-height: 0; }
+    &.cm-xi:after { content: '\03be' }
+    &.cm-omikron { font-size: 0; line-height: 0; }
+    &.cm-omikron:after { content: '\03bf' }
+    &.cm-pi { font-size: 0; line-height: 0; }
+    &.cm-pi:after { content: '\03c0' }
+    &.cm-rho { font-size: 0; line-height: 0; }
+    &.cm-rho:after { content: '\03c1' }
+    &.cm-sigma { font-size: 0; line-height: 0; }
+    &.cm-sigma:after { content: '\03c3' }
+    &.cm-tau { font-size: 0; line-height: 0; }
+    &.cm-tau:after { content: '\03c4' }
+    &.cm-upsilon { font-size: 0; line-height: 0; }
+    &.cm-upsilon:after { content: '\03c5' }
+    &.cm-phi { font-size: 0; line-height: 0; }
+    &.cm-phi:after { content: '\03c6' }
+    &.cm-chi { font-size: 0; line-height: 0; }
+    &.cm-chi:after { content: '\03c7' }
+    &.cm-psi { font-size: 0; line-height: 0; }
+    &.cm-psi:after { content: '\03c8' }
+    &.cm-omega { font-size: 0; line-height: 0; }
+    &.cm-omega:after { content: '\03c9' }
+    &.cm-Alpha { font-size: 0; line-height: 0; }
+    &.cm-Alpha:after { content: '\0391' }
+    &.cm-Beta { font-size: 0; line-height: 0; }
+    &.cm-Beta:after { content: '\0392' }
+    &.cm-Gamma { font-size: 0; line-height: 0; }
+    &.cm-Gamma:after { content: '\0393' }
+    &.cm-Delta { font-size: 0; line-height: 0; }
+    &.cm-Delta:after { content: '\0394' }
+    &.cm-Epsilon { font-size: 0; line-height: 0; }
+    &.cm-Epsilon:after { content: '\0395' }
+    &.cm-Zeta { font-size: 0; line-height: 0; }
+    &.cm-Zeta:after { content: '\0396' }
+    &.cm-Eta { font-size: 0; line-height: 0; }
+    &.cm-Eta:after { content: '\0397' }
+    &.cm-Theta { font-size: 0; line-height: 0; }
+    &.cm-Theta:after { content: '\0398' }
+    &.cm-Iota { font-size: 0; line-height: 0; }
+    &.cm-Iota:after { content: '\0399' }
+    &.cm-Kappa { font-size: 0; line-height: 0; }
+    &.cm-Kappa:after { content: '\039a' }
+    &.cm-Lambda { font-size: 0; line-height: 0; }
+    &.cm-Lambda:after { content: '\039b' }
+    &.cm-Mu { font-size: 0; line-height: 0; }
+    &.cm-Mu:after { content: '\039c' }
+    &.cm-Nu { font-size: 0; line-height: 0; }
+    &.cm-Nu:after { content: '\039d' }
+    &.cm-Xi { font-size: 0; line-height: 0; }
+    &.cm-Xi:after { content: '\039e' }
+    &.cm-Omikron { font-size: 0; line-height: 0; }
+    &.cm-Omikron:after { content: '\039f' }
+    &.cm-Pi { font-size: 0; line-height: 0; }
+    &.cm-Pi:after { content: '\03a0' }
+    &.cm-Rho { font-size: 0; line-height: 0; }
+    &.cm-Rho:after { content: '\03a1' }
+    &.cm-Sigma { font-size: 0; line-height: 0; }
+    &.cm-Sigma:after { content: '\03a3' }
+    &.cm-Tau { font-size: 0; line-height: 0; }
+    &.cm-Tau:after { content: '\03a4' }
+    &.cm-Upsilon { font-size: 0; line-height: 0; }
+    &.cm-Upsilon:after { content: '\03a5' }
+    &.cm-Phi { font-size: 0; line-height: 0; }
+    &.cm-Phi:after { content: '\03a6' }
+    &.cm-Chi { font-size: 0; line-height: 0; }
+    &.cm-Chi:after { content: '\03a7' }
+    &.cm-Psi { font-size: 0; line-height: 0; }
+    &.cm-Psi:after { content: '\03a8' }
+    &.cm-Omega { font-size: 0; line-height: 0; }
+    &.cm-Omega:after { content: '\03a9' }
+    
+  }      
+  span.cm-inner_string {
     
   }
-  span.inner_comment {
+  span.cm-inner_comment {
 
   }
-  span.token_range {
+  span.cm-token_range {
 
   }
-  span.sort {
+  span.cm-sort {
 
   }
-  span.typ {
+  span.cm-typ {
 
   }
-  span.term {
+  span.cm-term {
 
   }
-  span.prop {
+  span.cm-prop {
 
   }
 
-  span.typing {
+  span.cm-typing {
     
   }
 
-  span.attribute {
+  span.cm-attribute {
     
   }
 
-  span.method {
+  span.cm-method {
 
   }
 
 
   /* embedded source text */
-  span.ML_source {
+  span.cm-ML_source {
 
   }
-  span.doc_source {
+  span.cm-doc_source {
 
   }
-  span.antiq {
+  span.cm-antiq {
 
   }
 
     /* ML syntax */
 
-  span.ML_keyword {
+  span.cm-ML_keyword {
     color: @keyword
   }
-  span.ML_delimiter {
+  span.cm-ML_delimiter {
 
   }
-  span.ML_tvar {
+  span.cm-ML_tvar {
 
   }
-  span.ML_numeral {
+  span.cm-ML_numeral {
     color: red
   }
-  span.ML_char {
+  span.cm-ML_char {
     color: @string
   }
-  span.ML_string {
+  span.cm-ML_string {
     color: @string
   }
-  span.ML_comment {
+  span.cm-ML_comment {
     color: #8b0000
   }
-  span.ML_malform {
+  span.cm-ML_malform {
     color: #ff6a6a
   }
-  span.ML_def {
+  span.cm-ML_def {
 
   }
-  span.ML_open {
+  span.cm-ML_open {
 
   }
-  span.ML_struct {
+  span.cm-ML_struct {
 
   }
-  span.ML_typing {
+  span.cm-ML_typing {
 
   }
 
@@ -174,43 +318,46 @@
     val TRACING = "tracing"
     val WARNING = "warning"
   */
-  span.error{
+  span.cm-error{
     border-bottom: 1px dotted red;
     text-decoration-line: underline;
     text-decoration-style: wavy;
     text-decoration-color: red;
   }
 
-  span.warning{  
+  span.cm-warning{  
     border-bottom: 1px dotted @orange;
     text-decoration-line: underline;
     text-decoration-style: wavy;
     text-decoration-color: yellow;
   }
 
-  span.accepted {
+  span.cm-accepted {
     border-bottom: 1px dotted green  
   }
 
-  span.forked {
+  span.cm-forked {
     border-bottom: 1px dotted blue 
   }
-
-  pre.finished {
-    background-color: transparent;
-  }
   pre.running {
-    background-color: @mustard;
+    border-left: 3px solid @mustard;
   }
   pre.unprocessed {
-    background-color: @gray;
+    border-left: 3px solid @gray;
   }
   pre.error {
-    background-color: @red;
+    border-left: 3px solid @red;
+  }
+  pre.failed {
+    border-left: 3px solid @red;
   }
   pre.warning {
-    background-color: @orange;
+    border-left: 3px solid @orange;
   }
+}
+
+.current_line.cm-control {
+  font-size: inherit !important;
 }
 
 /*

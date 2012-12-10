@@ -1,16 +1,19 @@
 package models
 
 import isabelle._
+import play.api.libs.json.JsValue
 
-class RemoteDocumentModel(lines: Traversable[String] = Nil) {
+class RemoteDocumentModel(lines: Traversable[String] = Nil) {  
   val buffer = new LineBuffer
   buffer.lines ++= lines
   
   var perspective = (0,0)
   
+  val commands = scala.collection.mutable.Map[Long, JsValue]()
+  
   var version = 0
   
-  def convert(pos: Position): Int = buffer.line(pos.line) + pos.column
+  def convert(pos: Position): Int = buffer.line(pos.line) + pos.column    
   
   def change(from: Position, to: Position, text: Array[String]): List[Text.Edit] = {
     if (from == to) {

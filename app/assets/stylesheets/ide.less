@@ -20,6 +20,43 @@ body {
   cursor: default;
 }
 
+#loading {
+  text-align: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  z-index: 10000000;
+  
+  .content {
+    position: absolute;
+    top: 50%;
+    height: 150px;
+    width: 100%;
+    overflow: visible;
+    margin-top: -75px;
+  }
+
+  h1 {
+    font-size: 40px;
+    font-weight: 100; 
+    color: @accent; 
+    margin: 0;
+  }
+
+  ul {
+    list-style: none;    
+    padding: 0;
+  }
+
+  li {
+    color: #666;
+    font-size: 8px;
+  }
+}
+
 .icon {
   font-size: 16px;
   font-family: icon;  
@@ -40,11 +77,6 @@ body {
   left: @ribbon-width + @sidebar-width;
 }
 
-.ace_editor {
-  font-family: 'Inconsolata' !important;
-  font-size: 9pt;
-}
-
 .editor {
   position: absolute;
   left: 0;
@@ -58,7 +90,7 @@ body {
 }
 
 .output {
-  font-family: 'Inconsolata';
+  font-family: 'Cambria Math';
   font-size: 9pt;
   white-space: pre;
   position: absolute;

@@ -1,6 +1,34 @@
 [
 {
-  "name": "test",
+  "name": "examples",
+  "logic": "HOL"
+},
+{
+  "name": "Ordinal",
+  "logic": "HOL"
+},
+{
+  "name": "CoreC++",
+  "logic": "HOL"
+},
+{
+  "name": "AVL-Trees",
+  "logic": "HOL"
+},
+{
+  "name": "Simpl",
+  "logic": "HOL"
+},
+{
+  "name": "Sifpl",
+  "logic": "HOL"
+},
+{
+  "name": "SumSquares",
+  "logic": "HOL"
+},
+{
+  "name": "Marriage",
   "logic": "HOL"
 }
 ]

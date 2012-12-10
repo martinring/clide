@@ -1,6 +1,4 @@
-define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'commands'], (ace, IsabelleConnection, Search, Range, isabelle, commands) ->
-  Search = Search.Search
-  Range = Range.Range
+define ['isabelle', 'commands'], (isabelle, commands) ->    
   # options: user, project, path to set the routes
   class Editor extends Backbone.View
     # tag for new editors is <div>
@@ -9,8 +7,6 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
     initialize: ->
       @model.on 'opened', @initModel
       @model.on 'close', @close    
-
-    current_version: 0
 
     changes: []
 
@@ -21,17 +17,20 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
         action: 'edit'
         data: 
           path:    @model.get 'path'
-          version: @current_version
+          version: @model.get 'currentVersion'
           changes: @changes.splice(0)          
 
     initModel: (text) =>
-      options = 
+      hlLine = 0      
+      @cm = new CodeMirror @el, 
         value: text
         indentUnit: 2
         lineNumbers: true
+        mode: "isabelle"
         onChange: (editor,change) =>
           clearTimeout(@pushTimeOut)
-          @current_version += 1 if @changes.length == 0
+          if @changes.length is 0 then @model.set 
+            currentVersion: @model.get('currentVersion') + 1
           while change?
             @changes.push
               from: change.from
@@ -39,16 +38,29 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
               text: change.text
             change = change.next
           @pushTimeout = setTimeout(@pushChanges,700)
-
-      @cm = new CodeMirror(@el,options) 
+        onCursorActivity: (editor) ->
+          editor.setLineClass(hlLine, null, null)
+          hlLine = editor.setLineClass(editor.getCursor().line, "current_line")
+        onViewportChange: @updatePerspective
+      hlLine = @cm.setLineClass(0, "current_line")
       @model.get('commands').forEach @includeCommand
       @model.get('commands').on('add', @includeCommand)
       @model.get('commands').on('change', @includeCommand)
       @model.on 'change:states', (m,states) =>
-        @cm.setMarker(i,null,state) for state, i in states
+        for state, i in states
+          cmd = @model.get('commands').getCommandAt(i)          
+          @cm.setMarker(i, null ,state)
+      CodeMirror.simpleHint @cm, (args... )->
+        console.log args ...
 
+    updatePerspective: (editor, start, end) =>      
+      @model.set
+        perspective:
+          start: start
+          end:   end    
 
-    includeCommand: (cmd) => #if cmd.get 'version' is @current_version
+    includeCommand: (cmd) => if cmd.get 'version' is @model.get('currentVersion')
+      console.log "hallo"
       vp = @cm.getViewport()
       console.log vp
       range  = cmd.get 'range'
@@ -65,10 +77,11 @@ define ['ace/ace','IsabelleConnection','ace/search', 'ace/range', 'isabelle', 'c
               line: l
               ch: p
             p += tk.value.length
-            to =
-              line: l
-              ch: p          
-            @cm.markText(from,to,tk.type.replace(/\./g,' '))
+            unless (tk.type is "text" or tk.type is "")
+              to =
+                line: l
+                ch: p
+              @cm.markText(from,to,"cm-#{tk.type.replace(/\./g,' cm-')}")
 
     remove: =>
       @model.get('commands').off()
