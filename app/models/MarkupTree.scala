@@ -69,7 +69,7 @@ object MarkupTree {
   val outer = Set(COMMAND,KEYWORD,OPERATOR,CONTROL,
         MALFORMED,COMMAND_SPAN,IGNORED_SPAN,MALFORMED_SPAN,ERROR,WARNING)
         
-  val inner = Set(TFREE,TVAR,FREE)
+  val inner = Set(TVAR,FREE)
   
   def tooltip_message(snapshot: Document.Snapshot, range: Text.Range): Option[String] =
   {

@@ -12,6 +12,7 @@
   right: 0;
   background-color: white;
 }
+
 .CodeMirror-scroll {
   /* Set scrolling behaviour here */
   overflow: auto;
@@ -33,8 +34,11 @@
 /* GUTTER */
 
 .CodeMirror-gutters {
+  padding-left: 4px;
+  padding-right: 4px;
   border-right: 1px solid #ddd;
-  background-color: #f7f7f7;
+  font-family: 'Typewriter';
+  font-size: 14px;
 }
 .CodeMirror-linenumbers {}
 .CodeMirror-linenumber {
@@ -82,12 +86,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 
 /* The rest of this file contains styles related to the mechanics of
    the editor. You probably shouldn't touch them. */
-
-.CodeMirror {
-  line-height: 1;
-  position: relative;
-  overflow: hidden;
-}
 
 .CodeMirror-scroll {
   /* 30px is the magic margin used to hide the element's real scrollbars */

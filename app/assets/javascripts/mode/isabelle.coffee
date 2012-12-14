@@ -1,7 +1,8 @@
-CodeMirror.defineMode "isabelle", (config,parserConfig) ->
-  # taken from the isabelle reference manual
-
-  greek       = "(?:\\\\<(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|mu|nu|xi|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)>)"
+CodeMirror.defineMode "isabelle", (config,parserConfig) ->  
+  # extracted from the isabelle reference manual
+  greek       = "(?:\\\\<(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|' +
+    'mu|nu|xi|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|' +
+    'Pi|Sigma|Upsilon|Phi|Psi|Omega)>)"
   digit       = "[0-9]"
   latin       = "[a-zA-Z]"
   sym         = "[\\!|\\#|\\$|\\%|\\&|\\*|\\+|\\-|\\/|\\<|\\=|\\>|\\?|\\@|\\^|\\_|\\||\\~]"
@@ -18,7 +19,13 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
   string      = "\\\".*\\\""
   altstring   = "`.*`"
   verbatim    = "{\\*.*\\*}"  
+  abbrev =
+    '\\<\\.|\\.\\>|\\(\\||\\|\\)|\\[\\||\\|\\]|\\{\\.|\\.\\}|\\/\\\\|\\\\\\/' +
+    '|\\~\\:|\\(\\=|\\=\\)|\\[\\=|\\=\\]|\\+o|\\+O|\\*o|\\*O|\\.o|\\.O' +
+    '|\\-o|\\/o|\\=\\_\\(|\\=\\_\\)|\\=\\^\\(|\\=\\^\\)|\\-\\.|\\.\\.\\.|(?:Int|Inter' +
+    "|Un|Union|SUM|PROD)(?!#{quasiletter})"
 
+  abbrev      = RegExp abbrev
   greek       = RegExp greek      
   digit       = RegExp digit      
   latin       = RegExp latin      
@@ -38,26 +45,81 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
   verbatim    = RegExp verbatim   
   num         = /\#?-?[0-9]+(?:\.[0-9]+)?/
   escaped     = /\\[\"\\]/
+  special     = /\\<[A-Za-z]+>/
+  control     = /\\<\^[A-Za-z]+>/
+  incomplete  = /\\<\^{0,1}[A-Za-z]*>?/
+
+  special = 
+    startState: () ->
+      control: null
+      sub:     false
+      sup:     false
+    token: (stream,state) ->
+      if stream.sol()
+        state.control = null
+      x = ''
+      if      state.sub then x = 'sub '
+      else if state.sup then x = 'sup '
+      if state.control is 'sub'        
+        stream.match(incomplete) or stream.next()
+        state.control = null
+        return x + 'sub'
+      if state is 'sup'
+        stream.match(incomplete) or stream.next()
+        state.control = null
+        return x + 'sup'
+      if state.control is 'bold'
+        console.log 'insub'
+        stream.match(incomplete) or stream.next()
+        state.control = null
+        return x + 'bold'
+      if stream.eatWhile(/[^\\]/)
+        return x      
+      if stream.match(/\\<\^[A-Za-z]+>/)
+        switch stream.current()
+          when '\\<^sub>'            
+            state.control = 'sub'
+          when '\\<^sup>'
+            state.control = 'sup'
+          when '\\<^isub>'
+            state.control = 'sub'
+          when '\\<^isup>'
+            state.control = 'sup'
+          when '\\<^bold>'
+            state.control = 'bold'
+          when '\\<^bsub>'
+            state.sub = true
+          when '\\<^bsup>'
+            state.sup = true
+          when '\\<^esub>'
+            state.sub = false
+          when '\\<^esup>'
+            state.sup = false
+        return x + 'control'     
+      if stream.match(/\\<[A-Za-z]+>/)
+        return x + 'special'      
+      stream.next()
+      return x
 
   words =
-    '\\.' :  'command'
-    '\\.\\.' : 'command'
-    'Isabelle\\.command' : 'command'
-    'Isar\\.begin_document' :  'command'
-    'Isar\\.define_command' :  'command'
-    'Isar\\.edit_document' : 'command'
-    'Isar\\.end_document' :  'command'
+    '.' :  'command'
+    '..' : 'command'
+    'Isabelle.command' : 'command'
+    'Isar.begin_document' :  'command'
+    'Isar.define_command' :  'command'
+    'Isar.edit_document' : 'command'
+    'Isar.end_document' :  'command'
     'ML' : 'command'
     'ML_command' : 'command'
     'ML_prf' : 'command'
     'ML_val' : 'command'
-    'ProofGeneral\\.inform_file_processed' : 'command'
-    'ProofGeneral\\.inform_file_retracted' : 'command'
-    'ProofGeneral\\.kill_proof' :  'command'
-    'ProofGeneral\\.pr' :  'command'
-    'ProofGeneral\\.process_pgip' :  'command'
-    'ProofGeneral\\.restart' : 'command'
-    'ProofGeneral\\.undo' :  'command'
+    'ProofGeneral.inform_file_processed' : 'command'
+    'ProofGeneral.inform_file_retracted' : 'command'
+    'ProofGeneral.kill_proof' :  'command'
+    'ProofGeneral.pr' :  'command'
+    'ProofGeneral.process_pgip' :  'command'
+    'ProofGeneral.restart' : 'command'
+    'ProofGeneral.undo' :  'command'
     'abbreviation' : 'command'
     'also' : 'command'
     'apply' :  'command'
@@ -410,7 +472,9 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
         state.tokenize = tokenVerbatim
         return state.tokenize(stream, state)
       else stream.backUp(1)
-
+    
+    if stream.match(abbrev)
+      return 'symbol'
     if stream.match(typefree)
       return 'tfree'
     else if stream.match(typevar)
@@ -423,6 +487,8 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       return words[stream.current()] || "ident"
     else if stream.match(symident)      
       return "symbol"
+    else if stream.match(control)
+      return null
 
     stream.next()
     return null
@@ -432,7 +498,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       return 'string'
     if stream.match('\"')
       state.tokenize = tokenBase
-      return 'string'  
+      return 'string'
     if stream.match(longident)
       return 'string longident'
     if stream.match(ident)
@@ -447,6 +513,8 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       return 'string num'
     if stream.match(escaped)
       return 'string'
+    if stream.match(control)
+      return null
     stream.next()
     return 'string'
 
@@ -483,7 +551,8 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
         return 'verbatim'
       prev = next
     return 'verbatim'
-  (
+
+  CodeMirror.overlayMode((
     startState: () ->
       string:        null
       tokenize:      tokenBase
@@ -494,9 +563,9 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       if stream.sol() and stream.eatSpace()
         return "indent"
       if stream.eatSpace()
-        return null
+        return 'whitespace'
       else
         return state.tokenize(stream, state)
-  )
+  ),special,true)
 
 CodeMirror.defineMIME("text/x-isabelle","isabelle")

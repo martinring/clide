@@ -16,7 +16,13 @@
     font-size: 66%;
     line-height: 0;
     vertical-align: sub;    
-  }  
+  }
+  span.cm-bold { 
+    font-weight: bold;    
+  }
+  isabelle-symbol {
+    font-family: 'AMS';
+  }
   span.cm-indent {
     font-family: monospace;
     line-height: 0;
@@ -31,11 +37,12 @@
     color: @keyword;
     font-weight: bold;
   }
-  span.cm-string {
+  span.cm-string {    
+    /*color: gray;*/
     /*background: rgba(0,0,0,0.05);*/
   }  
   span.cm-altstring {
-    color: @string;
+    background: rgba(0,0,0,0.05);
   }
   span.cm-verbatim {
     /*background: rgba(0,0,0,0.05);*/

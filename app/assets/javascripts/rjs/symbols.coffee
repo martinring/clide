@@ -422,4 +422,4 @@ define ->
   'Un'                     : String.fromCharCode(0x00222a)  
   'Union'                  : String.fromCharCode(0x0022c3)  
   'SUM'                    : String.fromCharCode(0x002211)  
-  'PROD'                   : String.fromCharCode(0x00220f)  
+  'PROD'                   : String.fromCharCode(0x00220f)

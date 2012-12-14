@@ -31,24 +31,36 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
         lineNumbers: true
         mode: "isabelle"
 
-      @cm.on 'change', (editor,change) =>
-        unless editor.somethingSelected()
-          pos = change.to
-          tok = editor.getTokenAt(change.to)
+      lastToken = null        
+        
+      @cm.on 'change', (editor,change) =>        
+        unless editor.somethingSelected()          
+          pos   = change.to          
+          token = editor.getTokenAt(pos)
+          marks = editor.findMarksAt(pos)
+          for mark in marks 
+            if mark.__special
+              mark.clear()          
           from = 
             line: pos.line
-            ch:   tok.start                  
+            ch:   token.start
           to = 
             line: pos.line
-            ch:   tok.end
-          if tok.type? and tok.type.indexOf('symbol') isnt -1
-            sym = symbols[tok.string]
+            ch:   token.end
+          if token.type? and (token.type.match(/special|symbol|abbrev|control|sub|sup|bold/))              
+            sym = symbols[token.string]            
+            control = false
+            if token.type.match(/control/)                          
+              sym = ""
+              control = true
             if sym?
               widget = document.createElement('span')
               widget.appendChild(document.createTextNode(sym))
-              widget.className = 'isabelle-symbol'
-              @cm.markText from,to,
+              widget.className = 'cm-' + token.type.replace(" "," cm-")
+              @cm.markText from,to,          
                 replacedWith: widget
+                #clearOnEnter: control 
+                __special:    true   
         clearTimeout(@pushTimeout)
         if @changes.length is 0 then @model.set 
           currentVersion: @model.get('currentVersion') + 1
@@ -62,7 +74,7 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           change = change.next          
         @pushTimeout = setTimeout(@pushChanges,700)
 
-      @cm.on 'cursorActivity', (editor) =>
+      @cm.on 'cursorActivity', (editor) =>        
         editor.removeLineClass(currentLine, 'background', 'current_line')
         cur = editor.getCursor()
         @model.set cursor: cur
@@ -70,7 +82,7 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
 
       @cm.on 'viewportChange', @updatePerspective
 
-      cursor = @cm.getSearchCursor(/\\<([A-Za-z]+)>/)
+      cursor = @cm.getSearchCursor(/\\<(\^?[A-Za-z]+)>/)
 
       while cursor.findNext()
         sym = symbols[cursor.pos.match[0]]
@@ -80,10 +92,18 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           text = document.createTextNode(sym)
           replacement = document.createElement("span")
           replacement.appendChild(text)
-          replacement.className = "isabelle-symbol"
-
-          console.log "replace #{cursor.pos.match[0]} with #{sym} at #{from.line}:#{from.ch}->#{to.ch}"          
-
+          replacement.className = "symbol"
+          myWidget = replacement.cloneNode(true)
+          @cm.markText(from, to, {
+            replacedWith: myWidget,
+            clearOnEnter: true
+          })
+        else if cursor.pos.match[0].indexOf('^') isnt -1
+          from = cursor.from()
+          to   = cursor.to()          
+          replacement = document.createElement("span")
+          replacement.appendChild('')
+          replacement.className = "symbol"
           myWidget = replacement.cloneNode(true)
           @cm.markText(from, to, {
             replacedWith: myWidget,
@@ -92,9 +112,9 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           
       currentLine = @cm.addLineClass(0, 'background', 'current_line')
 
-      #@model.get('commands').forEach @includeCommand
-      #@model.get('commands').on('add', @includeCommand)
-      #@model.get('commands').on('change', @includeCommand)
+      @model.get('commands').forEach @includeCommand
+      @model.get('commands').on('add', @includeCommand)
+      @model.get('commands').on('change', @includeCommand)
       @model.on 'change:states', (m,states) =>
         for state, i in states
           cmd = @model.get('commands').getCommandAt(i)          
@@ -115,28 +135,35 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
 
     markers: []
 
-    includeCommand: (cmd) => #if cmd.get 'version' is @model.get('currentVersion')
-      #console.log "cmd: #{cmd.get 'version'}, model: #{@model.get 'currentVersion' }"      
-      vp = @cm.getViewport()
-      #console.log vp
-      range  = cmd.get 'range'
-      if vp.from >= range.end || vp.to <= range.start
-        return      
-      length = range.end - range.start
-      for line, i in cmd.get 'tokens'
-        l = i + range.start
-        if l >= vp.from && l <= vp.to
-          p = 0
-          for tk in line
-            from = 
-              line: l
-              ch: p
-            p += tk.value.length
-            unless (tk.type is "text" or tk.type is "")
-              to =
-                line: l
-                ch: p              
-              @markers.push(@cm.markText(from,to,"cm-#{tk.type.replace(/\./g,' cm-')}"))              
+    includeCommand: (cmd) => if cmd.get 'version' is @model.get('currentVersion')
+      console.log 'linewidget'
+      out = cmd.get 'output'
+      lineWidget = document.createElement('span')
+      lineWidget.appendChild(document.createTextNode(out))
+      range = cmd.get 'range'
+      @cm.addLineWidget(range.end,lineWidget)
+
+      # #console.log "cmd: #{cmd.get 'version'}, model: #{@model.get 'currentVersion' }"      
+      # vp = @cm.getViewport()
+      # #console.log vp
+      # range  = cmd.get 'range'
+      # if vp.from >= range.end || vp.to <= range.start
+      #   return      
+      # length = range.end - range.start
+      # for line, i in cmd.get 'tokens'
+      #   l = i + range.start
+      #   if l >= vp.from && l <= vp.to
+      #     p = 0
+      #     for tk in line
+      #       from = 
+      #         line: l
+      #         ch: p
+      #       p += tk.value.length
+      #       unless (tk.type is "text" or tk.type is "")
+      #         to =
+      #           line: l
+      #           ch: p              
+      #         @markers.push(@cm.markText(from,to,"cm-#{tk.type.replace(/\./g,' cm-')}"))              
 
     remove: =>
       @model.get('commands').off()

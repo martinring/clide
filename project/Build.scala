@@ -7,11 +7,11 @@ object ApplicationBuild extends Build {
     val appVersion      = "1.0-SNAPSHOT"
 
     val appDependencies = Seq(
-      "org.scala-lang" % "scala-swing" % "2.10.0-RC1"      
+      "org.scala-lang" % "scala-swing" % "2.10.0-RC5"      
     )
 
     val main = play.Project(appName, appVersion, appDependencies).settings(
-      scalaVersion := "2.10.0-RC1",      
+      scalaVersion := "2.10.0-RC5",      
       lessEntryPoints <<= baseDirectory(d => 
         (d / "app" / "assets" / "stylesheets" ** "ide.less") +++
         (d / "app" / "assets" / "stylesheets" ** "login.less") +++
