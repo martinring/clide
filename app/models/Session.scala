@@ -45,7 +45,7 @@ class Session(project: Project) extends JSConnector {
   }
   
   session.caret_focus += { x =>
-    println("caret focus: " + x)
+    println("caret focus: " + x)    
   }
   
   session.commands_changed += { change =>    
@@ -68,8 +68,10 @@ class Session(project: Project) extends JSConnector {
     change.commands.foreach(pushCommand)    
   }
 
-  def pushCommand(cmd: Command) = {
+  def pushCommand(cmd: Command): Unit = {
     val node = cmd.node_name
+    if (Some(node) != current) return 
+    
     val snap = session.snapshot(node, Nil)
     val start = snap.node.command_start(cmd)
     val state = snap.state.command_state(snap.version, cmd)
@@ -216,8 +218,9 @@ class Session(project: Project) extends JSConnector {
       docs.get(nodeName).map{ doc =>        
         val edits = changes.toList.flatMap(c => doc.change(c.from, c.to, c.text))
         session.edit_node(nodeName, node_header(nodeName), Text.Perspective.full, edits)
-        doc.version = version
-      }
+        doc.version = version        
+        js.ignore.check(nodeName.toString, version, doc.buffer.mkString)
+      }      
       
     case "changePerspective" => json =>
       val nodeName = name((json \ "path").as[String])

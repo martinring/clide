@@ -1,66 +1,43 @@
 CodeMirror.defineMode "isabelle", (config,parserConfig) ->
-  specials =
-    startState: -> 
-      control: null
-      sub: false
-      sup: false
-    token: (stream, state) ->
-      if (state?.control is 'sup')
-        stream.next()
-        state.control = null
-        return 'sup'
-      if (state?.control is 'sub')
-        stream.next()
-        state.control = null
-        return 'sub'          
-      ch = stream.next()
-      # special
-      if ch is '\\'
-        if stream.eat '<'
-          if stream.eat '^'
-            name = ''
-            c = null
-            while c = stream.eat(/[^<>\\]/)
-              name += c;
-            if stream.eat '>'
-              result = "control "
-              switch name
-                when 'sup'
-                  state.control = 'sup'
-                  result += "sup"
-                when 'isup'
-                  state.control = 'sup'
-                  result += "sup"
-                when 'sub'
-                  state.control = 'sub'
-                  result += "sub"
-                when 'isub'
-                  state.control = 'sub'
-                  result += "sub"
-                when 'bsup'
-                  state.sub = true
-                  result += "sup"
-                when 'esup'
-                  state.sub = false
-                  result += "sup"
-                when 'bsub'
-                  state.sub = true
-                  result += "sub"
-                when 'esub'
-                  state.sub = false
-                  result += "sub"
-              return result
-          else
-            name = ''
-            c = null
-            while c = stream.eat(/[^<>\\]/)
-              name += c;
-            if stream.eat '>'
-              return "delimiter " + name          
-      if state?.sub
-        return "sub"
-      else
-        return null
+  # taken from the isabelle reference manual
+
+  greek       = "(?:\\\\<(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|mu|nu|xi|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)>)"
+  digit       = "[0-9]"
+  latin       = "[a-zA-Z]"
+  sym         = "[\\!|\\#|\\$|\\%|\\&|\\*|\\+|\\-|\\/|\\<|\\=|\\>|\\?|\\@|\\^|\\_|\\||\\~]"
+  letter      = "(?:#{latin}|\\\\<#{latin}{1,2}>|#{greek}|\\\\<^isu[bp]>)"
+  quasiletter = "(?:#{letter}|#{digit}|\\_|\\')"
+  ident       = "(?:#{letter}#{quasiletter}*)"
+  longident   = "(?:#{ident}(?:\\.#{ident})+)"
+  symident    = "(?:#{sym}+|\\\\<#{ident}>)"
+  nat         = "(?:#{digit}+)"
+  floating    = "-?#{nat}\\.#{nat}"  
+  variable    = "\\?#{ident}(?:\\.#{nat})?"
+  typefree    = "'#{ident}"
+  typevar     = "\\?#{typefree}(?:\\.#{nat})"
+  string      = "\\\".*\\\""
+  altstring   = "`.*`"
+  verbatim    = "{\\*.*\\*}"  
+
+  greek       = RegExp greek      
+  digit       = RegExp digit      
+  latin       = RegExp latin      
+  sym         = RegExp sym        
+  letter      = RegExp letter     
+  quasiletter = RegExp quasiletter
+  ident       = RegExp ident      
+  longident   = RegExp longident  
+  symident    = RegExp symident   
+  nat         = RegExp nat        
+  floating    = RegExp floating   
+  variable    = RegExp variable   
+  typefree    = RegExp typefree   
+  typevar     = RegExp typevar    
+  string      = RegExp string     
+  altstring   = RegExp altstring  
+  verbatim    = RegExp verbatim   
+  num         = /\#?-?[0-9]+(?:\.[0-9]+)?/
+  escaped     = /\\[\"\\]/
 
   words =
     '\\.' :  'command'
@@ -399,50 +376,79 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
   ]
 
   tokenBase = (stream, state) ->
-    sol = stream.sol()
-    ch = stream.next()
+    if stream.sol() and stream.eatSpace()
+      return "indentation"
+
+    ch = stream.peek()
 
     # string
     if ch is '"'
+      stream.next()
       state.tokenize = tokenString
-      return state.tokenize(stream, state)
+      return "string"
 
     # alt string
     if ch is '`'
+      stream.next()
       state.tokenize = tokenAltString
-      return state.tokenize(stream, state)      
+      return "altstring"
 
     # comment
     if ch is '('
+      stream.next()
       if stream.eat('*')
         state.commentLevel++
         state.tokenize = tokenComment
-        return state.tokenize(stream, state)      
+        return state.tokenize(stream, state)   
+      else stream.backUp(1)   
 
     # verbatim
     if ch is '{'
+      stream.next()
       if stream.eat('*')        
         state.verbatimLevel++
         state.tokenize = tokenVerbatim
         return state.tokenize(stream, state)
-        
-    stream.eatWhile(/\w/)
+      else stream.backUp(1)
 
-    cur = stream.current()    
-    return words[cur] || null
+    if stream.match(typefree)
+      return 'tfree'
+    else if stream.match(typevar)
+      return "tvar"    
+    else if stream.match(variable)
+      return "var"
+    else if stream.match(longident)
+      return words[stream.current()] || "longident"
+    else if stream.match(ident)
+      return words[stream.current()] || "ident"
+    else if stream.match(symident)      
+      return "symbol"
+
+    stream.next()
+    return null
 
   tokenString = (stream, state) ->
-    next = false
-    end = false
-    escaped = false
-    while ((next = stream.next())?)
-      if next is '"' and not escaped
-        end = true
-        break
-      escaped = not escaped and next is '\\'    
-    if end and not escaped
-      state.tokenize = tokenBase    
-    return 'string'  
+    if stream.eatSpace()
+      return 'string'
+    if stream.match('\"')
+      state.tokenize = tokenBase
+      return 'string'  
+    if stream.match(longident)
+      return 'string longident'
+    if stream.match(ident)
+      return 'string ident' 
+    if stream.match(typefree)
+      return 'string tfree'
+    if stream.match(typevar)
+      return 'string tvar'
+    if stream.match(symident)
+      return 'string symbol'
+    if stream.match(num)
+      return 'string num'
+    if stream.match(escaped)
+      return 'string'
+    stream.next()
+    return 'string'
 
   tokenAltString = (stream, state) ->
     next = false
@@ -471,26 +477,26 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
   tokenVerbatim = (stream, state) -> 
     prev = null
     next = null
-    while state.verbatimLevel > 0 and (next = stream.next())?
-      if prev is '{' and next is '*' then state.verbatimLevel++
-      if prev is '*' and next is '}' then state.verbatimLevel--
-      prev = next    
-    if state.verbatimLevel <= 0
-      state.tokenize = tokenBase    
-    return 'verbatim'    
-
-  CodeMirror.overlayMode((
+    while (next = stream.next())?      
+      if prev is '*' and next is '}' 
+        state.tokenize = tokenBase
+        return 'verbatim'
+      prev = next
+    return 'verbatim'
+  (
     startState: () ->
+      string:        null
       tokenize:      tokenBase
       command:       null
       commentLevel:  0
-      verbatimLevel: 0
 
-    token: (stream,state) -> 
-      if stream.eatSpace() 
+    token: (stream,state) ->
+      if stream.sol() and stream.eatSpace()
+        return "indent"
+      if stream.eatSpace()
         return null
       else
         return state.tokenize(stream, state)
-  ), specials, true)
+  )
 
-#CodeMirror.defineMIME("text/x-isabelle","isabelle")
+CodeMirror.defineMIME("text/x-isabelle","isabelle")

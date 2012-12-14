@@ -49,8 +49,8 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
     $('#consoleButton').toggleClass 'active'
     $('body').toggleClass 'extendedStatusbar'
 
-  isabelle.on 'change:currentToken', (m,tok) ->
-    if tok? then $('#output').html(tok.tooltip)
+  isabelle.on 'change:output', (m,out) ->
+    $('#output').html(out)
   
   Backbone.history.start
     root: "/#{user}/#{project}/"

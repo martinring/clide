@@ -1,4 +1,4 @@
-define ['isabelle', 'commands'], (isabelle, commands) ->    
+define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->    
   # options: user, project, path to set the routes
   class Editor extends Backbone.View
     # tag for new editors is <div>
@@ -6,7 +6,7 @@ define ['isabelle', 'commands'], (isabelle, commands) ->
 
     initialize: ->
       @model.on 'opened', @initModel
-      @model.on 'close', @close    
+      @model.on 'close', @close         
 
     changes: []
 
@@ -20,36 +20,90 @@ define ['isabelle', 'commands'], (isabelle, commands) ->
           version: @model.get 'currentVersion'
           changes: @changes.splice(0)          
 
+    substitutions: []
+
     initModel: (text) =>
-      hlLine = 0      
+      currentLine = 0          
+
       @cm = new CodeMirror @el, 
         value: text
         indentUnit: 2
         lineNumbers: true
         mode: "isabelle"
-        onChange: (editor,change) =>
-          clearTimeout(@pushTimeOut)
-          if @changes.length is 0 then @model.set 
-            currentVersion: @model.get('currentVersion') + 1
-          while change?
-            @changes.push
-              from: change.from
-              to:   change.to
-              text: change.text
-            change = change.next
-          @pushTimeout = setTimeout(@pushChanges,700)
-        onCursorActivity: (editor) ->
-          editor.setLineClass(hlLine, null, null)
-          hlLine = editor.setLineClass(editor.getCursor().line, "current_line")
-        onViewportChange: @updatePerspective
-      hlLine = @cm.setLineClass(0, "current_line")
-      @model.get('commands').forEach @includeCommand
-      @model.get('commands').on('add', @includeCommand)
-      @model.get('commands').on('change', @includeCommand)
+
+      @cm.on 'change', (editor,change) =>
+        unless editor.somethingSelected()
+          pos = change.to
+          tok = editor.getTokenAt(change.to)
+          from = 
+            line: pos.line
+            ch:   tok.start                  
+          to = 
+            line: pos.line
+            ch:   tok.end
+          if tok.type? and tok.type.indexOf('symbol') isnt -1
+            sym = symbols[tok.string]
+            if sym?
+              widget = document.createElement('span')
+              widget.appendChild(document.createTextNode(sym))
+              widget.className = 'isabelle-symbol'
+              @cm.markText from,to,
+                replacedWith: widget
+        clearTimeout(@pushTimeout)
+        if @changes.length is 0 then @model.set 
+          currentVersion: @model.get('currentVersion') + 1
+          m.clear() for m in @markers
+          @markers = []
+        while change?
+          @changes.push
+            from: change.from
+            to:   change.to
+            text: change.text
+          change = change.next          
+        @pushTimeout = setTimeout(@pushChanges,700)
+
+      @cm.on 'cursorActivity', (editor) =>
+        editor.removeLineClass(currentLine, 'background', 'current_line')
+        cur = editor.getCursor()
+        @model.set cursor: cur
+        currentLine = editor.addLineClass(cur.line, 'background', 'current_line')
+
+      @cm.on 'viewportChange', @updatePerspective
+
+      cursor = @cm.getSearchCursor(/\\<([A-Za-z]+)>/)
+
+      while cursor.findNext()
+        sym = symbols[cursor.pos.match[0]]
+        if sym?
+          from = cursor.from()
+          to   = cursor.to()
+          text = document.createTextNode(sym)
+          replacement = document.createElement("span")
+          replacement.appendChild(text)
+          replacement.className = "isabelle-symbol"
+
+          console.log "replace #{cursor.pos.match[0]} with #{sym} at #{from.line}:#{from.ch}->#{to.ch}"          
+
+          myWidget = replacement.cloneNode(true)
+          @cm.markText(from, to, {
+            replacedWith: myWidget,
+            clearOnEnter: true
+          })
+          
+      currentLine = @cm.addLineClass(0, 'background', 'current_line')
+
+      #@model.get('commands').forEach @includeCommand
+      #@model.get('commands').on('add', @includeCommand)
+      #@model.get('commands').on('change', @includeCommand)
       @model.on 'change:states', (m,states) =>
         for state, i in states
           cmd = @model.get('commands').getCommandAt(i)          
-          @cm.setMarker(i, null ,state)
+          #@cm.setMarker(i, null ,state)
+      @model.on 'check', (content) =>
+        if @cm.getValue() isnt content          
+          console.error "cross check failed: ", @cm.getValue(), content
+        else
+          console.log "cross check passed"
       CodeMirror.simpleHint @cm, (args... )->
         console.log args ...
 
@@ -59,17 +113,18 @@ define ['isabelle', 'commands'], (isabelle, commands) ->
           start: start
           end:   end    
 
-    includeCommand: (cmd) => if cmd.get 'version' is @model.get('currentVersion')
-      console.log "hallo"
+    markers: []
+
+    includeCommand: (cmd) => #if cmd.get 'version' is @model.get('currentVersion')
+      #console.log "cmd: #{cmd.get 'version'}, model: #{@model.get 'currentVersion' }"      
       vp = @cm.getViewport()
-      console.log vp
+      #console.log vp
       range  = cmd.get 'range'
       if vp.from >= range.end || vp.to <= range.start
         return      
       length = range.end - range.start
       for line, i in cmd.get 'tokens'
         l = i + range.start
-        @cm.clearMarker(l)
         if l >= vp.from && l <= vp.to
           p = 0
           for tk in line
@@ -80,8 +135,8 @@ define ['isabelle', 'commands'], (isabelle, commands) ->
             unless (tk.type is "text" or tk.type is "")
               to =
                 line: l
-                ch: p
-              @cm.markText(from,to,"cm-#{tk.type.replace(/\./g,' cm-')}")
+                ch: p              
+              @markers.push(@cm.markText(from,to,"cm-#{tk.type.replace(/\./g,' cm-')}"))              
 
     remove: =>
       @model.get('commands').off()

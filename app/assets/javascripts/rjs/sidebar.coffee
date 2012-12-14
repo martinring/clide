@@ -90,7 +90,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       if @options.buttons?
         @buttons = $("<div class='buttons'></div>")
         @$el.append @buttons        
-        for button in @options.buttons        
+        for button in @options.buttons
           bv = $("<div class='button'>#{button.icon}</div>")
           bv.on 'click', => @options.content[button.action]()
           @buttons.append bv

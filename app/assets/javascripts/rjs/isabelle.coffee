@@ -72,15 +72,24 @@ define ['ScalaConnector'], (ScalaConnector) ->
               start: p.start
               end: p.end
         thy.on 'change:cursor', (t,p) =>
+          #console.log "cursor changed to line #{p.line}"
           @set
-            output: t.get('commands').getCommandAt(p.row)?.get 'output'
+            output: t.get('commands').getCommandAt(p.line)?.get 'output'
         thy.on 'change:remoteVersion', (t,v) ->
-          console.log "remoteVersion: #{v}"
+          #console.log "remoteVersion: #{v}"
           t.get('commands').cleanUp(v-1)
       @route = routes.controllers.Projects.getSession(@user,@project)
       @scala = new ScalaConnector(@route.webSocketURL(),@,@getTheories)
       @scala.socket.onclose = =>
-        @set phase: 'failed'      
+        @set phase: 'failed'   
+
+    check: (nodeName, version, content) =>      
+      thy = @theories.get(nodeName)
+      if version is thy.get 'currentVersion'
+        console.log "triggered cross check for #{nodeName}"
+        thy.trigger 'check', content
+      else
+        console.log "check failed for #{nodeName} due to different version numbers (remote: #{version}, local: #{thy.get 'currentVersion'})"        
 
     setPhase: (phase) =>
       @set
@@ -123,7 +132,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
       #console.log "theory #{thy} depends on #{dep}"
 
     commandChanged: (node, command) =>
-      console.log "change ", command
+      #console.log "change ", command
       node = @theories.get(node)
       cmds = node.get('commands')
       node.set 
