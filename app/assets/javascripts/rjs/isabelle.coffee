@@ -11,12 +11,21 @@ define ['ScalaConnector'], (ScalaConnector) ->
 
   class Commands extends Backbone.Collection
     model: Command
-    cleanUp: (currentVersion) => @forEach (x) =>
+    cleanUp: (currentVersion) => @forEach (x) => if (x.get 'version') < currentVersion
       console.log('removed ', x)
-      @remove(x) if x.get 'version' < currentVersion
-    getCommandAt: (line) => @find (x) ->      
-      range = x.get 'range'
-      range.start <= line && range.end >= line
+      x.trigger('remove',x)
+      @remove(x) 
+    getCommandAt: (line) => 
+      all = @filter (x) ->
+        range = x.get 'range'
+        range.start <= line && range.end >= line
+      sorted = _.sortBy(all, (c) -> c.get 'version')
+      for c, i in sorted
+        if i < (sorted.length - 1)
+          c.trigger('remove')
+          @remove(c)
+        else
+          return c
     getTokenAt: (line,column) =>
       cmd = @getCommandAt(line)
       if (cmd?)
@@ -76,7 +85,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
           @set
             output: t.get('commands').getCommandAt(p.line)?.get 'output'
         thy.on 'change:remoteVersion', (t,v) ->
-          #console.log "remoteVersion: #{v}"
+          console.log "remoteVersion: #{v}"
           t.get('commands').cleanUp(v-1)
       @route = routes.controllers.Projects.getSession(@user,@project)
       @scala = new ScalaConnector(@route.webSocketURL(),@,@getTheories)
@@ -131,9 +140,13 @@ define ['ScalaConnector'], (ScalaConnector) ->
     dependency: (thy, dep) =>
       #console.log "theory #{thy} depends on #{dep}"
 
-    commandChanged: (node, command) =>
+    commandChanged: (node, command) =>    
       #console.log "change ", command
       node = @theories.get(node)
+      p = node.get 'cursor'      
+      if p? and p.line >= command.range.start and p.line <= command.range.end
+        @set
+          output: command.output
       cmds = node.get('commands')
       node.set 
         remoteVersion: Math.max(node.get 'remoteVersion', command.version)

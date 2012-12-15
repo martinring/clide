@@ -77,7 +77,9 @@ class Session(project: Project) extends JSConnector {
     val state = snap.state.command_state(snap.version, cmd)
     if (!cmd.is_ignored) for (doc <- docs.get(node); start <- start) {
       val docStartLine = doc.buffer.line(start)
-      val docEndLine = doc.buffer.line(start + cmd.length - 1)
+      var docEndLine = doc.buffer.line(start + cmd.length - 1)
+      while (docEndLine >= 0 && !doc.buffer.lines(docEndLine).exists(c => c != ' ' && c != '\t'))
+        docEndLine -= 1
       if (true) {//docStartLine >= doc.perspective._1 && docEndLine <= doc.perspective._2) {
 	      val ranges = (docStartLine to docEndLine).map(doc.buffer.ranges.lift(_)).flatten.toVector
 	      val tokens = MarkupTree.getTokens(snap, ranges).map {

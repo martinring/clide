@@ -74,7 +74,9 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
         state.control = null
         return x + 'bold'
       if stream.eatWhile(/[^\\]/)
-        return x      
+        if x isnt ''
+          return x
+        return null
       if stream.match(/\\<\^[A-Za-z]+>/)
         switch stream.current()
           when '\\<^sub>'            
@@ -99,7 +101,9 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       if stream.match(/\\<[A-Za-z]+>/)
         return x + 'special'      
       stream.next()
-      return x
+      if x isnt ''
+        return x
+      return null
 
   words =
     '.' :  'command'
@@ -489,6 +493,8 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       return "symbol"
     else if stream.match(control)
       return null
+    else if stream.match(incomplete)
+      return 'incomplete'
 
     stream.next()
     return null
@@ -515,6 +521,8 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       return 'string'
     if stream.match(control)
       return null
+    else if stream.match(incomplete)
+      return 'incomplete'
     stream.next()
     return 'string'
 

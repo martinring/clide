@@ -29,6 +29,9 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
         value: text
         indentUnit: 2
         lineNumbers: true
+        gutters: ['CodeMirror-linenumbers','states']
+        extraKeys: 
+          'Ctrl-Space': 'autocomplete'
         mode: "isabelle"
 
       lastToken = null        
@@ -59,13 +62,19 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
               widget.className = 'cm-' + token.type.replace(" "," cm-")
               @cm.markText from,to,          
                 replacedWith: widget
-                #clearOnEnter: control 
+                clearOnEnter: false
                 __special:    true   
         clearTimeout(@pushTimeout)
-        if @changes.length is 0 then @model.set 
-          currentVersion: @model.get('currentVersion') + 1
-          m.clear() for m in @markers
-          @markers = []
+        if @changes.length is 0
+          v = @model.get('currentVersion')
+          @model.set 
+            currentVersion: v + 1
+          @model.get('commands').cleanUp(v-1)
+          @cm.operation =>
+            @cm.removeLineWidget(w) for w in @lineWidgets
+            @lineWidgets = []
+            m.clear() for m in @markers
+            @markers = []
         while change?
           @changes.push
             from: change.from
@@ -96,9 +105,9 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           myWidget = replacement.cloneNode(true)
           @cm.markText(from, to, {
             replacedWith: myWidget,
-            clearOnEnter: true
+            clearOnEnter: false
           })
-        else if cursor.pos.match[0].indexOf('^') isnt -1
+        else if cursor.pos.match[0].indexOf('\^') isnt -1
           from = cursor.from()
           to   = cursor.to()          
           replacement = document.createElement("span")
@@ -117,53 +126,81 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
       @model.get('commands').on('change', @includeCommand)
       @model.on 'change:states', (m,states) =>
         for state, i in states
-          cmd = @model.get('commands').getCommandAt(i)          
-          #@cm.setMarker(i, null ,state)
+          @cm.operation () => 
+            @cm.clearGutter('states')
+            marker = document.createElement('div')
+            marker.className = state
+            @cm.setGutterMarker(i, 'states' ,marker)
+      @model.on 'change:remoteVersion', (m,v) =>
+        console.log v
       @model.on 'check', (content) =>
         if @cm.getValue() isnt content          
           console.error "cross check failed: ", @cm.getValue(), content
         else
           console.log "cross check passed"
-      CodeMirror.simpleHint @cm, (args... )->
-        console.log args ...
+      CodeMirror.commands.autocomplete = (cm) ->
+        syms = _.keys(symbols)
+        CodeMirror.simpleHint cm, (editor) -> unless editor.somethingSelected()
+          pos = editor.getCursor()
+          token = editor.getTokenAt(pos)          
+          (
+            list: _.filter(syms, (v) -> v.indexOf(token.string) isnt -1)
+            from: 
+              line: pos.line
+              ch:   (token.start) - 1
+            to: 
+              line: pos.line
+              ch:   token.end
+          )
 
     updatePerspective: (editor, start, end) =>      
       @model.set
         perspective:
           start: start
-          end:   end    
+          end:   end
 
+    lineWidgets: []
     markers: []
 
-    includeCommand: (cmd) => if cmd.get 'version' is @model.get('currentVersion')
-      console.log 'linewidget'
+    includeCommand: (cmd) => if cmd.get('version') is @model.get('currentVersion') then @cm.operation =>
+      cmd.on 'remove', (cmd) => if cmd?
+        for m in cmd.get 'markup'
+          m.clear()
+      #add LineWidget
       out = cmd.get 'output'
-      lineWidget = document.createElement('span')
-      lineWidget.appendChild(document.createTextNode(out))
-      range = cmd.get 'range'
-      @cm.addLineWidget(range.end,lineWidget)
+      old = cmd.get('widget')
+      if old? 
+        @cm.removeLineWidget(old)
+        lineWidget = document.createElement('div')
+        lineWidget.className = 'outputWidget'
+        lineWidget.appendChild(document.createTextNode(out))
+        range = cmd.get 'range'
+        @lineWidgets.push(@cm.addLineWidget(range.end,lineWidget))      
 
-      # #console.log "cmd: #{cmd.get 'version'}, model: #{@model.get 'currentVersion' }"      
-      # vp = @cm.getViewport()
-      # #console.log vp
-      # range  = cmd.get 'range'
-      # if vp.from >= range.end || vp.to <= range.start
-      #   return      
-      # length = range.end - range.start
-      # for line, i in cmd.get 'tokens'
-      #   l = i + range.start
-      #   if l >= vp.from && l <= vp.to
-      #     p = 0
-      #     for tk in line
-      #       from = 
-      #         line: l
-      #         ch: p
-      #       p += tk.value.length
-      #       unless (tk.type is "text" or tk.type is "")
-      #         to =
-      #           line: l
-      #           ch: p              
-      #         @markers.push(@cm.markText(from,to,"cm-#{tk.type.replace(/\./g,' cm-')}"))              
+      #mark Stuff
+      old = cmd.get('markup')
+      if old?
+        for m in old
+          m.clear()
+      range  = cmd.get 'range'
+      length = range.end - range.start
+      marks = []
+      for line, i in cmd.get 'tokens'
+        l = i + range.start
+        p = 0
+        for tk in line
+          from = 
+            line: l
+            ch: p
+          p += tk.value.length
+          unless (tk.type is "text" or tk.type is "")
+            to =
+              line: l
+              ch: p              
+            marks.push(@cm.markText from,to,
+              className: "cm-#{tk.type.replace(/\./g,' cm-')}"
+              __isabelle: true)
+      cmd.set((markup: marks),(silent: true))
 
     remove: =>
       @model.get('commands').off()

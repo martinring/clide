@@ -20,6 +20,11 @@
   span.cm-bold { 
     font-weight: bold;    
   }
+  .outputWidget {
+    white-space: pre;
+    margin-left: 8px;
+    background: rgba(0,0,0,0.05);
+  }
   isabelle-symbol {
     font-family: 'AMS';
   }
@@ -211,19 +216,20 @@
   span.cm-forked {
     border-bottom: 1px dotted blue 
   }
-  pre.running {
+
+  Codemirror-gutter-elt.running {
     border-left: 3px solid @mustard;
   }
-  pre.unprocessed {
+  Codemirror-gutter-elt.unprocessed {
     border-left: 3px solid @gray;
   }
-  pre.error {
+  Codemirror-gutter-elt.error {
     border-left: 3px solid @red;
   }
-  pre.failed {
+  Codemirror-gutter-elt.failed {
     border-left: 3px solid @red;
   }
-  pre.warning {
+  Codemirror-gutter-elt.warning {
     border-left: 3px solid @orange;
   }
 }

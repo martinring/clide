@@ -13,9 +13,9 @@ class RemoteDocumentModel(lines: Traversable[String] = Nil) {
   
   var version = 0
   
-  def convert(pos: Position): Int = buffer.line(pos.line) + pos.column    
+  def convert(pos: Position): Int = buffer.offset(pos.line) + pos.column    
   
-  def change(from: Position, to: Position, text: Array[String]): List[Text.Edit] = {
+  def change(from: Position, to: Position, text: Array[String]): List[Text.Edit] = {    
     if (from == to) {
       if (text.length == 0)
         Nil
@@ -23,7 +23,7 @@ class RemoteDocumentModel(lines: Traversable[String] = Nil) {
         val ln = buffer.lines(from.line)
         buffer.lines(from.line) = ln.take(from.column) + text.head
         if (text.length > 1) buffer.lines.insertAll(from.line + 1, text.tail)
-        buffer.lines(from.line + (text.length - 1)) += ln.drop(from.column)
+        buffer.lines(from.line + (text.length - 1)) += ln.drop(from.column)                
         List(Text.Edit.insert(convert(from), text.mkString(buffer.newline.toString)))
       }
     }
