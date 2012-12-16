@@ -48,7 +48,7 @@ class Session(project: Project) extends JSConnector {
     println("caret focus: " + x)    
   }
   
-  session.commands_changed += { change =>    
+  session.commands_changed += { change =>
     change.nodes.foreach { node =>      
       val snap = session.snapshot(node, Nil)
       snap.node.keywords.foreach(println)
@@ -60,10 +60,17 @@ class Session(project: Project) extends JSConnector {
           status.finished,
           status.warned,
           status.failed)      
-      if (current == Some(node)) for {
-        doc <- docs.get(node)
-        states = MarkupTree.getLineStates(snap, doc.buffer.ranges)
-      } js.ignore.states(node.toString, states)
+      for {
+        doc <- docs.get(node)        
+      } {
+        js.ignore.states(node.toString, states = MarkupTree.getLineStates(snap, doc.buffer.ranges))
+        val cmds = snap.node.commands.map(_.id)
+        doc.commands.keys.foreach { id =>
+          if (!cmds.contains(id))
+            doc.commands.remove(id)
+            js.ignore.removeCommand(node.toString, id)
+        }
+      }       
     }    
     change.commands.foreach(pushCommand)    
   }

@@ -51,30 +51,17 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
             line: pos.line
             ch:   token.end
           if token.type? and (token.type.match(/special|symbol|abbrev|control|sub|sup|bold/))              
-            sym = symbols[token.string]            
-            control = false
-            if token.type.match(/control/)                          
-              sym = ""
-              control = true
-            if sym?
-              widget = document.createElement('span')
-              widget.appendChild(document.createTextNode(sym))
-              widget.className = 'cm-' + token.type.replace(" "," cm-")
+            wid = symbols[token.string]            
+            if wid?
               @cm.markText from,to,          
-                replacedWith: widget
+                replacedWith: wid()
                 clearOnEnter: false
                 __special:    true   
         clearTimeout(@pushTimeout)
         if @changes.length is 0
           v = @model.get('currentVersion')
           @model.set 
-            currentVersion: v + 1
-          @model.get('commands').cleanUp(v-1)
-          @cm.operation =>
-            @cm.removeLineWidget(w) for w in @lineWidgets
-            @lineWidgets = []
-            m.clear() for m in @markers
-            @markers = []
+            currentVersion: v + 1          
         while change?
           @changes.push
             from: change.from
@@ -98,25 +85,9 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
         if sym?
           from = cursor.from()
           to   = cursor.to()
-          text = document.createTextNode(sym)
-          replacement = document.createElement("span")
-          replacement.appendChild(text)
-          replacement.className = "symbol"
-          myWidget = replacement.cloneNode(true)
           @cm.markText(from, to, {
-            replacedWith: myWidget,
+            replacedWith: sym(),
             clearOnEnter: false
-          })
-        else if cursor.pos.match[0].indexOf('\^') isnt -1
-          from = cursor.from()
-          to   = cursor.to()          
-          replacement = document.createElement("span")
-          replacement.appendChild('')
-          replacement.className = "symbol"
-          myWidget = replacement.cloneNode(true)
-          @cm.markText(from, to, {
-            replacedWith: myWidget,
-            clearOnEnter: true
           })
           
       currentLine = @cm.addLineClass(0, 'background', 'current_line')
@@ -159,23 +130,30 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           start: start
           end:   end
 
-    lineWidgets: []
     markers: []
 
     includeCommand: (cmd) => if cmd.get('version') is @model.get('currentVersion') then @cm.operation =>
-      cmd.on 'remove', (cmd) => if cmd?
-        for m in cmd.get 'markup'
-          m.clear()
+      unless cmd.get('registered')      
+        cmd.on 'remove', (cmd) => if cmd?
+          for m in cmd.get 'markup'
+            m.clear()
+          wid = cmd.get('widget')
+          if wid?
+            @cm.removeLineWidget(wid)
+        cmd.set registered: true
+
       #add LineWidget
       out = cmd.get 'output'
       old = cmd.get('widget')
+
       if old? 
         @cm.removeLineWidget(old)
-        lineWidget = document.createElement('div')
-        lineWidget.className = 'outputWidget'
-        lineWidget.appendChild(document.createTextNode(out))
-        range = cmd.get 'range'
-        @lineWidgets.push(@cm.addLineWidget(range.end,lineWidget))      
+
+      lineWidget = document.createElement('div')
+      lineWidget.className = 'outputWidget'
+      lineWidget.appendChild(document.createTextNode(out))
+      range = cmd.get 'range'
+      cmd.set((widget: @cm.addLineWidget(range.end,lineWidget)), (silent: true))
 
       #mark Stuff
       old = cmd.get('markup')

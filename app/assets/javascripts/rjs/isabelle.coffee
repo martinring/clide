@@ -10,22 +10,13 @@ define ['ScalaConnector'], (ScalaConnector) ->
       state: "no information"
 
   class Commands extends Backbone.Collection
-    model: Command
-    cleanUp: (currentVersion) => @forEach (x) => if (x.get 'version') < currentVersion
-      console.log('removed ', x)
-      x.trigger('remove',x)
-      @remove(x) 
+    model: Command    
     getCommandAt: (line) => 
       all = @filter (x) ->
         range = x.get 'range'
         range.start <= line && range.end >= line
       sorted = _.sortBy(all, (c) -> c.get 'version')
-      for c, i in sorted
-        if i < (sorted.length - 1)
-          c.trigger('remove')
-          @remove(c)
-        else
-          return c
+      return sorted[sorted.length - 1]      
     getTokenAt: (line,column) =>
       cmd = @getCommandAt(line)
       if (cmd?)
@@ -80,13 +71,9 @@ define ['ScalaConnector'], (ScalaConnector) ->
               path: t.get 'path'
               start: p.start
               end: p.end
-        thy.on 'change:cursor', (t,p) =>
-          #console.log "cursor changed to line #{p.line}"
+        thy.on 'change:cursor', (t,p) =>          
           @set
-            output: t.get('commands').getCommandAt(p.line)?.get 'output'
-        thy.on 'change:remoteVersion', (t,v) ->
-          console.log "remoteVersion: #{v}"
-          t.get('commands').cleanUp(v-1)
+            output: t.get('commands').getCommandAt(p.line)?.get 'output'        
       @route = routes.controllers.Projects.getSession(@user,@project)
       @scala = new ScalaConnector(@route.webSocketURL(),@,@getTheories)
       @scala.socket.onclose = =>
@@ -155,6 +142,13 @@ define ['ScalaConnector'], (ScalaConnector) ->
         old.set(command)
       else
         node.get('commands').add(command)
+
+    removeCommand: (node, command) =>
+      node = @theories.get(node)
+      cmds = node.get('commands')
+      cmd = cmds.get(command)
+      if cmd? 
+        cmds.remove(cmd)
 
     open: (thy) =>
       @scala.call
