@@ -46,10 +46,8 @@ define ->
       @timeOut = setTimeout((-> $('#sessionStatus').removeClass('working')), 500)
 
     call: (options) =>
-      @blink()
-      #console.log(options)
-      if options and options.action
-        console.log options
+      @blink()      
+      if options and options.action        
         if options.callback
           @results[@id] = options.callback
           options.id = @id

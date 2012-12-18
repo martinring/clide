@@ -44,14 +44,10 @@ class Session(project: Project) extends JSConnector {
     js.ignore.println(Pretty.str_of(msg.body))    
   }
   
-  session.caret_focus += { x =>
-    println("caret focus: " + x)    
-  }
-  
   session.commands_changed += { change =>
-    change.nodes.foreach { node =>      
+    change.nodes.foreach { node =>
+      delayedLoad(node)
       val snap = session.snapshot(node, Nil)
-      snap.node.keywords.foreach(println)
       val status = Protocol.node_status(snap.state, snap.version, snap.node)      
       js.ignore.status(
           node.toString, 
@@ -62,13 +58,14 @@ class Session(project: Project) extends JSConnector {
           status.failed)      
       for {
         doc <- docs.get(node)        
-      } {
-        js.ignore.states(node.toString, states = MarkupTree.getLineStates(snap, doc.buffer.ranges))
+      } {        
+        js.ignore.states(node.node, states = MarkupTree.getStates(snap, doc.buffer.ranges))
         val cmds = snap.node.commands.map(_.id)
         doc.commands.keys.foreach { id =>
-          if (!cmds.contains(id))
+          if (!cmds.contains(id)) {
             doc.commands.remove(id)
             js.ignore.removeCommand(node.toString, id)
+          }
         }
       }       
     }    
@@ -89,6 +86,7 @@ class Session(project: Project) extends JSConnector {
         docEndLine -= 1
       if (true) {//docStartLine >= doc.perspective._1 && docEndLine <= doc.perspective._2) {
 	      val ranges = (docStartLine to docEndLine).map(doc.buffer.ranges.lift(_)).flatten.toVector
+	      val cmdState = MarkupTree.getStates(snap, Vector((start, start + cmd.length - 1))).head
 	      val tokens = MarkupTree.getTokens(snap, ranges).map {
 	        _.map { token =>
 	          val classes = token.info.map {
@@ -113,7 +111,8 @@ class Session(project: Project) extends JSConnector {
 	          "start" -> docStartLine,
 	          "end" -> docEndLine),
 	        "tokens" -> tokens,
-	        "output" -> commandInfo(cmd))
+	        "output" -> commandInfo(cmd),
+	        "state" -> cmdState)
 	      if (doc.commands.get(cmd.id) != Some(json))
 	        doc.commands(cmd.id) = json
 	        js.ignore.commandChanged(cmd.node_name.toString, json)
@@ -173,7 +172,9 @@ class Session(project: Project) extends JSConnector {
         docs(name) = doc
         js.ignore.dependency(thy.toString, name.toString)
       } catch {
-        case e: Throwable => Logger.error(f"$thy could not be loaded")
+        case e: Throwable => 
+          Logger.error(f"$thy could not be loaded")
+          e.printStackTrace()
       }     
     }
   }
@@ -198,7 +199,7 @@ class Session(project: Project) extends JSConnector {
       
     case "new" => json =>
       val name = json.as[String]
-      val path = "data/" + project.owner + "/" + project.name + "/" + name + ".thy"
+      val path = name + ".thy"
       val node = this.name(path)
       val doc = new RemoteDocumentModel
       doc.buffer.lines.insertAll(0,List(
@@ -215,9 +216,32 @@ class Session(project: Project) extends JSConnector {
       session.init_node(node, node_header(node), Text.Perspective.full, doc.buffer.mkString)
       js.ignore.addTheory(Theory(name,path))
       
+    case "save" => json =>            
+      val path = (json \ "path").as[String]
+      val node = this.name(path)
+      
+      for (doc <- docs.get(node)) {
+        val out = scalax.io.Resource.fromFile(path)
+        out.write(doc.buffer.mkString)        
+      }
+        
+      
+    case "delete" => json =>
+      val name = (json \ "id").as[String]
+      val path = (json \ "path").as[String]
+      val node = this.name(path)
+                  
+      docs.get(node) match {
+        case None => false
+        case Some(doc) =>
+          docs.remove(node)
+          new java.io.File(path).delete()
+      }
+      
+      
+                  
     case "close" => json =>
-      val nodeName = json.as[String]
-      println("close " + nodeName)      
+      val nodeName = json.as[String] 
       
     case "edit" => json =>
       session.cancel_execution()
@@ -235,13 +259,11 @@ class Session(project: Project) extends JSConnector {
       val nodeName = name((json \ "path").as[String])
       val start = (json \ "start").as[Int]
       val end = (json \ "end").as[Int]
-      println("changePerspective: " + start + " to " + end)
       for (doc <- docs.get(nodeName)) {
         doc.perspective = (start,end)               
       }      
       
     case "setCurrentDoc" => json =>
-      println("currentDoc " + json)
       current = Some(name(json.as[String]))
       
   }

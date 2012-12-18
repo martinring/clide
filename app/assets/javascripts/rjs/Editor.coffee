@@ -32,14 +32,18 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
         gutters: ['CodeMirror-linenumbers','states']
         extraKeys: 
           'Ctrl-Space': 'autocomplete'
+          'Ctrl-Down' : 'sub'
+          'Ctrl-Up'   : 'sup'
+          'Ctrl-B'    : 'bold'
         mode: "isabelle"
 
       lastToken = null        
         
-      @cm.on 'change', (editor,change) =>        
+      @cm.on 'change', (editor,change) => editor.operation =>
         unless editor.somethingSelected()          
-          pos   = change.to          
-          token = editor.getTokenAt(pos)
+          pos   = change.to
+          cur   = editor.getCursor()
+          token = editor.getTokenAt(pos)          
           marks = editor.findMarksAt(pos)
           for mark in marks 
             if mark.__special
@@ -54,7 +58,7 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
             wid = symbols[token.string]            
             if wid?
               @cm.markText from,to,          
-                replacedWith: wid()
+                replacedWith: wid(token.type)
                 clearOnEnter: false
                 __special:    true   
         clearTimeout(@pushTimeout)
@@ -70,9 +74,17 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           change = change.next          
         @pushTimeout = setTimeout(@pushChanges,700)
 
-      @cm.on 'cursorActivity', (editor) =>        
+      @cm.on 'cursorActivity', (editor) =>
         editor.removeLineClass(currentLine, 'background', 'current_line')
         cur = editor.getCursor()
+        tok = editor.getTokenAt(cur)
+        if tok? and tok.type?
+          if tok.type.indexOf('control-sup') isnt -1
+            @cm.setOption('cursorHeight', 0.66)
+          else if tok.type.indexOf('control-sub') isnt -1
+            @cm.setOption('cursorHeight', -0.66)      
+          else
+            @cm.setOption('cursorHeight', 1)      
         @model.set cursor: cur
         currentLine = editor.addLineClass(cur.line, 'background', 'current_line')
 
@@ -95,34 +107,50 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
       @model.get('commands').forEach @includeCommand
       @model.get('commands').on('add', @includeCommand)
       @model.get('commands').on('change', @includeCommand)
-      @model.on 'change:states', (m,states) =>
+      @model.on 'change:states', (m,states) => @cm.operation () => 
+        console.log states
+        @cm.clearGutter('states')        
         for state, i in states
-          @cm.operation () => 
-            @cm.clearGutter('states')
-            marker = document.createElement('div')
-            marker.className = state
-            @cm.setGutterMarker(i, 'states' ,marker)
+          console.log "add #{state} in line #{i}"
+          marker = document.createElement('div')
+          marker.className = state
+          @cm.setGutterMarker(i, 'states' ,marker)
       @model.on 'change:remoteVersion', (m,v) =>
         console.log v
       @model.on 'check', (content) =>
         if @cm.getValue() isnt content          
-          console.error "cross check failed: ", @cm.getValue(), content
-        else
-          console.log "cross check passed"
+          console.error "cross check failed: ", @cm.getValue(), content              
       CodeMirror.commands.autocomplete = (cm) ->
         syms = _.keys(symbols)
         CodeMirror.simpleHint cm, (editor) -> unless editor.somethingSelected()
-          pos = editor.getCursor()
+          pos   = editor.getCursor()
           token = editor.getTokenAt(pos)          
           (
             list: _.filter(syms, (v) -> v.indexOf(token.string) isnt -1)
             from: 
               line: pos.line
-              ch:   (token.start) - 1
+              ch:   token.start
             to: 
               line: pos.line
               ch:   token.end
           )
+      CodeMirror.commands.bold = (cm) ->
+        cm.replaceRange('\\<^bold>' ,cm.getCursor())
+      CodeMirror.commands.sub = (cm) ->
+        if cm.somethingSelected()
+          console.log 'TODO'
+        else
+          cm.replaceRange('\\<^sub>' ,cm.getCursor())
+      CodeMirror.commands.sup = (cm) ->
+        if cm.somethingSelected()
+          console.log 'TODO'
+        else
+          cm.replaceRange('\\<^sup>' ,cm.getCursor())
+      CodeMirror.commands.isub = (cm) ->
+        cm.replaceRange('\\<^isub>' ,cm.getCursor())
+      CodeMirror.commands.isup = (cm) ->
+        cm.replaceRange('\\<^isup>' ,cm.getCursor())
+      
 
     updatePerspective: (editor, start, end) =>      
       @model.set
@@ -130,7 +158,24 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           start: start
           end:   end
 
-    markers: []
+    markers: []    
+
+    addCommandWidget: (cmd) =>
+      out = cmd.get('output')
+      old = cmd.get('widget')
+      rng = cmd.get('range')
+      state = cmd.get('state')
+
+      if old? 
+        @cm.removeLineWidget(old)
+      
+      lineWidget = document.createElement('div')
+      lineWidget.className = 'outputWidget ' + cmd.get('state')
+      if cmd.get('current') then lineWidget.className += ' current'
+      lineWidget.appendChild(document.createTextNode(out))
+      wid = @cm.addLineWidget(rng.end,lineWidget)
+      cmd.set((widget: wid), (silent: true))        
+
 
     includeCommand: (cmd) => if cmd.get('version') is @model.get('currentVersion') then @cm.operation =>
       unless cmd.get('registered')      
@@ -142,20 +187,10 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
             @cm.removeLineWidget(wid)
         cmd.set registered: true
 
-      #add LineWidget
-      out = cmd.get 'output'
-      old = cmd.get('widget')
+      # add line widget
+      @addCommandWidget(cmd)
 
-      if old? 
-        @cm.removeLineWidget(old)
-
-      lineWidget = document.createElement('div')
-      lineWidget.className = 'outputWidget'
-      lineWidget.appendChild(document.createTextNode(out))
-      range = cmd.get 'range'
-      cmd.set((widget: @cm.addLineWidget(range.end,lineWidget)), (silent: true))
-
-      #mark Stuff
+      # mark Stuff
       old = cmd.get('markup')
       if old?
         for m in old
@@ -177,6 +212,7 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
               ch: p              
             marks.push(@cm.markText from,to,
               className: "cm-#{tk.type.replace(/\./g,' cm-')}"
+              tooltip: tk.tooltip
               __isabelle: true)
       cmd.set((markup: marks),(silent: true))
 

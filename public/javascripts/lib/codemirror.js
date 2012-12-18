@@ -658,8 +658,14 @@ window.CodeMirror = (function() {
   function updateSelectionCursor(cm) {
     var display = cm.display, pos = cursorCoords(cm, cm.view.sel.head, "div");
     display.cursor.style.left = pos.left + "px";
-    display.cursor.style.top = pos.top + "px";
-    display.cursor.style.height = Math.max(0, pos.bottom - pos.top) * cm.options.cursorHeight + "px";
+    if (cm.options.cursorHeight < 0) {      
+      display.cursor.style.top = (pos.top + Math.max(0, pos.bottom - pos.top) * (-cm.options.cursorHeight)) + "px";
+      display.cursor.style.height = Math.max(0, pos.bottom - pos.top) * (-cm.options.cursorHeight) + "px";
+    }
+    else {
+      display.cursor.style.top = pos.top + "px";
+      display.cursor.style.height = Math.max(0, pos.bottom - pos.top) * cm.options.cursorHeight + "px";
+    }
     display.cursor.style.display = "";
 
     if (pos.other) {
@@ -3606,11 +3612,11 @@ window.CodeMirror = (function() {
   }
 
   var tokenSpecialChars = /[\t\u0000-\u0019\u200b\u2028\u2029\uFEFF]/g;
-  function buildToken(builder, text, style, startStyle, endStyle) {
+  function buildToken(builder, text, style, startStyle, endStyle, tooltip) {
     if (!text) return;
     if (!tokenSpecialChars.test(text)) {
       builder.col += text.length;
-      var content = document.createTextNode(text);
+      var content = document.createTextNode(text);      
     } else {
       var content = document.createDocumentFragment(), pos = 0;
       while (true) {
@@ -3634,17 +3640,19 @@ window.CodeMirror = (function() {
           builder.col += 1;
         }
       }
-    }
+    }    
     if (style || startStyle || endStyle || builder.measure) {
       var fullStyle = style || "";
       if (startStyle) fullStyle += startStyle;
       if (endStyle) fullStyle += endStyle;
-      return builder.pre.appendChild(elt("span", [content], fullStyle));
+      var c = elt("span", [content], fullStyle);
+      c.title = tooltip;
+      return builder.pre.appendChild(c);
     }
     builder.pre.appendChild(content);
   }
 
-  function buildTokenMeasure(builder, text, style, startStyle, endStyle) {
+  function buildTokenMeasure(builder, text, style, startStyle, endStyle, tooltip) {
     for (var i = 0; i < text.length; ++i) {
       if (i && i < text.length - 1 &&
           builder.cm.options.lineWrapping &&
@@ -3652,7 +3660,7 @@ window.CodeMirror = (function() {
         builder.pre.appendChild(elt("wbr"));
       builder.measure[builder.pos++] =
         buildToken(builder, text.charAt(i), style,
-                   i == 0 && startStyle, i == text.length - 1 && endStyle);
+                   i == 0 && startStyle, i == text.length - 1 && endStyle, tooltip);
     }
     if (text.length) builder.addedOne = true;
   }
@@ -3682,9 +3690,11 @@ window.CodeMirror = (function() {
     var allText = line.text, len = allText.length;
     var pos = 0, i = 0, text = "", style;
     var nextChange = 0, spanStyle, spanEndStyle, spanStartStyle, collapsed;
+    var tooltip;
     for (;;) {
       if (nextChange == pos) { // Update current marker set
         spanStyle = spanEndStyle = spanStartStyle = "";
+        tooltip = null;
         collapsed = null; nextChange = Infinity;
         var foundBookmark = null;
         for (var j = 0; j < spans.length; ++j) {
@@ -3692,6 +3702,7 @@ window.CodeMirror = (function() {
           if (sp.from <= pos && (sp.to == null || sp.to > pos)) {
             if (sp.to != null && nextChange > sp.to) { nextChange = sp.to; spanEndStyle = ""; }
             if (m.className) spanStyle += " " + m.className;
+            if (m.tooltip) tooltip = m.tooltip;
             if (m.startStyle && sp.from == pos) spanStartStyle += " " + m.startStyle;
             if (m.endStyle && sp.to == nextChange) spanEndStyle += " " + m.endStyle;
             if (m.collapsed && (!collapsed || collapsed.marker.width < m.width))
@@ -3718,7 +3729,7 @@ window.CodeMirror = (function() {
           if (!collapsed) {
             var tokenText = end > upto ? text.slice(0, upto - pos) : text;
             builder.addToken(builder, tokenText, style + spanStyle,
-                             spanStartStyle, pos + tokenText.length == nextChange ? spanEndStyle : "");
+                             spanStartStyle, pos + tokenText.length == nextChange ? spanEndStyle : "", tooltip);
           }
           if (end >= upto) {text = text.slice(upto - pos); pos = upto; break;}
           pos = end;

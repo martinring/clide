@@ -16,7 +16,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
         range = x.get 'range'
         range.start <= line && range.end >= line
       sorted = _.sortBy(all, (c) -> c.get 'version')
-      return sorted[sorted.length - 1]      
+      return sorted[sorted.length - 1]
     getTokenAt: (line,column) =>
       cmd = @getCommandAt(line)
       if (cmd?)
@@ -71,9 +71,14 @@ define ['ScalaConnector'], (ScalaConnector) ->
               path: t.get 'path'
               start: p.start
               end: p.end
-        thy.on 'change:cursor', (t,p) =>          
-          @set
-            output: t.get('commands').getCommandAt(p.line)?.get 'output'        
+        thy.on 'change:cursor', (t,p) =>
+          cmd = t.get('commands').getCommandAt(p.line)
+          old = thy.get 'currentCommand'
+          if old? then old.set current: false
+          if cmd? 
+            cmd.set current: true
+            thy.set currentCommand: cmd
+          @set output: cmd?.get 'output' or ''
       @route = routes.controllers.Projects.getSession(@user,@project)
       @scala = new ScalaConnector(@route.webSocketURL(),@,@getTheories)
       @scala.socket.onclose = =>
@@ -81,8 +86,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
 
     check: (nodeName, version, content) =>      
       thy = @theories.get(nodeName)
-      if version is thy.get 'currentVersion'
-        console.log "triggered cross check for #{nodeName}"
+      if version is thy.get 'currentVersion'        
         thy.trigger 'check', content
       else
         console.log "check failed for #{nodeName} due to different version numbers (remote: #{version}, local: #{thy.get 'currentVersion'})"        
@@ -107,6 +111,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
       @trigger 'println', msg
 
     states: (node, states) =>
+      console.log states
       @theories.get(node).set
         states: states
 
@@ -153,11 +158,19 @@ define ['ScalaConnector'], (ScalaConnector) ->
     open: (thy) =>
       @scala.call
         action: 'open'
-        data: thy.toJSON()
+        data:   thy.toJSON()
         callback: (text) =>  
           thy.set
             opened: true        
           thy.trigger 'opened', text
+
+    delete: (thy) =>
+      @scala.call
+        action: 'delete'
+        data:   thy.toJSON()
+        callback: (done) =>
+          if done
+            @theories.remove(thy)
 
     new: (name) =>      
       if @theories.get(name)?

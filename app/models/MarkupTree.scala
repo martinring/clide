@@ -5,7 +5,7 @@ import play.api.libs.json._
 import scala.collection.SortedMap
 
 object MarkupTree {
-  def getLineStates(
+  def getStates(
     snapshot: Document.Snapshot,
     ranges: Vector[(Int, Int)]) = ranges.map {
     case (start, end) =>
@@ -69,7 +69,8 @@ object MarkupTree {
   val outer = Set(COMMAND,KEYWORD,OPERATOR,CONTROL,
         MALFORMED,COMMAND_SPAN,IGNORED_SPAN,MALFORMED_SPAN,ERROR,WARNING)
         
-  val inner = Set(TVAR,FREE)
+  val inner = Set(TVAR,FREE,SORT,TYP,TERM,PROP,ML_TYPING,TOKEN_RANGE,ENTITY,
+      TYPING,FREE,SKOLEM,BOUND,VAR,TFREE,TVAR,ML_SOURCE,DOC_SOURCE)
   
   def tooltip_message(snapshot: Document.Snapshot, range: Text.Range): Option[String] =
   {

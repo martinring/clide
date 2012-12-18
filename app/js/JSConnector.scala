@@ -81,6 +81,7 @@ trait JSConnector {
     
     var convert: PartialFunction[Any,JsValue] = {
       case i: Int => JsNumber(i)
+      case b: Boolean => JsBoolean(b)
       case i: Long => JsNumber(i)
       case s: String => JsString(s)
       case t: Traversable[_] => JsArray(t.map(convert).toSeq)

@@ -5,6 +5,11 @@
 @verbatim: gray;
 @comment: rgb(76, 136, 107);
 
+.extendedStatusbar .outputWidget {
+  height: 0;
+  visibility: hidden;
+}
+
  /* outer syntax */
 .cm-s-default {   
   span.cm-sup { 
@@ -23,7 +28,15 @@
   .outputWidget {
     white-space: pre;
     margin-left: 8px;
+    padding-left: 8px;
     background: rgba(0,0,0,0.05);
+    border-left: 8px solid @green;    
+    &.error, &.failed {
+      border-left-color: @red;      
+    }
+    &.warning {
+      border-left-color: @mustard;
+    }
   }
   isabelle-symbol {
     font-family: 'AMS';
@@ -52,6 +65,9 @@
   span.cm-verbatim {
     /*background: rgba(0,0,0,0.05);*/
     color: @verbatim;
+    &.cm-ML {
+      font-family: Typewriter;
+    }
   }
   span.cm-comment {
     color: @comment;  
@@ -71,6 +87,7 @@
   }
   /* inner syntax */
   span.cm-tfree {
+    font-family: Math;
     color: @type 
   }
   span.cm-tvar {
@@ -78,9 +95,12 @@
   }
   span.cm-entity {
     color: black ;
+    &:hover {
+      text-decoration: underline;
+    }
   }
-  span.cm-free {
-    font-style: italic;
+  span.cm-free, span.cm-term {
+    font-family: Math;
     color: @purple ;
   }
   span.cm-skolem {
@@ -215,6 +235,13 @@
 
   span.cm-forked {
     border-bottom: 1px dotted blue 
+  }
+
+  span.cm-substitution {
+    &.cm-caligraphic { font-family: Caligraphic }
+    &.cm-fraktur     { font-family: Fraktur }
+    &.cm-number      { font-family: Caligraphic }
+    &.cm-ams         { font-family: AMS }
   }
 
   Codemirror-gutter-elt.running {

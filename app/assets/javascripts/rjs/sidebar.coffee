@@ -159,6 +159,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       @collection.forEach (theory) =>        
         view = new FileItemView model: theory
         @$el.append(view.el)
+        
     new: (again) =>
       name = prompt(if again then "Invalid name. Enter different name" else "Enter name")
       if /^[a-zA-Z0-9]+$/.test(name)

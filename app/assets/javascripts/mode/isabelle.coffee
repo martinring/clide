@@ -58,13 +58,13 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       if stream.sol()
         state.control = null
       x = ''
-      if      state.sub then x = 'sub '
-      else if state.sup then x = 'sup '
+      if      state.sub then x = 'sub control-sub '
+      else if state.sup then x = 'sup control-sup '
       if state.control is 'sub'        
         stream.match(incomplete) or stream.next()
         state.control = null
         return x + 'sub'
-      if state is 'sup'
+      if state.control is 'sup'
         stream.match(incomplete) or stream.next()
         state.control = null
         return x + 'sup'
@@ -80,7 +80,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       if stream.match(/\\<\^[A-Za-z]+>/)
         switch stream.current()
           when '\\<^sub>'            
-            state.control = 'sub'
+            state.control = 'sub'            
           when '\\<^sup>'
             state.control = 'sup'
           when '\\<^isub>'
@@ -91,13 +91,20 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
             state.control = 'bold'
           when '\\<^bsub>'
             state.sub = true
+            return "#{x}control control-sub"
           when '\\<^bsup>'
             state.sup = true
+            return "#{x}control control-sup"
           when '\\<^esub>'
             state.sub = false
+            return "control"
           when '\\<^esup>'
             state.sup = false
-        return x + 'control'     
+            return "control"
+        if state.control?
+          return "#{x}control control-#{state.control}"
+        else
+          return x + 'control'
       if stream.match(/\\<[A-Za-z]+>/)
         return x + 'special'      
       stream.next()
@@ -190,7 +197,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     'domain_isomorphism' : 'command'
     'done' : 'command'
     'enable_pr' :  'command'
-    'end' :  'command'
+    'end' :  'keyword'
     'equivariance' : 'command'
     'example_proof' :  'command'
     'exit' : 'command'
@@ -254,6 +261,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     'normal_form' :  'command'
     'notation' : 'command'
     'note' : 'command'
+    'notepad' : 'command'
     'obtain' : 'command'
     'oops' : 'command'
     'oracle' : 'command'
@@ -441,11 +449,19 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     'Rightarrow'
   ]
 
-  tokenBase = (stream, state) ->
-    if stream.sol() and stream.eatSpace()
-      return "indentation"
-
+  tokenBase = (stream, state) ->    
     ch = stream.peek()
+
+    # verbatim
+    if ch is '{'
+      stream.next()
+      if stream.eat('*')        
+        state.verbatimLevel++
+        state.tokenize = tokenVerbatim
+        return state.tokenize(stream, state)
+      else stream.backUp(1)
+    
+    state.command = null
 
     # string
     if ch is '"'
@@ -468,15 +484,6 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
         return state.tokenize(stream, state)   
       else stream.backUp(1)   
 
-    # verbatim
-    if ch is '{'
-      stream.next()
-      if stream.eat('*')        
-        state.verbatimLevel++
-        state.tokenize = tokenVerbatim
-        return state.tokenize(stream, state)
-      else stream.backUp(1)
-    
     if stream.match(abbrev)
       return 'symbol'
     if stream.match(typefree)
@@ -484,11 +491,13 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     else if stream.match(typevar)
       return "tvar"    
     else if stream.match(variable)
-      return "var"
-    else if stream.match(longident)
-      return words[stream.current()] || "longident"
-    else if stream.match(ident)
-      return words[stream.current()] || "ident"
+      return "var"    
+    else if stream.match(longident) or stream.match(ident)
+      type = words[stream.current()] || "identifier"
+      if type is 'command'        
+        type = type + " " + stream.current()
+        state.command = stream.current()
+      return type
     else if stream.match(symident)      
       return "symbol"
     else if stream.match(control)
@@ -539,7 +548,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       state.tokenize = tokenBase    
     return 'alt_string'  
 
-  tokenComment = (stream, state) -> 
+  tokenComment = (stream, state) ->
     prev = null
     next = null
     while state.commentLevel > 0 and (next = stream.next())?
@@ -550,15 +559,15 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       state.tokenize = tokenBase    
     return 'comment'
 
-  tokenVerbatim = (stream, state) -> 
+  tokenVerbatim = (stream, state) ->
     prev = null
     next = null
     while (next = stream.next())?      
-      if prev is '*' and next is '}' 
+      if prev is '*' and next is '}'
         state.tokenize = tokenBase
-        return 'verbatim'
+        return 'verbatim' + (if state.command? then ' ' + state.command else '')
       prev = next
-    return 'verbatim'
+    return 'verbatim' + (if state.command? then ' ' + state.command else '')
 
   CodeMirror.overlayMode((
     startState: () ->
