@@ -1,4 +1,4 @@
-theory Test
+theory Notepad
 imports Main
 begin
 

@@ -107,13 +107,11 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
       @model.get('commands').forEach @includeCommand
       @model.get('commands').on('add', @includeCommand)
       @model.get('commands').on('change', @includeCommand)
-      @model.on 'change:states', (m,states) => @cm.operation () => 
-        console.log states
+      @model.on 'change:states', (m,states) => @cm.operation () =>         
         @cm.clearGutter('states')        
-        for state, i in states
-          console.log "add #{state} in line #{i}"
-          marker = document.createElement('div')
-          marker.className = state
+        for state, i in states          
+          marker = document.createElement('div')          
+          marker.className = 'gutter-state-' + state
           @cm.setGutterMarker(i, 'states' ,marker)
       @model.on 'change:remoteVersion', (m,v) =>
         console.log v

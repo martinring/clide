@@ -110,8 +110,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
     println: (msg) =>
       @trigger 'println', msg
 
-    states: (node, states) =>
-      console.log states
+    states: (node, states) =>      
       @theories.get(node).set
         states: states
 

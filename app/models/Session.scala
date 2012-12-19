@@ -59,7 +59,7 @@ class Session(project: Project) extends JSConnector {
       for {
         doc <- docs.get(node)        
       } {        
-        js.ignore.states(node.node, states = MarkupTree.getStates(snap, doc.buffer.ranges))
+        js.ignore.states(node.theory, MarkupTree.getStates(snap, doc.buffer.ranges))
         val cmds = snap.node.commands.map(_.id)
         doc.commands.keys.foreach { id =>
           if (!cmds.contains(id)) {
@@ -200,6 +200,7 @@ class Session(project: Project) extends JSConnector {
     case "new" => json =>
       val name = json.as[String]
       val path = name + ".thy"
+      val realPath = project.dir + path
       val node = this.name(path)
       val doc = new RemoteDocumentModel
       doc.buffer.lines.insertAll(0,List(
@@ -210,7 +211,7 @@ class Session(project: Project) extends JSConnector {
         "end"
       ))
       
-      val out = scalax.io.Resource.fromFile(path)
+      val out = scalax.io.Resource.fromFile(realPath)
       out.write(doc.buffer.mkString)      
       docs(node) = doc
       session.init_node(node, node_header(node), Text.Perspective.full, doc.buffer.mkString)
@@ -232,11 +233,12 @@ class Session(project: Project) extends JSConnector {
       val node = this.name(path)
                   
       docs.get(node) match {
-        case None => false
+        case None =>          
         case Some(doc) =>
-          docs.remove(node)
-          new java.io.File(path).delete()
+          docs.remove(node)      
       }
+      
+      new java.io.File(project.dir + path).delete()
       
       
                   

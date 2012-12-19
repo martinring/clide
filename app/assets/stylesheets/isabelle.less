@@ -243,24 +243,29 @@
     &.cm-number      { font-family: Caligraphic }
     &.cm-ams         { font-family: AMS }
   }
-
-  Codemirror-gutter-elt.running {
-    border-left: 3px solid @mustard;
-  }
-  Codemirror-gutter-elt.unprocessed {
-    border-left: 3px solid @gray;
-  }
-  Codemirror-gutter-elt.error {
-    border-left: 3px solid @red;
-  }
-  Codemirror-gutter-elt.failed {
-    border-left: 3px solid @red;
-  }
-  Codemirror-gutter-elt.warning {
-    border-left: 3px solid @orange;
-  }
 }
-
+  
+div.gutter-state-running {
+  background: @mustard;
+  height: 26px;
+  border-left: 3px solid @mustard;
+}
+div.gutter-state-unprocessed {
+  height: 26px;
+  border-left: 3px solid @gray;
+}
+div.gutter-state-error {
+  height: 26px;
+  border-left: 3px solid @red;
+}
+div.gutter-state-failed {
+  height: 26px;
+  border-left: 3px solid @red;
+}
+div.gutter-state-warning {
+  height: 26px;
+  border-left: 3px solid @orange;
+}
 .current_line.cm-control {
   font-size: inherit !important;
 }
