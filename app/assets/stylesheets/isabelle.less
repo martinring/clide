@@ -42,7 +42,7 @@
     font-family: 'AMS';
   }
   span.cm-indent {
-    font-family: monospace;
+    font-family: Typewriter;
     line-height: 0;
   }
   span.cm-keyword {
@@ -65,12 +65,13 @@
   span.cm-verbatim {
     /*background: rgba(0,0,0,0.05);*/
     color: @verbatim;
-    &.cm-ML {
+    &.cm-ML, &.cm-ML_val {
       font-family: Typewriter;
-    }
+    }    
   }
   span.cm-comment {
-    color: @comment;  
+    color: @comment; 
+    font-family: Typewriter; 
   }
   span.cm-malformed {
     text-decoration: line-through;
@@ -206,35 +207,12 @@
 
   }
 
-
-  /*
-    val INIT = "init"
-    val STATUS = "status"
-    val REPORT = "report"
-    val WRITELN = "writeln"
-    val TRACING = "tracing"
-    val WARNING = "warning"
-  */
   span.cm-error{
-    border-bottom: 1px dotted red;
-    text-decoration-line: underline;
-    text-decoration-style: wavy;
-    text-decoration-color: red;
+    background-color: @red    
   }
 
   span.cm-warning{  
-    border-bottom: 1px dotted @orange;
-    text-decoration-line: underline;
-    text-decoration-style: wavy;
-    text-decoration-color: yellow;
-  }
-
-  span.cm-accepted {
-    border-bottom: 1px dotted green  
-  }
-
-  span.cm-forked {
-    border-bottom: 1px dotted blue 
+    background-color:  @orange;    
   }
 
   span.cm-substitution {

@@ -1,5 +1,6 @@
-define -> 
+define ->  
   body = $('body')
+  body.append('<ul id="contextMenu"></ul>')
   menu = $('#contextMenu')
 
   hide = () -> 

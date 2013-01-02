@@ -1,61 +1,55 @@
 \section{HTML5}
 
-Für die Implementierung der Browseranwendung wird auf den aktuellen Entwurf des 
-zukünfitgen HTML5 Standards zurückgegriffen.
+Für die Implementierung der Browseranwendung wird auf den aktuellen Entwurf des  zukünfitgen HTML5
+Standards zurückgegriffen.
 
-HTML (Hypertext Markup Language) ist eine Sprache die der strukturierten 
-Beschreibung von Webseiten dient. Die Sprache wurde in ihrer ursprünglichen Form 
-von 1989-1992, lange vor dem sogenannten Web 2.0, von Wissenschaftlern des 
-Europäischen Kernforschungsinstitut CERN entwickelt. Sie war der erste nicht 
-proprietäre globale Standard zur digitalen übertragung von Strukturierten 
-Dokumenten. Die Sprache HTML an sich ist nicht geeignet um dynamische Inhaltem 
-wie sie heute praktisch auf allen modernen Webseiten vorkommen, zu beschreiben.
+\acr{html} ist eine Sprache die der strukturierten  Beschreibung von Webseiten dient. Die Sprache
+wurde in ihrer ursprünglichen Form  von 1989-1992, lange vor dem sogenannten Web 2.0, von
+Wissenschaftlern des  Europäischen Kernforschungsinstitut CERN entwickelt. Sie war der erste nicht
+proprietäre globale Standard zur digitalen übertragung von Strukturierten  Dokumenten. Die Sprache
+\acr{html} an sich ist nicht geeignet um dynamische Inhaltem  wie sie heute praktisch auf allen
+modernen Webseiten vorkommen, zu beschreiben.
 
-Der heutige HTML5-Standard geht weit über die Sprache HTML selbst hinaus und 
-umfasst vor allem auch die Scriptsprache JavaScript und die darin verfügbaren 
-Bibliotheken, sowie das sogenannte Dokumentobjektmodell (DOM), auf welches in 
-Scripten zugegriffen werden kann um den angezeigten Inhalt dynamisch zu 
-verändern.
+Der heutige HTML5-Standard geht weit über die Sprache \acr{html} selbst hinaus und  umfasst vor
+allem auch die Scriptsprache JavaScript und die darin verfügbaren  Bibliotheken, sowie das
+sogenannte \acr{dom}, auf welches in  Scripten zugegriffen werden kann um den angezeigten Inhalt
+dynamisch zu  verändern.
 
 \subsection{Dokumenobjektmodell}
 
-\textit{DOM} (Dokumentobjektmodell)
+Das \acr{dom} dient bla bla...
 
 \subsection{Cascading Stylesheets}
 
-\textit{CSS} (Cascading Stylesheets) ist eine Sprache die der Definition von 
-Stilen bzw. Stilvorlagen für die Anzeige von Webinhalten dient.
+\acr{css} ist eine Sprache die der Definition von  Stilen bzw.
+Stilvorlagen für die Anzeige von Webinhalten dient.
 
-Durch die Trennung von HTML und CSS wird erreicht, dass HTML-Dokumente sich auf 
-den Inhalt einer Seite beschränken, während alle die grafische Anzeige 
-belangenden Aspekte in die sogenannten Stylesheets in CSS Dateien ausgelagert 
-werden.
+Durch die Trennung von \acr{html} und \acr{css} wird erreicht, dass \acr{html}-Dokumente sich auf  den
+Inhalt einer Seite beschränken, während alle die grafische Anzeige  belangenden Aspekte in die
+sogenannten Stylesheets in \acr{css} Dateien ausgelagert  werden.
 
 \subsubsection{LESS}
 
-\textit{CSS} hat einige Einschränkungen welche die Arbeit damit erschweren:
+\acr{css} hat einige Einschränkungen welche die Arbeit damit erschweren:
 
-\begin{itemize}
-\item Es ist nicht möglich Variablen zu definieren um Eigenschaften, welche an 
-vielen Stellen vorkommen nur einmal zu definieren.
-\item Es fehlen Funktionsdefinitonen um ähnliche oder abhängige Definitionen 
-zusammenzufassen und zu parametrisieren.
-\item Die Hierarchie einer \textit{CSS}-Datei ist flach obwohl die Definitionen
-geschachtelt sind. Das reduziert die lesbarkeit der Dateien.
-\item Wenn aus Gründen der Übersichtlichkeit \textit{CSS} in mehrere Dateien
-aufgeteilt werden, müssen alle Dateien einzeln geladen werden, was zu längeren
-Ladezeiten führt.
-\end{itemize}
+\begin{itemize} 
+  \item Es ist nicht möglich Variablen zu definieren um Eigenschaften, welche an
+vielen Stellen vorkommen nur einmal zu definieren. 
+  \item Es fehlen Funktionsdefinitonen um ähnliche
+oder abhängige Definitionen  zusammenzufassen und zu parametrisieren. 
+  \item Die Hierarchie einer
+\acr{css}-Datei ist flach obwohl die Definitionen geschachtelt sind. Das reduziert die lesbarkeit
+der Dateien. 
+  \item Wenn aus Gründen der Übersichtlichkeit \acr{css} in mehrere Dateien aufgeteilt
+werden, müssen alle Dateien einzeln geladen werden, was zu längeren Ladezeiten führt. \end{itemize}
 
-\textit{LESS} ist eine Erweiterung von \textit{CSS} welche unter anderem 
-Variablen- und Funktionsdefinitionen, verschachtelte Definitionen sowie 
-Dateiimports erlaubt. Damit werden die oben genannten Einschränkungen von
-\textit{CSS} aufgehoben.
+\textit{LESS} ist eine Erweiterung von \acr{css} welche unter anderem  Variablen- und
+Funktionsdefinitionen, verschachtelte Definitionen sowie  Dateiimports erlaubt. Damit werden die
+oben genannten Einschränkungen von \acr{css} aufgehoben.
 
 \subsection{JavaScript}
 
-JavaScript ist eine dynamisch typisierte, klassenlose objektorientierte 
-Scriptsprache und 
+JavaScript ist eine dynamisch typisierte, klassenlose objektorientierte  Scriptsprache und
 
 \subsubsection{CoffeeScript}
 
@@ -67,52 +61,47 @@ HTTP (Hypertext Transport Protocol)
 
 \subsubsection{AJAX}
 
-AJAX (Asynchronous JavaScript and XML) ist keine Bibliothek und auch kein 
-Standard sondern ein sehr weit verbreitetes Konzept zur Übertragung von Daten 
-zwischen Browser und Webserver. Hierbei wird das JavaScript Objekt 
-\texttt{XMLHttpRequest} verwendet um während der Anzeige einer Webseite 
+AJAX (Asynchronous JavaScript and XML) ist keine Bibliothek und auch kein  Standard sondern ein sehr
+weit verbreitetes Konzept zur Übertragung von Daten  zwischen Browser und Webserver. Hierbei wird
+das JavaScript Objekt  \texttt{XMLHttpRequest} verwendet um während der Anzeige einer Webseite
 
 \subsubsection{WebSockets}
 
-Websockets sind ein in HTML5 neu eingeführter Standard zur bidirektionalen 
-Kommunikation zwischen Browser und einem Webserver. Hierbei wird anders als bei 
-AJAX eine direkte TCP-Verbindung hergestellt. Diese Verbindung kann sowohl von 
-Browser- als auch von Serverseite aus gleich verwendet werden. Das macht es 
-unnötig, wie bei AJAX wiederholte Anfragen oder Anfragen ohne Zeitbegrenzung zu 
-stellen um Informationen vom Server zu erhalten wenn diese Verfügbar werden. Ein
-weiterer Vorteil gegenüber HTTP-Anfragen ist, dass durch die direkte permanente
-Verbindung kein Nachrichtenkopf mehr nötig ist. Das macht es deutlich 
-effizienter viele kleine Nachrichten zu versenden.
+Websockets sind ein in HTML5 neu eingeführter Standard zur bidirektionalen  Kommunikation zwischen
+Browser und einem Webserver. Hierbei wird anders als bei  AJAX eine direkte TCP-Verbindung
+hergestellt. Diese Verbindung kann sowohl von  Browser- als auch von Serverseite aus gleich
+verwendet werden. Das macht es  unnötig, wie bei AJAX wiederholte Anfragen oder Anfragen ohne
+Zeitbegrenzung zu  stellen um Informationen vom Server zu erhalten wenn diese Verfügbar werden. Ein
+weiterer Vorteil gegenüber HTTP-Anfragen ist, dass durch die direkte permanente Verbindung kein
+Nachrichtenkopf mehr nötig ist. Das macht es deutlich  effizienter viele kleine Nachrichten zu
+versenden.
 
 \subsection{JavaScript-Bibliotheken}
 
-Über den HTML5 Standard hinaus ist es für die strukturierung von komplexen 
-Anwendungen nötig 
+Über den HTML5 Standard hinaus werden für die strukturierung der Anwendung einige 
+JavaScript-Bibliotheken verwendet, welche im folgenden kurz erläutert werden.
 
 \subsubsection{jQuery}
 
-Die Bibliothek \textit{jQuery} ist ein defacto Standard in der Webentwicklung. 
-In erster Linie erleichtert es den Zugriff auf das \textit{DOM}
+Die Bibliothek \textit{jQuery} ist ein defacto Standard in der Webentwicklung.  In erster Linie
+erleichtert es den Zugriff auf das \textit{DOM}. 
 
 \subsubsection{Backbone}
 
-\textit{Backbone} ist eine Bibliothek, die der Strukturierung von JavaScript
-Anwendungen dient.
+\textit{Backbone} ist eine Bibliothek, die der Strukturierung von JavaScript Anwendungen dient.
 
 \subsubsection{RequireJS}
 
-Da JavaScript von Haus aus keine Möglichkeit der Modularisierung bietet, 
-komplexe Anwendungen jedoch ohne Modularisierung kaum wartbar bleiben, haben 
-sich unterschiedliche Lösungsansätze für dieses Problem entwickelt. Einer der 
-umfassendsten ist die Bibliothek \textit{RequireJS}.
+Da JavaScript von Haus aus keine Möglichkeit der Modularisierung bietet,  komplexe Anwendungen
+jedoch ohne Modularisierung kaum wartbar bleiben, haben  sich unterschiedliche Lösungsansätze für
+dieses Problem entwickelt. Einer der  umfassendsten ist die Bibliothek \textit{RequireJS}.
 
-Mit der Funktion \texttt{define} können Module in Form von Funktionsdefinitionen 
-definiert werden. Alle lokalen Variablen in dem Modul sind anders als bei 
-normalen Scripten außerhalb nicht mehr sichtbar, da sie innerhalb einer 
-Funktion definiert wurden. Das Funktionsergebnis ist das was nach außen Sichtbar 
-ist. Das kann ein beliebiges Objekt (also auch eine Funktion) sein.
+Mit der Funktion \texttt{define} können Module in Form von Funktionsdefinitionen  definiert werden.
+Alle lokalen Variablen in dem Modul sind anders als bei  normalen Scripten außerhalb nicht mehr
+sichtbar, da sie innerhalb einer  Funktion definiert wurden. Das Funktionsergebnis ist das was nach
+außen Sichtbar  ist. Das kann ein beliebiges Objekt (also auch eine Funktion) sein.
 
-Die so definierten Module können Abhängigkeiten untereinander spezifizieren 
-indem der \texttt{define}-Funktion eine Liste von Modulen übergeben wird, die 
-das aktuelle Modul benötigt. Die \textit{RequireJS}-Bibliothek sorgt dann dafür, 
-dass diese Module geladen wurden bevor das aktuelle Modul
+Die so definierten Module können Abhängigkeiten untereinander spezifizieren  indem der
+\texttt{define}-Funktion eine Liste von Modulen übergeben wird, die  das aktuelle Modul benötigt.
+Die \textit{RequireJS}-Bibliothek sorgt dann dafür,  dass diese Module geladen wurden bevor das
+aktuelle Modul

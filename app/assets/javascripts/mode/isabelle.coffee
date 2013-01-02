@@ -23,7 +23,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     '\\<\\.|\\.\\>|\\(\\||\\|\\)|\\[\\||\\|\\]|\\{\\.|\\.\\}|\\/\\\\|\\\\\\/' +
     '|\\~\\:|\\(\\=|\\=\\)|\\[\\=|\\=\\]|\\+o|\\+O|\\*o|\\*O|\\.o|\\.O' +
     '|\\-o|\\/o|\\=\\_\\(|\\=\\_\\)|\\=\\^\\(|\\=\\^\\)|\\-\\.|\\.\\.\\.|(?:Int|Inter' +
-    "|Un|Union|SUM|PROD)(?!#{quasiletter})"
+    "|Un|Union|SUM|PROD)(?!#{quasiletter})"  
 
   abbrev      = RegExp abbrev
   greek       = RegExp greek      
@@ -48,6 +48,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
   special     = /\\<[A-Za-z]+>/
   control     = /\\<\^[A-Za-z]+>/
   incomplete  = /\\<\^{0,1}[A-Za-z]*>?/
+  lineComment = /--.*/
 
   special = 
     startState: () ->
@@ -450,7 +451,10 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
   ]
 
   tokenBase = (stream, state) ->    
-    ch = stream.peek()
+    if stream.match(lineComment)
+      return "comment"
+      
+    ch = stream.peek()    
 
     # verbatim
     if ch is '{'
@@ -577,7 +581,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       commentLevel:  0
 
     token: (stream,state) ->
-      if stream.sol() and stream.eatSpace()
+      if stream.sol() and stream.match(/(?:[ \t]*\|[ \t]*)|(?:[ \t]+)/)
         return "indent"
       if stream.eatSpace()
         return 'whitespace'

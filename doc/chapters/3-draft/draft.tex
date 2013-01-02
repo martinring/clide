@@ -1,7 +1,77 @@
 \chapter{Entwurf}
 
-\section{Client}
+Auf Grund der Komplexität und dem unvermeidbaren Rechenaufwand, welcher ein Theorembeweiser
+mitbringt, ist es aus aktueller Sicht nahezu ausgeschlossen diese Arbeit zu größeren Teilen im
+Browser zu verwirklichen. Die einzige von allen größeren Browsern unterstützte Scriptsprache ist zur
+Zeit immernoch \textit{JavaScript}, welche vor allem auf Grund der dynamischen Typisierung und der
+fehlenden Paralellisierbarkeit um einige Faktoren langsamer ausgeführt wird, als nativer Code.
+
+Ein besonderer Vorteil, den die Anwendung gegenüber bisherigen Lösungen bringen soll, ist die
+Mobilität. Das bedeutet, dass es von jedem Rechner mit Internetzugang und einem modernen Webbrowser
+aus möglich sein soll, die Anwendung zu nutzen und auf eventuell bereits zu einem früheren Zeitpunk
+an einem anderen Ort erstellten Theorien zugreifen zu können. Damit wird klar, dass die Projekte und
+Theorien nicht lokal auf den einzelnen Rechnern verwaltet werden können, sondern an einer zentralen
+von überall erreichbaren Stelle gespeichert sein müssen. Die Entscheidung zu einem Client-Server
+Modell ergibt sich bei einer Webanwendung ohnehin automatisch.
+
+Da es sich bei der Webanwendung um eine Entwicklungsumgebung handelt, welche insbesondere durch
+Echtzeitinformationen einen Mehrwert bringen soll, ist einer der wichtigsten Aspekte des Entwurfs
+die effiziente Kommunikation zwischen Server und Browser. Da die Kommunikation bei einer
+Webanwendung generell sehr Zeitaufwändig ist - abhängig von der Internetanbindung kann es zu großen
+Verzögerungen kommen - muss abgewogen werden, welche Arbeit im Browser und welche auf dem Server
+erledigt werden soll. Als illustratives Beispiel kann das Syntax-Highlighting genannt werden:
+Isabelle verfügt über eine innere und eine äußere Syntax, die sich im analytischen Aufwand stark
+unterscheiden. Während die äußere Syntax relativ leicht zu parsieren ist und dabei bereits viele
+Informationen liefert, ist die innere Syntax sehr komplex, flexibel und stark vom jeweiligen Kontext
+abhängig. Somit liegt es nahe, das Syntaxhighlighting aufzuteilen: Um Übertragungskapazität zu
+sparen kann das Highlighting der äußeren Syntax bereits im Browser stattfinden. Die feiner
+granulierten Informationen aus der inneren Syntax können dann auf dem Server ermittelt werden und
+mit kurzer Verzögerung in die Darstellung integriert werden.
 
 \section{Server}
 
+Der Webserver muss neben den normalen Aufgaben eines Webservers, wie der Bereitstellung der Inhalte,
+der Authentifizierung der Benutzer sowie der Persitierung bzw. Bereitstellung der Nutzerspezifischen
+Daten (In unserem Fall Sitzungen / Theorien), auch eine besondere Schnittstelle für die Arbeit mit
+den Theorien bereitstellen. Vom Browser aus muss es möglich sein, die einzelnen Theorien in echtzeit
+zu bearbeiten sowie Informationen über Beweiszustände bzw. Fehler als auch über die Typen, bzw.
+Definitionen von Ausdrücken zu erhalten.
+
+\subsection{Wahl des Webframeworks}
+
+Für die Realisierung des Webservers wählen wir das \textit{Play
+Framework}\footnote{http://www.playframework.org} in Version 2.1. Da wir die Isabelle/Scala
+Schnittstelle nutzen, liegt es nahe ein Webframework in Scala zu nutzen um den Aufwand für die
+Integration gering zu halten. Als Alternative existiert das \textit{Lift
+Webframework}\footnote{http://www.liftweb.org} welches allerdings auf Grund des Rückzugs von David
+Pollack aus der Entwicklung seit einiger Zeit nicht mehr geordnet weiter entwickelt wird und zudem
+für unsere Zwecke überdimensioniert ist. Da die Webanwendung eher unkonventionelle Anforderungen an
+den Server hat, nutzen die meisten Funktionen von \textit{Lift} uns nicht. \textit{Play} ist
+hingegen vorallem auf hohe Performance und weniger auf die Lösung möglichst vieler Anwendungsfälle
+ausgelegt, womit es für unsere Zwecke interessanter bleibt.
+
+\subsection{Authentifizierung}
+
+Die Authentifizierung soll in diesem Projekt bewusst einfach gehalten werden, da es sich hierbei um
+eine Nebensächlichkeit handelt, welche ohne weitere Probleme aufgerüstet werden kann. Wir
+beschränken uns daher auf die Möglichkeit sich mit einem Benutzernamen sowie einem dazugehörigen
+Passwort einzuloggen, welche dann mit einer Konfigurationsdatei auf dem Server abgeglichen wird. Wir
+können dann auf die Möglichkeit des Play Frameworks
+
+\subsection{Persistenz}
+
+Auch bei der Datenpersistenz 
+
+\subsection{Isabelle/Scala integration}
+
+
 \section{Kommunikation}
+
+
+\section{Client}
+
+\subsection{Benutzeroberfläche}
+
+\subsection{Client-Modell}
+
+\subsection{}

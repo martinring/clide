@@ -5,11 +5,11 @@
         <title></title>
         <link rel="stylesheet" media="screen" href="/assets/stylesheets/projects.css">
         <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.png">
-        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery.js")"></script>
-        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/underscore.js")"></script>
-        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/backbone.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/underscore/underscore.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/backbone/backbone.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/routes.js")"></script>
-        <script type="text/javascript" src="@routes.Assets.at("javascripts/require.js")" data-main="@routes.Assets.at("javascripts/rjs/login.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/require.js")" data-main="@routes.Assets.at("javascripts/rjs/projects.js")"></script>
     </head>
     <body>
       <div class="projects">
@@ -23,7 +23,7 @@
           </thead>
           <tbody>
             @user.projects.map { project =>
-            <tr>
+            <tr class='project'>
               <td><a href="@project.url/">@project.name</a></td>
               <td>
                 <select value='@project.logic'>
@@ -36,7 +36,7 @@
     	      }
           </tbody>
         </table>
-        <button>New Project</button>
+        <button id="newProject">New Project</button>
       </div>
     </body>
 </html>

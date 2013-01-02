@@ -37,7 +37,7 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           'Ctrl-B'    : 'bold'
         mode: "isabelle"
 
-      lastToken = null        
+      lastAbbrev = null
         
       @cm.on 'change', (editor,change) => editor.operation =>
         unless editor.somethingSelected()          
@@ -54,13 +54,22 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           to = 
             line: pos.line
             ch:   token.end
-          if token.type? and (token.type.match(/special|symbol|abbrev|control|sub|sup|bold/))              
-            wid = symbols[token.string]            
+          if token.type? and (token.type.match(/special|symbol|control|sub|sup|bold/))              
+            wid = symbols[token.string]
             if wid?
               @cm.markText from,to,          
                 replacedWith: wid(token.type)
                 clearOnEnter: false
-                __special:    true   
+                __special:    true
+          else if token.type? and (token.type.match(/abbrev/))
+            wid = symbols[token.string]
+            if wid?
+              @cm.markText from,to,          
+                replacedWith: wid(token.type)
+                clearOnEnter: false
+                __special:    true
+          else if lastAbbrev?
+            console.log 'substitute abbreviation'
         clearTimeout(@pushTimeout)
         if @changes.length is 0
           v = @model.get('currentVersion')

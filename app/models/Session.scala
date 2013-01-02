@@ -24,6 +24,15 @@ class Session(project: Project) extends JSConnector {
 	    Thy_Header.read(file)
       }
     }
+    
+    override def append(dir: String, source_path: Path): String =
+	{
+	  val path = source_path.expand
+	  if (path.is_absolute) Isabelle_System.platform_path(path)
+	  else {
+	    Path.explode(dir + "/" + source_path.implode).implode   
+	  }
+	}
   }
   
   val thyInfo = new Thy_Info(thyLoad)
@@ -79,7 +88,7 @@ class Session(project: Project) extends JSConnector {
     val snap = session.snapshot(node, Nil)
     val start = snap.node.command_start(cmd)
     val state = snap.state.command_state(snap.version, cmd)
-    if (!cmd.is_ignored) for (doc <- docs.get(node); start <- start) {
+    for (doc <- docs.get(node); start <- start) {
       val docStartLine = doc.buffer.line(start)
       var docEndLine = doc.buffer.line(start + cmd.length - 1)
       while (docEndLine >= 0 && !doc.buffer.lines(docEndLine).exists(c => c != ' ' && c != '\t'))
@@ -164,8 +173,8 @@ class Session(project: Project) extends JSConnector {
   
   def delayedLoad(thy: Document.Node.Name) {    
     thyInfo.dependencies(List(thy)).foreach { case (name,header) =>      
-      if (!docs.isDefinedAt(name)) try {
-        val text = Source.fromFile(project.dir + name + ".thy").getLines.toTraversable // TODO        
+      if (!docs.isDefinedAt(name)) try {                
+        val text = Source.fromFile(name.dir + "/" + name.theory + ".thy").getLines.toTraversable // TODO        
         val doc = new RemoteDocumentModel()
         doc.buffer.lines.insertAll(0, text)
         session.init_node(name, node_header(name), Text.Perspective.full, doc.buffer.mkString)

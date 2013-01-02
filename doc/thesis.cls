@@ -72,12 +72,12 @@
 %\setromanfont[
 %  Scale=0.98,
 %  ExternalLocation=./fonts/,
-%  BoldFont={MinionPro-Bold.otf},
-%  ItalicFont={MinionPro-It.otf},
-%  BoldItalicFont={MinionPro-BoldIt.otf},
+%  BoldFont={calibrib.ttf},
+%  ItalicFont={calibrii.ttf},
+%  BoldItalicFont={calibriz.ttf},
 %  Numbers=OldStyle,
 %  Mapping=tex-text
-%]{MinionPro-Regular.otf}
+%]{calibri.ttf}
 %\def\textsuperscript#1{$^{\text{#1}}$}
 
 %\setsansfont[
@@ -89,15 +89,15 @@
 %  BoldItalicFont={HelveticaNeue-CondensedObl.otf}
 %]{HelveticaNeue-Thin.otf}
 
-%\setmonofont[
-%  Scale=0.72,
-%  Mapping=tex-text,
-%  ExternalLocation=./fonts/,
-%  BoldFont={DejaVuSansMono-Bold.ttf},
-%  ItalicFont={DejaVuSansMono-Oblique.ttf},
-%  BoldItalicFont={DejaVuSansMono-BoldOblique.ttf},
-%  HyphenChar={-}
-%]{DejaVuSansMono.ttf}
+\setmonofont[
+  Scale=0.9,
+  Mapping=tex-text,
+  ExternalLocation=./fonts/,
+  BoldFont={consolab.ttf},
+  ItalicFont={consolai.ttf},
+  BoldItalicFont={consolaz.ttf},
+  HyphenChar={-}
+]{consola.ttf}
 
 % renew title command, create subtitle and authoremail command
 \long\def\title{\@dblarg\thesis@title}
@@ -326,28 +326,24 @@
 }
 
 \RequirePackage{listings}
+% "define" Scala
+\lstdefinelanguage{scala}{
+  morekeywords={class,object,trait,extends,with,new,if,while,for,def,val,var,this},
+  otherkeywords={->,=>},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]"
+}
+% Default settings for code listings
 \lstset{
-  language=Ruby,
-  gobble=2,
-  upquote=true,
-  tabsize=4,
-  numbers=left,
-  numberstyle=\footnotesize\rmfamily,
-  stepnumber=1,
-  basicstyle=\small\ttfamily,
-  keywordstyle=\bfseries\color{Strong Blue},
-  commentstyle=\itshape\color{Grey 6},
-  stringstyle=\color{Red},
-  backgroundcolor=\color{Beige!50},
-  columns=fixed,
+  frame=tb,
+  language=scala,
+  aboveskip=3mm,
+  belowskip=3mm,
   showstringspaces=false,
-  extendedchars=true,
-  breaklines=true,
-  prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
-  xleftmargin=1em,
-  xrightmargin=1em,
-  framexleftmargin=1em,
-  framexrightmargin=1em
+  columns=flexible,
+  basicstyle={\small\ttfamily}
 }
 \lstnewenvironment{console}{
   \lstset{
