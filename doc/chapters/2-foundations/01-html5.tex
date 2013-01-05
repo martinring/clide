@@ -1,7 +1,7 @@
 \section{HTML5}
 
 Für die Implementierung der Browseranwendung wird auf den aktuellen Entwurf des  zukünfitgen HTML5
-Standards zurückgegriffen.
+Standards zurückgegriffen. \cite{html5}
 
 \acr{html} ist eine Sprache die der strukturierten  Beschreibung von Webseiten dient. Die Sprache
 wurde in ihrer ursprünglichen Form  von 1989-1992, lange vor dem sogenannten Web 2.0, von
@@ -11,7 +11,7 @@ proprietäre globale Standard zur digitalen übertragung von Strukturierten  Dok
 modernen Webseiten vorkommen, zu beschreiben.
 
 Der heutige HTML5-Standard geht weit über die Sprache \acr{html} selbst hinaus und  umfasst vor
-allem auch die Scriptsprache JavaScript und die darin verfügbaren  Bibliotheken, sowie das
+allem auch die Scriptsprache \acr{js} und die darin verfügbaren  Bibliotheken, sowie das
 sogenannte \acr{dom}, auf welches in  Scripten zugegriffen werden kann um den angezeigten Inhalt
 dynamisch zu  verändern.
 
@@ -49,7 +49,7 @@ oben genannten Einschränkungen von \acr{css} aufgehoben.
 
 \subsection{JavaScript}
 
-JavaScript ist eine dynamisch typisierte, klassenlose objektorientierte  Scriptsprache und
+\acr{js} ist eine dynamisch typisierte, klassenlose objektorientierte  Scriptsprache und
 
 \subsubsection{CoffeeScript}
 
@@ -63,7 +63,7 @@ HTTP (Hypertext Transport Protocol)
 
 AJAX (Asynchronous JavaScript and XML) ist keine Bibliothek und auch kein  Standard sondern ein sehr
 weit verbreitetes Konzept zur Übertragung von Daten  zwischen Browser und Webserver. Hierbei wird
-das JavaScript Objekt  \texttt{XMLHttpRequest} verwendet um während der Anzeige einer Webseite
+das \acr{js}-Objekt \texttt{XMLHttpRequest} verwendet um während der Anzeige einer Webseite
 
 \subsubsection{WebSockets}
 
@@ -79,7 +79,7 @@ versenden.
 \subsection{JavaScript-Bibliotheken}
 
 Über den HTML5 Standard hinaus werden für die strukturierung der Anwendung einige 
-JavaScript-Bibliotheken verwendet, welche im folgenden kurz erläutert werden.
+\acr{js}-Bibliotheken verwendet, welche im folgenden kurz erläutert werden.
 
 \subsubsection{jQuery}
 
@@ -88,12 +88,12 @@ erleichtert es den Zugriff auf das \textit{DOM}.
 
 \subsubsection{Backbone}
 
-\textit{Backbone} ist eine Bibliothek, die der Strukturierung von JavaScript Anwendungen dient.
+\textit{Backbone} ist eine Bibliothek, die der Strukturierung von \acr{js} Anwendungen dient.
 
 \subsubsection{RequireJS}
 
-Da JavaScript von Haus aus keine Möglichkeit der Modularisierung bietet,  komplexe Anwendungen
-jedoch ohne Modularisierung kaum wartbar bleiben, haben  sich unterschiedliche Lösungsansätze für
+Da JavaScript von Haus aus keine Möglichkeit der Modularisierung bietet, komplexe Anwendungen
+jedoch ohne Modularisierung kaum wartbar bleiben, haben sich unterschiedliche Lösungsansätze für
 dieses Problem entwickelt. Einer der  umfassendsten ist die Bibliothek \textit{RequireJS}.
 
 Mit der Funktion \texttt{define} können Module in Form von Funktionsdefinitionen  definiert werden.

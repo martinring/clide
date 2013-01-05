@@ -2,10 +2,10 @@
 
 Die Programmiersprache Scala ist eine an der École polytechnique fédérale de  Lausanne von einem
 Team um Martin Odersky entwickelte statisch typisiserte,  objektorientierte, funktionale
-Sprache\cite{scala}. In Scala entwickelte Programme laufen  sowohl in der \textit{Java Virtual
-Machine} (JVM) als auch in der \textit{Common  Language Runtime} (CLR). Die Implementierung für die
-CLR hängt jedoch stark  hinterher und ist für diese Arbeit auch nicht von Interesse. Die aktuelle
-Sprachversion ist Scala 2.10 welche auch im Rahmen dieser Arbeit verwendet wird.
+Sprache\cite{scala}. In Scala entwickelte Programme laufen  sowohl in der \acr{jvm} als auch in der
+Common  Language Runtime (CLR). Die Implementierung für die CLR hängt jedoch stark  hinterher und
+ist für diese Arbeit auch nicht von Interesse. Die aktuelle Sprachversion ist Scala 2.10 welche auch
+im Rahmen dieser Arbeit verwendet wird.
 
 Scala versucht von Anfang an den Spagat zwischen funktionaler und  objektorientierter Programmierung
 herzustellen. Hierbei ist es sowohl möglich  rein objektorientierten als auch rein funktionalen Code
@@ -16,13 +16,18 @@ erstellen.
 
 \subsection{Sprachkonzepte}
 
+Im folgenden sollen die für diese Arbeit relevanten Konzepte der Sprache Scala kurz vorgestellt
+werden. Dabei verzichten wir allerings auf Grundlagen wie Objektorientierung und Funktionale
+Programmierung, sowie bereits aus Java bekannte Konzepte, da diese bereits im Gundstudium der
+Informatik abgedeckt wurden.
+
 \subsubsection{Implizite Parameter}
 
 Implizite Parameter werden in Scala verwendet um Parameter die sich aus dem  Kontext eines
-Funktionsaufrufs erschließen können nicht explizit übergeben zu  müssen. Eine Funktion \texttt{f}
+Funktionsaufrufs erschließen können nicht explizit übergeben zu müssen. Eine Funktion \texttt{f}
 besitzt hierbei zusätzlich zu den normalen  Parameterlisten auch eine implizite Parameterliste:
 
-\begin{lstlisting}
+\begin{lstlisting}{caption={Implizite Parameter in Scala},label={lst:implicitp}}
 f(a: Int)(implicit x: T1, y: T2)
 \end{lstlisting}
 
@@ -42,7 +47,7 @@ Kompilierzeit Funktionen mit dem Modifizierer \texttt{implicit}  gesucht, die de
 in den nötigen Typen umwandeln können gesucht.  Die Priorisierung ist genauso wie bei impliziten
 Parametern. Ein Beispiel:
 
-\begin{lstlisting}
+\begin{lstlisting}{caption={Implizite Konversionen in Scala},label={lst:implicitc}}
 implicit def t1tot2(x: T1): T2 = ...
 def f(x: T2) = ...
 
@@ -57,7 +62,7 @@ wird. Der Aufruf  wird also intern erweitert zu \texttt{f(t1tot2(x))}.
 
 \subsubsection{Typklassen}
 
-Mit Hilfe von impliziten Definitionen ist es möglich das aus der Sprache Haskell  bekannte Konzept
+Mit Hilfe von impliziten Definitionen ist es möglich, das aus der Sprache Haskell  bekannte Konzept
 der Typklassen in Scala nachzubilden.
 
 Eine Typklasse bietet die möglichkeit Ad-hoc-Polymorphie zu implementieren.  Damit ist es möglich
@@ -75,17 +80,22 @@ Diese ist dann über einen oder mehrere Typen parametrisiert  und erwartet als i
 eine Instanz der Typklasse für diese Typen,  also eine implizite Objektdefinition. Wenn diese im
 Namensraum existiert, wird  sie automatisch vom Compiler eingesetzt.
 
-Dieses Konzept ist vor allem sehr Hilfreich wenn es darum geht fremde  Bibliotheken zu erweitern.
+\begin{lstlisting}{caption="Typklassen in Scala"}
+\end{lstlisting}
+
+Dieses Konzept ist vor allem sehr Hilfreich wenn es darum geht fremde  Bibliotheken um eigene
+Funktionen zu erweitern.
 
 \subsubsection{Dynamische Typisierung}
 
 Seit Scala 2.10 ist es möglich Funktionsaufrufe bei Typfehlern Dynamisch zur  Laufzeit auflösen zu
 lassen. Damit die Typsicherheit nicht generell verloren  geht ist es nötig den Trait
-\texttt{Dynamic} zu importieren um einen Typ als  Dynamisch zu deklarieren. Wenn die Typüberprüfung
-dann bei einem Aufruf  fehlschlägt wird der Aufruf auf eine der Funktionen \texttt{applyDynamic},
-\texttt{applyDynamicNamed}, \texttt{selectDynamic} und \texttt{updateDynamic}  abgebildet:
+\texttt{Dynamic} zu importieren um einen Typ als  Dynamisch zu markieren. Wenn die Typüberprüfung
+dann bei einem Aufruf auf einem als Dynamisch markierten Objekt fehlschlägt wird der Aufruf auf eine
+der Funktionen \texttt{applyDynamic}, \texttt{applyDynamicNamed}, \texttt{selectDynamic} und
+\texttt{updateDynamic}  abgebildet. Diese Übersetzung geschieht nach dem Muster in \ref{lst:dyn}.
 
-\begin{lstlisting}
+\begin{lstlisting}{caption={Abbildung von dynamischen Aufrufen in Scala},label={lst:dyn}}
 x.method("arg")    =>  x.applyDynamic("method")("arg")
 x.method(x = y)    =>  x.applyDynamicNamed("method")(("x", y))
 x.method(x = 1, 2) =>  x.applyDynamicNamed("method")(("x", 1), ("", 2))
@@ -108,8 +118,6 @@ einer speziellen API für Scala. Play ist ein sehr effizientes  Framework welche
 hohe Skalierbarkeit zu gewährleisten.  Damit wird es leichter verteilte hochperformante
 Webanwendungen zu realisieren.
 
-\subsubsection{LESS}
-
 Play ermöglicht es die Stylesheet-Sprache \textit{LESS} zu verwenden ohne,  dass diese auf
 Browserseite unterstützt werden muss. Hierfür werden die in  \textit{LESS} definierten Stylesheet
 auf Serverseite in \textit{CSS} übersetzt  und dem Browser zur Verfügung gestellt.
@@ -117,16 +125,12 @@ auf Serverseite in \textit{CSS} übersetzt  und dem Browser zur Verfügung geste
 Dafür müssen die Dateien an einem vorher konfigurierten Ort liegen. Nach dem  übersetzen werden sie
 an der selben Stelle zur Verfügung gestellt wie normale  \textit{CSS} Dateien.
 
-\subsubsection{CoffeeScript}
-
 Genauso wie für \textit{LESS} existiert in Play die Serverseitige Unterstützung  für
 \textit{CoffeeScript}. Die in \textit{CoffeeScript} geschriebenen Dateien  werden ebenfalls an
-gleicher Stelle wie normale \textit{JavaScript}-Dateien dem  Browser als \textit{JavaScript} zur
+gleicher Stelle wie normale \textit{JavaScript}-Dateien dem  Browser als \acr{js} zur
 Verfügung gestellt.
 
-\subsubsection{RequireJS}
-
-Die \textit{RequireJS} Bibliothek bietet die Möglichkeit den  \textit{JavaScript}-Code für den
+Die \textit{RequireJS} Bibliothek bietet die Möglichkeit den  \acr{js}-Code für den
 Produktiveinsatz zu optimieren. Dafür gibt es  das sogenannte \textit{r.js}-Script welches unter
 andem alle Abhängigkeiten  zusammenfasst und den Code durch das Entfernen von Whitespaces und
 Kommentaren  sowie dem Umbenennen von Variablennamen verkürzt. Zur Entwicklungszeit ist diese  nicht

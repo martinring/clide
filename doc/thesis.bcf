@@ -1956,9 +1956,15 @@
   </bcf:bibdata>
   <bcf:section number="0">
     <bcf:citekey order="1">iscala</bcf:citekey>
-    <bcf:citekey order="2">scala</bcf:citekey>
-    <bcf:citekey order="3">actors</bcf:citekey>
-    <bcf:citekey order="4">isabelle</bcf:citekey>
+    <bcf:citekey order="1">html5</bcf:citekey>
+    <bcf:citekey order="1">js</bcf:citekey>
+    <bcf:citekey order="1">websockets</bcf:citekey>
+    <bcf:citekey order="1">isabelle</bcf:citekey>
+    <bcf:citekey order="2">html5</bcf:citekey>
+    <bcf:citekey order="3">scala</bcf:citekey>
+    <bcf:citekey order="4">actors</bcf:citekey>
+    <bcf:citekey order="5">isabelle</bcf:citekey>
+    <bcf:citekey order="6">iscala</bcf:citekey>
   </bcf:section>
   <bcf:sortlist section="0" type="entry" label="anyt">
   <bcf:sorting>
