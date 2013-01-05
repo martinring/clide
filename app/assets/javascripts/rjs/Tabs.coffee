@@ -10,7 +10,7 @@ define ['icons','contextMenu'], (icons,menu) ->
       @$el.append close
       close.on 'click', @model.close
       @model.on 'change:active', (model,active) =>
-        if active          
+        if active
           @$el.addClass 'active'
           @model.get('content').addClass 'active'
         else
@@ -72,8 +72,8 @@ define ['icons','contextMenu'], (icons,menu) ->
         model: tab
         tabs: this
       tab.on 'change:active', (activated,active) => if active
-        current = @top()
-        if current?
+        current = @top()        
+        if current? and current isnt activated
           current.deactivate()
         @push(tab)
       tab.on 'close', =>

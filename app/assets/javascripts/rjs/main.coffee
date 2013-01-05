@@ -1,3 +1,4 @@
+$('#loadingStatus').append("<li>initializing</li>")
 require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Router'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,router) ->
   user = globalOptions.user
   project = globalOptions.project
@@ -52,15 +53,11 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
   isabelle.on 'change:output', (m,out) ->
     $('#output').html(out)
   
-  Backbone.history.start
+  console.log Backbone.history.start
     root: "/#{user}/#{project}/"
     pushState: true
 
-  #router.navigate "/martinring/test/",
-  #  replace: true
-
-  router.on 'node', (node) ->
-    console.log node
+  router.on 'route:node', (node) ->
     thy = isabelle.theories.get(node)
     commands.open.execute(thy) if thy?
 

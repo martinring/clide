@@ -157,7 +157,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
     open: (thy) =>
       @scala.call
         action: 'open'
-        data:   thy.toJSON()
+        data:   thy.get('path')
         callback: (text) =>  
           thy.set
             opened: true        
@@ -166,7 +166,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
     delete: (thy) =>
       @scala.call
         action: 'delete'
-        data:   thy.toJSON()
+        data:   thy.get('path')
         callback: (done) =>
           if done
             @theories.remove(thy)

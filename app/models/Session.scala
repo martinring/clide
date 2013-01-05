@@ -192,9 +192,8 @@ class Session(project: Project) extends JSConnector {
     case "getTheories" => json => project.theories
       
     case "open" => json => 
-      val name = (json \ "id").as[String]
-      val path = (json \ "path").as[String]
-      val node = this.name(path)
+      val path = json.as[String]
+      val node = name(path)
       
       val doc = this.docs.getOrElseUpdate(node, {
         val text = Source.fromFile(project.dir + path).getLines.toTraversable
@@ -237,9 +236,8 @@ class Session(project: Project) extends JSConnector {
         
       
     case "delete" => json =>
-      val name = (json \ "id").as[String]
-      val path = (json \ "path").as[String]
-      val node = this.name(path)
+      val path = json.as[String]
+      val node = name(path)
                   
       docs.get(node) match {
         case None =>          
