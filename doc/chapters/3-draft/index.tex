@@ -1,0 +1,36 @@
+\chapter{Anforderungen und Entwurf}
+\label{sec:draft}
+
+Auf Grund der Komplexität und dem unvermeidbaren Rechenaufwand, welcher ein Theorembeweiser
+mitbringt, ist es aus aktueller Sicht nahezu ausgeschlossen diese Arbeit zu größeren Teilen im
+Browser zu verwirklichen. Die einzige von allen größeren Browsern unterstützte Scriptsprache ist zur
+Zeit immernoch \acr{js}, welche vor allem auf Grund der dynamischen Typisierung und der
+fehlenden Paralellisierbarkeit um einige Faktoren langsamer ausgeführt wird, als nativer Code.
+
+Ein besonderer Vorteil, den die Anwendung gegenüber bisherigen Lösungen bringen soll, ist die
+Mobilität. Das bedeutet, dass es von jedem Rechner mit Internetzugang und einem modernen Webbrowser
+aus möglich sein soll, die Anwendung zu nutzen und auf eventuell bereits zu einem früheren Zeitpunk
+an einem anderen Ort erstellten Theorien zugreifen zu können. Damit wird klar, dass die Projekte und
+Theorien nicht lokal auf den einzelnen Rechnern verwaltet werden können, sondern an einer zentralen
+von überall erreichbaren Stelle gespeichert sein müssen. Die Entscheidung zu einem Client-Server
+Modell ergibt sich bei einer Webanwendung ohnehin automatisch.
+
+Da es sich bei der Webanwendung um eine Entwicklungsumgebung handelt, welche insbesondere durch
+Echtzeitinformationen einen Mehrwert bringen soll, ist einer der wichtigsten Aspekte des Entwurfs
+die effiziente Kommunikation zwischen Server und Browser. Da die Kommunikation bei einer
+Webanwendung generell sehr Zeitaufwändig ist - abhängig von der Internetanbindung kann es zu großen
+Verzögerungen kommen - muss abgewogen werden, welche Arbeit im Browser und welche auf dem Server
+erledigt werden soll. Als illustratives Beispiel kann das Syntax-Highlighting genannt werden:
+Isabelle verfügt über eine innere und eine äußere Syntax, die sich im analytischen Aufwand stark
+unterscheiden. Während die äußere Syntax relativ leicht zu parsieren ist und dabei bereits viele
+Informationen liefert, ist die innere Syntax sehr komplex, flexibel und stark vom jeweiligen Kontext
+abhängig. Somit liegt es nahe, das Syntaxhighlighting aufzuteilen: Um Übertragungskapazität zu
+sparen kann das Highlighting der äußeren Syntax bereits im Browser mittels \acr{js} stattfinden. Die
+feiner granulierten Informationen aus der inneren Syntax können dann auf dem Server ermittelt werden
+und mit kurzer Verzögerung in die Darstellung integriert werden.
+
+\input{chapters/3-draft/01-server.tex}
+
+\input{chapters/3-draft/02-comm.tex}
+
+\input{chapters/3-draft/03-client.tex}

@@ -7,7 +7,7 @@ Standards zurückgegriffen. \cite{html5}
 wurde in ihrer ursprünglichen Form  von 1989-1992, lange vor dem sogenannten Web 2.0, von
 Wissenschaftlern des  Europäischen Kernforschungsinstitut CERN entwickelt. Sie war der erste nicht
 proprietäre globale Standard zur digitalen übertragung von Strukturierten  Dokumenten. Die Sprache
-\acr{html} an sich ist nicht geeignet um dynamische Inhaltem  wie sie heute praktisch auf allen
+\acr{html} allein ist nicht geeignet um dynamische Inhaltem  wie sie heute praktisch auf allen
 modernen Webseiten vorkommen, zu beschreiben.
 
 Der heutige HTML5-Standard geht weit über die Sprache \acr{html} selbst hinaus und  umfasst vor
@@ -17,16 +17,26 @@ dynamisch zu  verändern.
 
 \subsection{Dokumenobjektmodell}
 
-Das \acr{dom} dient bla bla...
+Das \acr{dom} ist eine Schnittstelle, die es Erlaubt \acr{html}- bzw. \acr{xml}-Dokumente zu
+modifizieren und bildet damit die Grundlage für die Realisierung dynamischer Webseiten.
+
+Der Einstiegstpunkt in das \acr{dom} ist der \texttt{document} Knoten, welcher von in \acr{js}
+global verfügbar ist und von welchem aus die gesamte Baumstruktur erreichbar ist. Jeder
+\acr{html}-Tag, jedes Attribut und jeder Text wird als ein Objekt, bzw. ein Knoten im Baum
+repräsentiert. Über verschiedene Methoden ist es möglich die Kinder-, Geschwister- und Elternknoten
+zu erhalten. Durch funktionen wie z.B. \texttt{appendChild} ist es schließlich möglich neue Elemente
+in das \arc{dom} zu integrieren bzw. bestehende zu modifizieren. \cite{dom}
 
 \subsection{Cascading Stylesheets}
 
-\acr{css} ist eine Sprache die der Definition von  Stilen bzw.
-Stilvorlagen für die Anzeige von Webinhalten dient.
+\acr{css} ist eine Sprache die der Definition von  Stilen bzw. Stilvorlagen für die Anzeige von
+Webinhalten dient.
 
-Durch die Trennung von \acr{html} und \acr{css} wird erreicht, dass \acr{html}-Dokumente sich auf  den
-Inhalt einer Seite beschränken, während alle die grafische Anzeige  belangenden Aspekte in die
+Durch die Trennung von \acr{html} und \acr{css} wird erreicht, dass \acr{html}-Dokumente sich auf
+den Inhalt einer Seite beschränken, während alle die grafische Anzeige  belangenden Aspekte in die
 sogenannten Stylesheets in \acr{css} Dateien ausgelagert  werden.
+
+\TODO{CSS}
 
 \subsubsection{LESS}
 
@@ -47,23 +57,28 @@ werden, müssen alle Dateien einzeln geladen werden, was zu längeren Ladezeiten
 Funktionsdefinitionen, verschachtelte Definitionen sowie  Dateiimports erlaubt. Damit werden die
 oben genannten Einschränkungen von \acr{css} aufgehoben.
 
+\TODO{LESS}
+
 \subsection{JavaScript}
 
 \acr{js} ist eine dynamisch typisierte, klassenlose objektorientierte  Scriptsprache und
+\TODO{JavaScript}
 
 \subsubsection{CoffeeScript}
 
-\textit{CoffeeScript} ist eine
+\textit{CoffeeScript} ist eine \TODO{CoffeeScript}
 
 \subsection{HTTP}
 
-HTTP (Hypertext Transport Protocol)
+\acr{http} \TODO{HTTP}
 
 \subsubsection{AJAX}
 
 AJAX (Asynchronous JavaScript and XML) ist keine Bibliothek und auch kein  Standard sondern ein sehr
 weit verbreitetes Konzept zur Übertragung von Daten  zwischen Browser und Webserver. Hierbei wird
 das \acr{js}-Objekt \texttt{XMLHttpRequest} verwendet um während der Anzeige einer Webseite
+
+\TODO{AJAX}
 
 \subsubsection{WebSockets}
 
@@ -74,21 +89,22 @@ verwendet werden. Das macht es  unnötig, wie bei AJAX wiederholte Anfragen oder
 Zeitbegrenzung zu  stellen um Informationen vom Server zu erhalten wenn diese Verfügbar werden. Ein
 weiterer Vorteil gegenüber HTTP-Anfragen ist, dass durch die direkte permanente Verbindung kein
 Nachrichtenkopf mehr nötig ist. Das macht es deutlich  effizienter viele kleine Nachrichten zu
-versenden.
+versenden. \TODO{WebSockets}
 
 \subsection{JavaScript-Bibliotheken}
 
-Über den HTML5 Standard hinaus werden für die strukturierung der Anwendung einige 
+Über den HTML5 Standard hinaus werden für die strukturierung der Anwendung einige
 \acr{js}-Bibliotheken verwendet, welche im folgenden kurz erläutert werden.
 
 \subsubsection{jQuery}
 
 Die Bibliothek \textit{jQuery} ist ein defacto Standard in der Webentwicklung.  In erster Linie
-erleichtert es den Zugriff auf das \textit{DOM}. 
+erleichtert es den Zugriff auf das \textit{DOM}. \TODO{jQuery}
 
-\subsubsection{Backbone}
+\subsubsection{Backbone und Underscore}
 
 \textit{Backbone} ist eine Bibliothek, die der Strukturierung von \acr{js} Anwendungen dient.
+\TODO{backbone + underscore}
 
 \subsubsection{RequireJS}
 

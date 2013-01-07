@@ -1,0 +1,229 @@
+\section{Scala}
+
+Die Programmiersprache Scala ist eine an der École polytechnique fédérale de  Lausanne von einem
+Team um Martin Odersky entwickelte statisch typisiserte,  objektorientierte, funktionale
+Sprache. In Scala entwickelte Programme laufen  sowohl in der \acr{jvm} als auch in der
+Common  Language Runtime (CLR). Die Implementierung für die CLR hängt jedoch stark  hinterher und
+ist für diese Arbeit auch nicht von Interesse. Die aktuelle Sprachversion ist Scala 2.10 welche auch
+im Rahmen dieser Arbeit verwendet wird.
+
+Scala versucht von Anfang an den Spagat zwischen funktionaler und  objektorientierter Programmierung
+herzustellen. Hierbei ist es sowohl möglich  rein objektorientierten als auch rein funktionalen Code
+zu schreiben. Dadurch  entstehen für den Programmierer sehr große Freiheitsgrade und es ist
+beispielsweise auch möglich imperativen und funktionalen Code zu mischen. Diese  Freiheit erfordert
+eine gewisse Verantwortung von Seiten des Programmierers um  lesbaren und wartbaren Code zu
+erstellen.
+
+Seit 2011 wird Scala von der durch Martin Odersky ins Leben gerufenen Firma
+Typesafe\footnote{http://www.typesafe.com} zusammen mit den Frameworks \textit{Akka}
+(\ref{sec:akka}) und \textit{Play} (\ref{sec:play} sowie des Buildtools \textit{sbt} (\ref{sec:sbt})
+Kommerziell im sogenannten \textit{Typesafe Stack} weiterentwickelt und unterstützt. Dadurch wird
+Scala zu einer ernstzunehmenden Sprache, welche auch in Zukunft noch schnell weiterentwickelt wird.
+Scala ist sehr skalierbar und durch die Aktoren-Bibliothek Akka geeignet um Hochskalierbare
+Anwendungen zu entwickeln. Firmen wie beispielsweise Twitter, LinkedIn, Siemens, TomTom, Sony,
+Amazon und die NASA treiben die Entwicklung immer schneller voran und sorgen dafür, dass eine große
+Infrastruktur um Scala herum entsteht. \cite{scala}
+
+\subsection{Sprachkonzepte}
+
+Im folgenden sollen die für diese Arbeit relevanten Konzepte der Sprache Scala kurz vorgestellt
+werden. Dabei verzichten wir allerings auf Grundlagen der Objektorierten und Funktionalen
+Programmierung, sowie auf bereits aus Java bekannte Konzepte.
+
+\subsubsection{Implizite Parameter}
+
+Implizite Parameter werden in Scala verwendet um Parameter die sich aus dem  Kontext eines
+Funktionsaufrufs erschließen können nicht explizit übergeben zu müssen. Eine Funktion \texttt{f}
+besitzt hierbei zusätzlich zu den normalen  Parameterlisten auch eine implizite Parameterliste:
+
+\begin{lstlisting}{caption={Implizite Parameter in Scala},label={lst:implicitp}}
+f(a: Int)(implicit x: T1, y: T2)
+\end{lstlisting}
+
+In dem Beispiel hat die Funktion einen normalen Parameter \texttt{a} und zwei  implizite Parameter
+\texttt{x} und \texttt{y}. Der Compiler sucht bei einem  Funktionsaufruf, welcher die beiden oder
+einen der impliziten Parameter nicht  spezifiziert nach impliziten Definitionen vom Typ \texttt{T1}
+bzw. \texttt{T2}.  Diese Definitionen werden im aktuell sichtbaren Scope nach bestimmten
+Prioritäten gesucht. Dabei wird zunächst im aktuellen Objekt, dann im zu den  typen \texttt{T1} und
+\texttt{T2} gehörenden objekten und dann in den  importierten Namensräumen gesucht. Implizite
+definitionen haben die Form  \texttt{implicit def/val/var x: T = ...} wobei der name \texttt{x}
+keine Rolle  spielt.
+
+\subsubsection{Implizite Konvertierungen}
+
+Des Weiteren existiert das Konzept der impliziten Konvertierungen (implicit conversion). Hierbei
+werden bei  Typfehlern zur Kompilierzeit Funktionen mit dem Modifizierer \texttt{implicit}  gesucht,
+die den gefundenen Typen in den nötigen Typen umwandeln können.  Die Priorisierung ist geschieht
+hierbei genauso wie bei impliziten Parametern. Ein Beispiel:
+
+\begin{lstlisting}{caption={Implizite Konversionen in Scala},label={lst:implicitc}}
+implicit def t1tot2(x: T1): T2 = ...
+def f(x: T2) = ...
+
+val x: T1 = ...
+f(x)
+\end{lstlisting}
+
+In dem Beispiel wird eine implizite Konvertierung von \texttt{T1} nach \texttt{T2}  definiert. Bei
+dem Aufruf \texttt{f(x)} kommt es zu einem Typfehler, weil  \texttt{T2} erwartet und \texttt{T1}
+übergeben wird. Dieser Typfehler wird  gelöst indem vom Compiler die Konvertierung eingesetzt wird.
+Der Aufruf wird also intern zu \texttt{f(t1tot2(x))} erweitert.
+
+\subsubsection{Typklassen}
+
+Mit Hilfe von impliziten Definitionen ist es möglich, die aus der Sprache Haskell  bekannten
+Typklassen in Scala nachzubilden.
+
+Eine Typklasse bietet die Möglichkeit Ad-hoc-Polymorphie zu implementieren. Damit ist es möglich
+ähnlich wie bei Schnittstellen Funktionen für eine Menge von Typen bereitzustellen. Diese werden
+jedoch nicht direkt von den Typen implementiert sein und können so auch Nachträglich beispielsweise
+für Typen aus fremden Bibliotheken definiert werden.
+
+In Scala werden Typklassen als generische abstrakte Klassen oder Traits implementiert.
+
+Instanzen der Typklassen sind implizite Objektdefinitionen welche für einen spezifischen Typen die
+Typklasse bzw. die abstrakte Klasse implementieren.
+
+Eine Funktion für eine bestimmte Typklasse kann durch eine generische Funktion  realisiert werden.
+Diese ist dann über einen oder mehrere Typen parametrisiert  und erwartet als implizites Argument
+eine Instanz der Typklasse für diese Typen,  also eine implizite Objektdefinition. Wenn diese im
+Namensraum existiert, wird  sie automatisch vom Compiler eingesetzt.
+
+Als Beispiel betrachten wir die Ordnung von Objekten. Zunächst definieren wir einen generischen
+Trait \texttt{Ord}, welcher über eine \texttt{compare}-Funktion zum Vergleich zweier Werte.
+
+\begin{lstlisting}
+trait Ord[T] {
+  def compare: (a: T, b: T): Int
+}
+\end{lstlisting}
+
+Wollen wir nun für einen beliebigen bestehenden Typ eine Ordnung definieren, müssen wir lediglich
+ein implizites Objekt bereitstellen, welches \texttt{Ord} implementiert.
+
+\begin{lstlisting}
+implicit object FileOrd extends Ord[File] {
+  def compare: (a: File, b: File): Int = ...
+}
+\end{lstlisting}
+
+Eine generische Funktion, welche die Funktion \texttt{compare} aus der Typklasse \texttt{Ord}
+verwendet kann nun definiert werden, indem eine Instanz von \texttt{Ord} als impliziter Parameter
+erwartet wird.
+
+\begin{lstlisting}
+def sort[T](elems: List[T])(implicit ord: Ord[T]): List[T] = ...
+\end{lstlisting}
+
+Die Funktion \texttt{sort} kann nun verwendet werden um Dateien zu sortieren, solange das implizite Objekt
+\texttt{FileOrd} beim Aufruf sichtbar ist.
+
+Das Konzept der Typklasen ist vor allem dort sehr Hilfreich wo es darum geht fremde  Bibliotheken um
+eigene Funktionen zu erweitern.
+
+\subsubsection{Dynamische Typisierung}
+
+Seit Scala 2.9 ist es möglich Funktionsaufrufe bei Typfehlern Dynamisch zur  Laufzeit auflösen zu
+lassen. Damit die Typsicherheit nicht generell verloren  geht ist es nötig den Trait
+\texttt{Dynamic} zu importieren um einen Typ als  Dynamisch zu markieren. Wenn die Typüberprüfung
+dann bei einem Aufruf auf einem als Dynamisch markierten Objekt fehlschlägt wird der Aufruf auf eine
+der Funktionen \texttt{applyDynamic}, \texttt{applyDynamicNamed}, \texttt{selectDynamic} und
+\texttt{updateDynamic}  abgebildet. Diese Übersetzung geschieht nach folgendem Muster:
+
+\begin{lstlisting}{caption={Abbildung von dynamischen Aufrufen in Scala},label={lst:dyn}}
+x.method("arg")    =>  x.applyDynamic("method")("arg")
+x.method(x = y)    =>  x.applyDynamicNamed("method")(("x", y))
+x.method(x = 1, 2) =>  x.applyDynamicNamed("method")(("x", 1), ("", 2))
+x.field            =>  x.selectDynamic("field")
+x.variable = 10    =>  x.updateDynamic("variable")(10)
+x.list(10) = 13    =>  x.selectDynamic("list").update(10, 13)
+x.list(10)         =>  x.applyDynamic("list")(10)
+\end{lstlisting}
+ 
+Die Dynamische Typisierung ist ein Sprachkonstrukt welches in Scala nur in Ausnahmefällen verwendet
+werden sollte. Es Erweist sich aber als sehr Praktisch in der Interaktion mit Dynamischen Sprachen
+sowie bei der Arbeit mit externen Daten, bei denen keine Typinformationen vorliegen.
+
+\subsection{SBT}
+\label{sec:sbt}
+
+Das \acr{sbt}\footnote{http://www.scala-sbt.org/} wird seit 2011 von Typesafe weiterentwickelt und
+ist das Standard Werkzeug zur automatischen Projekt- und Abhängigkeitsverwaltung in der Scala
+Progammierung. Da es selbst in Scala geschrieben wurde und auch die Konfiguration in Scala Objekten
+stattfindetist es leicht Erweiterungen dafür zu entwickeln. \acr{sbt} ist mit Maven, einem sehr
+verbreiteten Build Tool für Java, kompatibel, sodass auch Javabibliotheken, welche in einem Maven-
+Repository liegen als Abhängigkeiten definiert werden können. Typesafe stellt zudem eine sehr große
+Auswahl von Scala-Bibliotheken in einem eigenen Repository zur Verfügung. Es können aber auch
+beispielsweise öffentliche Git-Repositories als Abhängigkeit definiert werden.
+
+\subsection{Akka}
+\label{sec:akka}
+
+Akka\footnote{http://www.akka.io/} war ursprünglich eine Implementierung des aus Erlang bekannten
+Aktoren Modells, ist mitlerweile jedoch zu einem umfangreiches Framework zur Entwicklung von
+Hochperformanten Verteilten Systemen gewachsen. Die Grundlage bilden nach wie vor Aktoren, wenn auch
+in, gegenüber anderen Implementierungen, leicht Veränderter Form. \cite{actors}
+
+Aktoren habe sich als eine sehr wertvolle Abstraktion zur Modellierung von Verteilten Sytemen
+herausgestellt. Dabei wird ein System in mehrere parallel agierende Aktoren aufgeteilt, welche sich
+untereinander Nachrichten senden. Um ungewollte Nebenläufigkeitseffekte auszuschließen, müssen die
+Nachrichten unveränderbar sein, was in Scala bislang leider noch nicht überprüfbar ist und somit in
+der Verantwortung des Entwicklers liegt.
+
+In Akka sind Aktoren Ortsunabhängig, und können an einer beliebigen Stelle ausgeführt werden. Ein
+Aktor, kann auf dem selben Prozessor, einem anderen Prozessor im selben Rechner, auf einem anderen
+Rechner im lokalen Netz oder auch auf einem beliebigen über das Internet erreichbaren Rechner
+irgendwo auf der Welt ausgeführt werden. In dieser Eigenschaft liegt der Schlüssel zur
+Skalierbarkeit: In Akka entwickelte Systeme können ohne Veränderungen auf einem oder tausenden
+Rechnern gleichzeitig ausgeführt werden, ganz im Sinne des \textit{Cloud Computing}.
+
+Akka bietet über die Aktoren und deren Verwaltung hinaus noch viele weitere hilfreiche
+Abstraktionen. Besonders erwähnenswert sind hiebei noch die sogenannten \textit{Iteratees}.
+Iteratees sind eine Möglichkeit einen Datenstrom zu verarbeiten, ohne dass alle Daten verfügbar
+sind. Das ist dann besonders Wichtig, wenn es um nicht blockierende kommunizierende Prozesse geht,
+wie es bei Webanwendungen üblich ist. (Siehe auch \cite{iteratees})
+
+\subsection{Play Framework}
+
+Das \textit{Play Framework}\footnoter{http://www.playframework.org} ist ein Framework zur
+Entwicklung von Webanwendungen  auf der JVM mit einer speziellen API für Scala. Play ist ein sehr
+effizientes  Framework welches auf Akka aufbaut um hohe Skalierbarkeit zu gewährleisten. Damit wird
+es leichter verteilte hochperformante Webanwendungen zu realisieren. 
+
+Die Struktur einer Play Anwendung ähnelt der bewährten Struktur von Ruby on
+Rails\footnote{http://rubyonrails.org/}. Es existieren Modelle, Views und Controller. Views werden
+dabei als spezielle \acr{html}-Templates, die auch Scala Code zulassen, definiert.
+
+Play ermöglicht es die Stylesheet-Sprache \textit{LESS} zu verwenden ohne,  dass diese auf
+Browserseite unterstützt werden muss. Hierfür werden die in  \textit{LESS} definierten Stylesheet
+auf Serverseite in \textit{CSS} übersetzt  und dem Browser zur Verfügung gestellt.
+
+Dafür müssen die Dateien an einem vorher konfigurierten Ort liegen. Nach dem  übersetzen werden sie
+an der selben Stelle zur Verfügung gestellt wie normale  \textit{CSS} Dateien.
+
+Genauso wie für \textit{LESS} existiert in Play die Serverseitige Unterstützung  für
+\textit{CoffeeScript}. Die in \textit{CoffeeScript} geschriebenen Dateien  werden ebenfalls an
+gleicher Stelle wie normale \textit{JavaScript}-Dateien dem  Browser als \acr{js} zur
+Verfügung gestellt.
+
+\TODO{Play}
+
+\label{sec:play}
+
+Die \textit{RequireJS} Bibliothek bietet die Möglichkeit den  \acr{js}-Code für den
+Produktiveinsatz zu optimieren. Dafür gibt es  das sogenannte \textit{r.js}-Script welches unter
+andem alle Abhängigkeiten  zusammenfasst und den Code durch das Entfernen von Whitespaces und
+Kommentaren  sowie dem Umbenennen von Variablennamen verkürzt. Zur Entwicklungszeit ist diese  nicht
+mehr lesbare Code nicht erwünscht. Deswegen bietet Play eine integrierte  Version von RequireJS,
+welche automatisch den lesbaren Code zur Entwicklungszeit  bereitstellt, im Produktiveisatz jedoch
+den optimierten.
+
+\subsubsection{Iteratees}
+
+\TODO{Iteratees}
+
+\subsubsection{Websockets}
+
+\TODO{WebSockets}
+
+Websockets werden direkt von Play unterstützt. ...

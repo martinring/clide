@@ -66,9 +66,6 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
           text: 'Delete'
           command: => if confirm("Do you really want to delete theory '#{@model.get 'id'}'?")
             isabelle.delete(@model)
-        ,
-          text: 'Rename'
-          command: => prompt('Enter new name',@model.get 'id')        
         ])
 
   class Section extends Backbone.View    
@@ -177,7 +174,12 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       #isabelle.on 'change:output', (m,out) => @$el.html(out)
       @render()
     render: =>
-      @$el.text('Copyright 2012 by Martin Ring')
+      @$el.append($ """
+          <span>
+            clide is a diploma thesis project, copyright 2012 by Martin Ring.</br>
+            Have a look at the <a href="/assets/thesis.pdf">documentation</a>.</br>            
+          </span>
+          """)
 
   class Sidebar extends Backbone.View
     el: '#sidebar'    
@@ -235,9 +237,9 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       ]
 
     help: new Section
-      title: 'Help'
+      title: 'About'
       icon: icons.help
-      content: new HelpView    
+      content: new HelpView
 
     currentSection: null
     addSection: (section) =>      

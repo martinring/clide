@@ -169,6 +169,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
         data:   thy.get('path')
         callback: (done) =>
           if done
+            thy.close()
             @theories.remove(thy)
 
     new: (name) =>      

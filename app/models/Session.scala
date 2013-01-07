@@ -236,16 +236,21 @@ class Session(project: Project) extends JSConnector {
         
       
     case "delete" => json =>
+      println("delete " + json)
       val path = json.as[String]
       val node = name(path)
-                  
+            
       docs.get(node) match {
-        case None =>          
+        case None =>
+          new java.io.File(project.dir + path).delete()
         case Some(doc) =>
-          docs.remove(node)      
+          println("removed " + doc)
+          docs.remove(node)          
+          new java.io.File(project.dir + path).deleteOnExit()
+          true
       }
       
-      new java.io.File(project.dir + path).delete()
+      
       
       
                   

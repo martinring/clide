@@ -1,0 +1,77 @@
+\section{Server}
+
+Der Webserver muss neben den normalen Aufgaben eines Webservers, wie der Bereitstellung der Inhalte,
+der Authentifizierung der Benutzer sowie der Persitierung bzw. Bereitstellung der Nutzerspezifischen
+Daten (In unserem Fall Sitzungen / Theorien), auch eine besondere Schnittstelle für die Arbeit mit
+den Theorien bereitstellen. Vom Browser aus muss es möglich sein, 
+
+\begin{itemize}
+  \item die einzelnen Theorien in Echtzeit zu bearbeiten,
+  \item Informationen über Beweiszustände bzw. Fehler zu erhalten,
+  \item als auch Informationen über die Typen, bzw. Definitionen von Ausdrücken zu erhalten.
+\end{itemize}
+
+All diese Informationen müssen zuvor Serverseitig aufbereitet und bereitgestellt werden. Dabei ist
+es aus Sicht der Perfomanz wichtig, unnötige Informationen zu eliminieren und die Daten zu
+komprimieren.
+
+\TODO{Weitere Anforderungen an den Server}
+
+\subsection{Wahl des Webframeworks}
+
+Für die Realisierung des Webservers wählen wir das \textit{Play
+Framework}\footnote{http://www.playframework.org} in Version 2.1. Da wir die Isabelle/Scala
+Schnittstelle nutzen, liegt es nahe ein Webframework in Scala zu nutzen um den Aufwand für die
+Integration gering zu halten. Als Alternative existiert das \textit{Lift
+Webframework}\footnote{http://www.liftweb.org} welches allerdings auf Grund des Rückzugs von David
+Pollack aus der Entwicklung seit einiger Zeit nicht mehr geordnet weiter entwickelt wird und zudem
+für unsere Zwecke überdimensioniert ist. Da die Webanwendung eher unkonventionelle Anforderungen an
+den Server hat, nutzen die meisten Funktionen von \textit{Lift} nichts. Das \textit{Play}
+Webframework ist hingegen vorallem auf hohe Performance und weniger auf die Lösung möglichst vieler
+Anwendungsfälle ausgelegt, womit es für unsere Zwecke interessanter bleibt.
+
+\subsection{Authentifizierung}
+
+Die Authentifizierung soll in diesem Projekt bewusst einfach gehalten werden, da es sich hierbei um
+eine Nebensächlichkeit handelt, welche ohne weitere Probleme aufgerüstet werden kann. Wir
+beschränken uns daher auf die Möglichkeit sich mit einem Benutzernamen sowie einem dazugehörigen
+Passwort einzuloggen, welche dann mit einer Konfigurationsdatei auf dem Server abgeglichen wird. Wir
+können dann auf die Möglichkeit des Play Frameworks zur sicheren Verwaltung von Session-Bezogenen
+Daten zurückgreifen um die Anmeldung aufrechtzuerhalten.
+
+\subsection{Persistenz}
+
+Als Besonderheit bei der Datenpersistenz sind die serverseitig zu verwaltenden Theorien zu nennen.
+Da jeder Benutzer eine von allen anderen Benutzern unabhängige Menge von Projekten mit Theorien
+besitzt, also eine hierarchische Struktur besteht, spricht nichts dagegen, die Daten Serverseitig im
+Dateisystem zu verwalten. Somit ist auch eine eventuelle spätere Integration eines
+Versionsverwaltungssystems möglich. Da über diese Daten hinaus nur wenige Informationen vom Server
+verwaltet werden müssen, ist die Einrichtung und Anbindung einer Datenbank nicht von Nöten.
+
+\subsection{Bereitstellung von Resourcen}
+
+Das Play-Framework bietet ausgefeilte Möglichkeiten sowohl statische als aus dynamische Resourcen
+bereit zu stellen. Ein Hauptaugenmerk liegt hierbei auf der Bereitstellung der nötigen \acr{js}-,
+\acr{css}- sowie \acr{html}-Dateien.
+
+Während der Entwicklung dieser Arbeit wurde ein Modul für das Play Framework entwickelt, um \textbf
+{CoffeeScript-Dateien} automatisch zu \acr{js} zu übersetzen, Abhängigkeiten mit RequireJS
+aufzulösen und eine Optimierte \acr{js}-Datei bereitzustellen. Da in der in Kürze erscheinenden
+Version 2.1 des Play Framework ganau diese Funktionalität entwickelt wurde, liegt die Entscheidung
+nahe, diese Funktionalität zu nutzen und das eigene Modul wegfallen zu lassen. (Siehe
+\ref{sec:play})
+
+Ebenfalls von Play unterstützt wird die Möglichkeit  \textbf{\acr{less}-Dateien} mit ihren
+Abhängigkeiten zu einer \acr{css}-Datei zu übersetzen. Da diese genau wie bei der CoffeeScript-
+Übersetzung zur Entwicklungszeit in lesbare und im Produktiveinsatz in optimmierte Dateien übersetzt
+werden, ist dies eine optimale Wahl.
+
+\textbf{Statische Resourcen} wie in unserem Fall z.B. Font-Dateien oder fremde \acr{js}-Bibliotheken
+werden durch einen sogenannten Asset-Controler aus dem Play-Framework bereitgestellt. Dieser bietet
+die Möglichkeit alle Dateien in einem Ordner statisch bereitzustellen. In unserem Fall sind das die
+Dateien im Ordner \texttt{"/public"} welche unter der \acr{url} \texttt{"/assets"} bereitgestellt
+werden.
+
+\subsection{Isabelle/Scala Integration}
+
+\TODO{Isabelle/Scala auf dem Server}

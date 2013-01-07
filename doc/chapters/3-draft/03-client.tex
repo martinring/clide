@@ -1,0 +1,129 @@
+\section{Client}
+
+Zur Realisierung des Clients wird auf die etwas komforablere Scriptsprache CoffeeScript
+zurückgegriffen. CoffeeScript-Code is gegenüber \acr{js}-Code deutlich kürzer, (Etwa 30\%) und hat
+eine an Funktionale Sprachen wie Haskell erinnernde Syntax. Da mit den neuen Möglichkeiten in Play
+2.1 CoffeeScript problemlos verwendet werden kann (Der Browser erhält kompiliertes \acr{js}) ,
+entstehen hierdurch keine Nachteile.
+
+Zur Strukturierung wird RequireJS sowie BackboneJS (und damit implizit auch UnderscoreJS) verwendet.
+Durch die vielfältigen Möglichkeiten dieser Bibliotheken ist es möglich den Code klar zu
+modularisieren.
+
+\subsection{Browserkompatibilität}
+\label{sec:comp}
+
+Auf Grund der in \ref{sec:ws} beschriebenen Notwendigkeit, kann auf WebSockets nicht verzichtet
+werden. Damit sind die meisten älteren Browser nicht mit der Anwendung kompatibel. 
+
+\begin{table}[h]
+\centering
+\caption{Kompatibilität der gängigsten Browser mit den Verwendeten Standards}
+\begin{tabular}{rlllll}
+                  & \textbf{Chrome} & \textbf{Safari} & \textbf{IE} & \textbf{Firefox} 
+                  & \textbf{Opera} \\\hline
+  WebSockets      & 14.0            & 6.0             & 10.0        & 11.0             & 12.1  \\
+  History API     & 5.0             & 5.0             & 10.0        & 4.0              & 11.5  \\
+  WebSockets      & 4.0             & 4.0             & 10.0        & 3.5              & 10.6  \\
+  CSS Transitions & 4.0             & 3.1             & 10.0        & 4.0              & 10.5  \\
+\end{tabular}
+\label{tab:comp}
+\end{table}
+
+\TODO{Kompatibilitäts-Tabelle}
+
+Aus Tabelle \ref{tab:comp} ist zu entnehmen, dass alle weiteren in der Anwendung benutzten Standards
+eine geringere oder die gleicher Anforderung an die Aktualität des Browsers haben. Da WebSockets ein
+sehr neues Konzept sind,  dienen sie als Orientierung: Alle Features, welche von jedem Browser, der
+WebSockets unterstützt, auch unterstützt werden, dürfen verwendet werden. Alle anderen schließen wir
+aus, da sonst die Zahl der potentiellen Nutzer weiter eingeschränkt würde. Die Anwendung ist damit
+im Standardbrowser auf allen Systemen mit einem aktuellen Betriebssystem (Windows 8, Ubuntu 12.10,
+OpenSUSE 12.2, OS X 10.8.2), sowie auf dem iPad, und aktuellen Windows RT Tablets benutzbar. Bei der
+Entwicklung wurde jedoch besonderes Augenmerk auf WebKit-basierte Browser, insbesondere Google
+Chrome gelegt und einige der anderen genannten Systeme sind ungetestet und damit ohne Gewähr.
+
+\subsection{Benutzeroberfläche}
+
+
+
+\subsubsection{Die Editor-Komponente}
+
+Die wichtigste Benutzerkomponente einer Entwicklungsumgebung ist der Text-Editor. Ein Editor für
+Isabelle-Code hat hierbei besondere Anforderungen: Während in der Praxis bislang nur rudimentäre
+Unterstützung für die Darstellung von Isabelle-Sonderzeichen und insbesondere von Sub- und
+Superskript existierte, hat Isabelle/jEdit bereits eine stärkere Integration dieser eigentlich recht
+essentiellen Visualisierungen eingeführt. Da bei der \acr{html}-Darstellung kaum Grenzen gesetzt
+sind und sich \acr{css}-Formatierung sehr leicht dazu benutzen lässt bestimmte Text-Inhalte
+besonders darzustellen, ist es klar, dass unsere Entwicklungsumgebung an dieser Stelle besonders
+glänzen soll.
+
+In einem ersten Prototypen war es möglich eine \acr{js}-Komponente zu entwickeln, welche es zuließ,
+Isabelle-Code zu bearbeiten, sodass Sub- und Superskript sowie die Sonderzeichen korrekt dargestellt
+wurden und bearbeitet werden konnten. Die besondere Anforderung bei ist hierbei nicht die
+Darstellung sondern vor allem der Umgang mit den variablen Breiten. Selbst wenn ein Monospace-Font
+verwendet würde, besteht das Problem, dass z.b. bei Sub- und Superskript nach Typographischen
+Standards nur 66\% der Textgröße verwendet wird und somit auch die Zeichenbreite geringer wird. Da
+aber eben die Visualisierung eine besondere Stärke der Anwendung sein soll, wollen wir zusätzlich
+auch nicht darauf verzichten Ähnliche Fonts zu verwenden, wie in der Ausgabe der LaTeX-Dateien, also
+auch Mathematische Sonderzeichen nicht in ein Raster quetschen. 
+
+Eine weitere besondere Anforderung, welche bislang relativ einmalig zu sein
+scheint, ist die Tatsache, dass das Syntax-Highlighting zu Teilen auf dem Server stattfindet und
+somit eine Möglichkeit bestehen muss diese zusätzlichen Informationen in die Darstellung zu
+integrieren.
+
+Zusammenfassend können folgende besondere Anforderungen an die Editor-Komponente formuliert werden:
+Der Editor muss in der Lage sein
+
+\begin{itemize}
+  \item Syntaxhighlighting zu betreiben,
+  \item Externes Syntaxhighlighting verzögert zu integrieren,
+  \item Schriftarten mit variabler Zeichenbreite anzuzeigen,
+  \item Tooltips für Typinformationen o.ä. anzuzeigen und
+  \item Isabelle-Sonderzeichen zu substituieren.
+\end{itemize}
+
+Da der Hauptsächliche Aufwand bei einer Editor-Komponente nicht darin liegt Text zu bearbeiten und
+darzustellen sondern vor allem in der Infrastruktur drumherum (Copy/Paste, Suche, Selektieren,
+Drag'n'Drop, usw.) ist es verlockend, eine fertige Komponente zu verwenden. Hier existieren mehrere
+ausgereifte Alternativen. Bei genauerer Betrachtung gibt es jedoch keine, welche optimal für unsere
+Zwecke geeignet ist. 
+
+\begin{description} 
+
+\item {Der \textbf{MDK-Editor}\footnote{http://www.mdk-photo.com/Editor/}} bietet viele Features, wird
+aber seit 2008 nicht mehr weiter entwickelt und scheidet damit sofort aus.
+
+\item {Der \textbf{\acr{ace}}\footnote{http://ace.ajax.org/}} (Ehemals Mozilla SkyWriter) wird
+momentan sehr stark weiter entwickelt. \acr{ace} bietet bereits ein ausgeklügeltes Framework für das
+Syntaxhighlighting, welches sich in einem Prototyp relativ leicht an das Serverseitige
+Syntaxhighlighting anbinden ließ. \acr{ace} bietet alle Funktionen, welche man von einem Modernen
+Text-Editor erwartet, hat jedoch einen entscheidenden Nachteil: Zur Darstellung wird aus
+Performance-Gründen intern ein festes Raster verwendet. Dabei wird davon ausgegangen, dass ein
+Monospace Font verwendet wird. Von diesem wird einmalig eine Zeichenbreite ermittelt und diese feste
+Metrik wird dann für alle internen Operationen verwendet. Da diese Designentscheidung so
+tiefgreifend ist, scheint es nicht realistisch in akzeptabler Zeit, die Komponente so zu
+modifizieren, dass variable Breiten unterstützt werden können. Außerdem ist es nicht möglich
+Textstellen durch Sonderzeichen zu Substituieren. Somit scheidet auch \acr{ace} für die Verwendung
+in der Anwendung aus.
+
+\item {\textbf{CodeMirror}\footnote{http://codemirror.net/}} ist ebenfalls eine weit entwickelte
+Editor-Komponente, welche nicht ganz so umfangreich, wie acr{ace} ist, jedoch um einiges flexibler
+erscheint. In einem Prototyp möglich einige eigene Modifikationen für die Darstellung (Sub-
+Superskript, Tooltips, Hyperlinks) zu integrieren. CodeMirror verwendet kein festes Raster, darunter
+leidet die Performanz. Da wir jedoch darauf angwiesen sind, müssen wie diese Einbußen in der
+Geschwindigkeit akzeptieren. Seit Version 3.0 welche am 10.12.2012 erschien, ist es möglich
+Textteile zu durch HTML- Widgets zu substituieren. Dadurch ist es möglich Isabelle Sonderzeichen
+welche durch ASCII Sequenzen wie beispielsweise \texttt{\textbackslash\textless
+rightarrow\textgreater} für das Zeichen $\rightarrow$ repräsentiert werden direkt im Editor zu
+ersetzen, sodass der bearbeitete Text valider Isabelle-Code bleibt, die Darstellung hingegen der
+eines LaTeX-Dokuments entspricht.
+
+\end{description}
+
+Weitere Editoren existieren zwar, scheiden aber alle aus, da die meisten nicht einmal die Hälfte der
+oben formulierten Anforderungen erfüllen.
+
+\subsection{Client-Modell}
+
+\TODO{Client-Modell}
