@@ -4,5 +4,4 @@ define ->
         ""        : "project"
         ":node"   : "node"
 
-
   return new Router

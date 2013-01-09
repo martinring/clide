@@ -45,6 +45,6 @@ object Project {
       "name" -> project.name,
       "logic" -> project.logic
     )
-  }
+  }  
 }
 

@@ -8,7 +8,8 @@ define ['icons','contextMenu'], (icons,menu) ->
       @$el.text(@model.get 'title')
       close = $("<a class='icon'>#{icons.close}</a>")
       @$el.append close
-      close.on 'click', @model.close
+      close.on 'click', => 
+        @model.close
       @model.on 'change:active', (model,active) =>
         if active
           @$el.addClass 'active'

@@ -5,6 +5,7 @@
         <title></title>
         <link rel="stylesheet" media="screen" href="/assets/stylesheets/projects.css">
         <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.png">
+        <script>var user = '@user.name'</script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/underscore/underscore.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/backbone/backbone.js")"></script>
@@ -23,14 +24,14 @@
           </thead>
           <tbody>
             @user.projects.map { project =>
-            <tr class='project'>
+            <tr class='project' id='@user.name-@project.name' data-name='@project.name'>
               <td><a href="@project.url/">@project.name</a></td>
               <td>
-                <select value='@project.logic'>
+                <select id="logic-@user.name-@project.name" value='@project.logic' onchange="changeLogic('@user.name','@project.name')">
                   @isabelle.Isabelle_System.find_logics.map { logic =>
-                    <option>@logic</option>
+                    <option @{if (project.logic == logic) "selected"}>@logic</option>
                   }
-                </select>
+                </select>                
               </td>
             </tr>
     	      }

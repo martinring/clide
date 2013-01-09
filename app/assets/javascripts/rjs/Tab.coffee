@@ -5,11 +5,10 @@ define ->
       title: 'unnamed'
       content: $('<div></div>')
     activate: =>
-      console.log "activate #{@get 'title'}"
       @set active: true
     deactivate: =>
       @set active: false
-    close: =>
+    close: (silent) =>
       @deactivate()
       @get('content')?.remove?()
       @trigger 'close'

@@ -47,7 +47,8 @@ define ['ScalaConnector'], (ScalaConnector) ->
         opened: false
         active: false
         progress: 0
-      @trigger 'close', @    
+      #@trigger 'close', @    
+      @.off()
 
   class Theories extends Backbone.Collection
     model: Theory

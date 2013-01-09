@@ -18,22 +18,25 @@ werden. Damit sind die meisten älteren Browser nicht mit der Anwendung kompatib
 
 \begin{table}[h]
 \centering
-\caption{Kompatibilität der gängigsten Browser mit den Verwendeten Standards}
 \begin{tabular}{rlllll}
                   & \textbf{Chrome} & \textbf{Safari} & \textbf{IE} & \textbf{Firefox} 
                   & \textbf{Opera} \\\hline
   WebSockets      & 14.0            & 6.0             & 10.0        & 11.0             & 12.1  \\
   History API     & 5.0             & 5.0             & 10.0        & 4.0              & 11.5  \\
-  WebSockets      & 4.0             & 4.0             & 10.0        & 3.5              & 10.6  \\
+  WebWorkers      & 4.0             & 4.0             & 10.0        & 3.5              & 10.6  \\
   CSS Transitions & 4.0             & 3.1             & 10.0        & 4.0              & 10.5  \\
+
 \end{tabular}
 \label{tab:comp}
+\caption{Kompatibilität der gängigsten Browser mit den Verwendeten Standards}
+\captionsetup{font={footnotesize,bf,it}}
+  \caption*{Datein von caniuse.com}
 \end{table}
 
 \TODO{Kompatibilitäts-Tabelle}
 
 Aus Tabelle \ref{tab:comp} ist zu entnehmen, dass alle weiteren in der Anwendung benutzten Standards
-eine geringere oder die gleicher Anforderung an die Aktualität des Browsers haben. Da WebSockets ein
+eine geringere oder die gleiche Anforderung an die Aktualität des Browsers haben. Da WebSockets ein
 sehr neues Konzept sind,  dienen sie als Orientierung: Alle Features, welche von jedem Browser, der
 WebSockets unterstützt, auch unterstützt werden, dürfen verwendet werden. Alle anderen schließen wir
 aus, da sonst die Zahl der potentiellen Nutzer weiter eingeschränkt würde. Die Anwendung ist damit
@@ -44,7 +47,52 @@ Chrome gelegt und einige der anderen genannten Systeme sind ungetestet und damit
 
 \subsection{Benutzeroberfläche}
 
+Bei der Gestaltung des \acr{ui} wurde besonderes Augenmerk auf die User Experience gelegt
+um die Produktivität und die Zufriedenheit der Nutzer zu optimieren. \cite{emotionaldesign}
+Inspiriert wurde das Design durch die von Microsoft in Windows Phone 7 bzw. Window 8 eingeführte
+Design Sprache \textit{Metro UI} (bzw. seit 2012 \textit{Microsoft Design Language}). \cite{metroui}
+Dabei wird auf unnötige Grafiken verzichtet und die Typographie in den Vordergrund gestellt. Durch
+die Reduktion auf das Wesentliche entsteht eine neue Ästhetik welche eine willkommene Auffrischung
+der Icon- und Fensterbasierten Oberflächen wie sie seit jeher bestehen, bietet.
 
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{images/screen-main}
+  \caption{Die clide-Oberfläche}
+  \label{fig:screen-main}
+\end{figure}
+
+Besondere Herausforderungen sind das sinnvolle Unterbringen der Beweiszustände und
+Fehlerinformationen in der Darstellung sowie die Darstellung des Fortschritts, der einzelnen
+Theorien, welche nicht zwingend vom Nutzer geöffnet werden müssen sondern auch implizit als
+Abhängigkeiten anderer Beweisdokumente verarbeitet werden können.
+
+\subsubsection{Login}
+
+Der Anmeldebildschirm (Login) ist entsprechend einfach gehalten. Dem Nutzer wird lediglich ein
+Formular zur Eingabe von Benutzernamen und Passwort präsentiert. (Siehe Abbildung \ref{fig:screen-
+login})
+
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{images/screen-login}
+  \caption{Das Anmeldeformular}
+  \label{fig:screen-login}
+\end{figure}
+
+\subsubsection{Projektübersicht}
+
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{images/screen-projects}
+  \caption{Die Projektübersicht}
+  \label{fig:screen-projects}
+\end{figure}
+
+\subsubsection{Die Sidebar}
+
+\begin{figure}[ht]
+\includegraphics[width=0.4\linewidth]{images/screen-sidebar}
+  \caption{Die Sidebar}
+  \label{fig:screen-sidebar}
+\end{figure}
 
 \subsubsection{Die Editor-Komponente}
 
@@ -52,10 +100,10 @@ Die wichtigste Benutzerkomponente einer Entwicklungsumgebung ist der Text-Editor
 Isabelle-Code hat hierbei besondere Anforderungen: Während in der Praxis bislang nur rudimentäre
 Unterstützung für die Darstellung von Isabelle-Sonderzeichen und insbesondere von Sub- und
 Superskript existierte, hat Isabelle/jEdit bereits eine stärkere Integration dieser eigentlich recht
-essentiellen Visualisierungen eingeführt. Da bei der \acr{html}-Darstellung kaum Grenzen gesetzt
-sind und sich \acr{css}-Formatierung sehr leicht dazu benutzen lässt bestimmte Text-Inhalte
-besonders darzustellen, ist es klar, dass unsere Entwicklungsumgebung an dieser Stelle besonders
-glänzen soll.
+essentiellen Visualisierungen eingeführt. \cite{iscala} Da bei der \acr{html}-Darstellung kaum
+Grenzen gesetzt sind und sich \acr{css}-Formatierung sehr leicht dazu benutzen lässt bestimmte Text-
+Inhalte besonders darzustellen, ist es klar, dass unsere Entwicklungsumgebung an dieser Stelle
+besonders glänzen soll.
 
 In einem ersten Prototypen war es möglich eine \acr{js}-Komponente zu entwickeln, welche es zuließ,
 Isabelle-Code zu bearbeiten, sodass Sub- und Superskript sowie die Sonderzeichen korrekt dargestellt
@@ -67,10 +115,9 @@ aber eben die Visualisierung eine besondere Stärke der Anwendung sein soll, wol
 auch nicht darauf verzichten Ähnliche Fonts zu verwenden, wie in der Ausgabe der LaTeX-Dateien, also
 auch Mathematische Sonderzeichen nicht in ein Raster quetschen. 
 
-Eine weitere besondere Anforderung, welche bislang relativ einmalig zu sein
-scheint, ist die Tatsache, dass das Syntax-Highlighting zu Teilen auf dem Server stattfindet und
-somit eine Möglichkeit bestehen muss diese zusätzlichen Informationen in die Darstellung zu
-integrieren.
+Eine weitere besondere Anforderung, welche bislang relativ einmalig zu sein scheint, ist die
+Tatsache, dass das Syntax-Highlighting zu Teilen auf dem Server stattfinden soll und somit eine
+Möglichkeit bestehen muss diese zusätzlichen Informationen in die Darstellung zu integrieren.
 
 Zusammenfassend können folgende besondere Anforderungen an die Editor-Komponente formuliert werden:
 Der Editor muss in der Lage sein
@@ -109,7 +156,7 @@ in der Anwendung aus.
 
 \item {\textbf{CodeMirror}\footnote{http://codemirror.net/}} ist ebenfalls eine weit entwickelte
 Editor-Komponente, welche nicht ganz so umfangreich, wie acr{ace} ist, jedoch um einiges flexibler
-erscheint. In einem Prototyp möglich einige eigene Modifikationen für die Darstellung (Sub-
+erscheint. In einem Prototyp war es möglich einige eigene Modifikationen für die Darstellung (Sub-
 Superskript, Tooltips, Hyperlinks) zu integrieren. CodeMirror verwendet kein festes Raster, darunter
 leidet die Performanz. Da wir jedoch darauf angwiesen sind, müssen wie diese Einbußen in der
 Geschwindigkeit akzeptieren. Seit Version 3.0 welche am 10.12.2012 erschien, ist es möglich
@@ -122,8 +169,22 @@ eines LaTeX-Dokuments entspricht.
 \end{description}
 
 Weitere Editoren existieren zwar, scheiden aber alle aus, da die meisten nicht einmal die Hälfte der
-oben formulierten Anforderungen erfüllen.
+oben formulierten Anforderungen erfüllen. Es wird klar, dass CodeMirror der am besten geeignete
+Editor ist. Trotzdem müssen einige eigene Anpassungen in den Kern des Editors integriert werden.
+Diese sind unter anderem die Unterstützung von
+
+\begin{itemize}
+  \item Sub- und Superskript (sowie angepassten Cursorpositionen und -höhen),
+  \item Tooltips für einzelne Textabschnitte sowie
+  \item die Darstellung von Hyperlinks im Text.
+\end{itemize}
+
+\subsubsection{Beweiszustände}
 
 \subsection{Client-Modell}
+
+Der Client muss zu jeder Zeit über ein konsistentes Abbild der relevanten Informationen verfügen.
+Das stellt sich als schwierige Herausforderung heraus. Insbesondere müssen der Inhalt des
+Texteditors mit dem Server synchron gehalten werden.
 
 \TODO{Client-Modell}

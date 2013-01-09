@@ -25,7 +25,7 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
         file.set active: a
         if a then router.navigate name
       file.on 'close', ->
-        tab.close()
+        tab.close(true)
       tabs.add tab
       file.open()
 

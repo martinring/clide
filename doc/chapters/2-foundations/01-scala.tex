@@ -16,19 +16,31 @@ erstellen.
 
 Seit 2011 wird Scala von der durch Martin Odersky ins Leben gerufenen Firma
 Typesafe\footnote{http://www.typesafe.com} zusammen mit den Frameworks \textit{Akka}
-(\ref{sec:akka}) und \textit{Play} (\ref{sec:play} sowie des Buildtools \textit{sbt} (\ref{sec:sbt})
-Kommerziell im sogenannten \textit{Typesafe Stack} weiterentwickelt und unterstützt. Dadurch wird
-Scala zu einer ernstzunehmenden Sprache, welche auch in Zukunft noch schnell weiterentwickelt wird.
-Scala ist sehr skalierbar und durch die Aktoren-Bibliothek Akka geeignet um Hochskalierbare
-Anwendungen zu entwickeln. Firmen wie beispielsweise Twitter, LinkedIn, Siemens, TomTom, Sony,
-Amazon und die NASA treiben die Entwicklung immer schneller voran und sorgen dafür, dass eine große
-Infrastruktur um Scala herum entsteht. \cite{scala}
+(Abschnitt \ref{sec:akka}) und \textit{Play} (Abschnitt \ref{sec:play}) sowie des Buildtools
+\textit{sbt} (Abschnitt \ref{sec:sbt}) Kommerziell im sogenannten \textit{Typesafe Stack}
+weiterentwickelt und unterstützt. Dadurch wird Scala zu einer ernstzunehmenden Sprache, welche auch
+in Zukunft noch schnell weiterentwickelt wird. Scala nicht zuletzt durch die Aktoren-Bibliothek Akka
+geeignet um Hochskalierbare verteilte Systeme zu entwickeln. Firmen wie beispielsweise Twitter,
+LinkedIn, Siemens, TomTom, Sony, Amazon und die NASA treiben die Entwicklung immer schneller voran
+und sorgen dafür, dass eine große Infrastruktur um Scala herum entsteht. \cite{scala}
 
 \subsection{Sprachkonzepte}
 
 Im folgenden sollen die für diese Arbeit relevanten Konzepte der Sprache Scala kurz vorgestellt
 werden. Dabei verzichten wir allerings auf Grundlagen der Objektorierten und Funktionalen
 Programmierung, sowie auf bereits aus Java bekannte Konzepte.
+
+\subsubsection{Traits}
+
+Traits sind ein besonders wertvoller und wichtiger Bestandteil von Scala. Sie sind ein Mittelweg
+zwischen eine abstrakten Klasse und einem Interface. Dabei ermöglichen sie wie Interfaces in Java
+Mehrfachvererbung, können jedoch auch genau wie abstrakte Klassen schon implementierte Funktionen
+enthalten. Zudem können Traits in beliebige Klassen mit dem Konstruktor eingemischt werden
+(Sogenannte Mixins).
+
+So können Teile der Funktionalität welche immer wieder verwendet werden, aber nicht von konkreten
+Klassen abhängig sind getrennt implementiert werden. Das fördert einen aspektorientierten
+Programmierstil und schafft übersichtlichkeit.
 
 \subsubsection{Implizite Parameter}
 
@@ -79,18 +91,16 @@ Eine Typklasse bietet die Möglichkeit Ad-hoc-Polymorphie zu implementieren. Dam
 jedoch nicht direkt von den Typen implementiert sein und können so auch Nachträglich beispielsweise
 für Typen aus fremden Bibliotheken definiert werden.
 
-In Scala werden Typklassen als generische abstrakte Klassen oder Traits implementiert.
+In Scala werden Typklassen als generische abstrakte Klassen oder Traits implementiert. Instanzen der
+Typklassen sind implizite Objektdefinitionen welche für einen spezifischen Typen die Typklasse bzw.
+die abstrakte Klasse implementieren. Eine Funktion für eine bestimmte Typklasse kann durch eine
+generische Funktion  realisiert werden. Diese ist dann über einen oder mehrere Typen parametrisiert
+und erwartet als implizites Argument eine Instanz der Typklasse für diese Typen,  also eine
+implizite Objektdefinition. Wenn diese im Namensraum existiert, wird  sie automatisch vom Compiler
+eingesetzt.
 
-Instanzen der Typklassen sind implizite Objektdefinitionen welche für einen spezifischen Typen die
-Typklasse bzw. die abstrakte Klasse implementieren.
-
-Eine Funktion für eine bestimmte Typklasse kann durch eine generische Funktion  realisiert werden.
-Diese ist dann über einen oder mehrere Typen parametrisiert  und erwartet als implizites Argument
-eine Instanz der Typklasse für diese Typen,  also eine implizite Objektdefinition. Wenn diese im
-Namensraum existiert, wird  sie automatisch vom Compiler eingesetzt.
-
-Als Beispiel betrachten wir die Ordnung von Objekten. Zunächst definieren wir einen generischen
-Trait \texttt{Ord}, welcher über eine \texttt{compare}-Funktion zum Vergleich zweier Werte.
+Als Beispiel betrachten wir die Ordnung eine Typs. Zunächst definieren wir einen generischen Trait
+\texttt{Ord}, welcher über eine \texttt{compare}-Funktion zum Vergleich zweier Werte.
 
 \begin{lstlisting}
 trait Ord[T] {
@@ -122,6 +132,7 @@ Das Konzept der Typklasen ist vor allem dort sehr Hilfreich wo es darum geht fre
 eigene Funktionen zu erweitern.
 
 \subsubsection{Dynamische Typisierung}
+\label{sec:dyn}
 
 Seit Scala 2.9 ist es möglich Funktionsaufrufe bei Typfehlern Dynamisch zur  Laufzeit auflösen zu
 lassen. Damit die Typsicherheit nicht generell verloren  geht ist es nötig den Trait
@@ -150,7 +161,7 @@ sowie bei der Arbeit mit externen Daten, bei denen keine Typinformationen vorlie
 Das \acr{sbt}\footnote{http://www.scala-sbt.org/} wird seit 2011 von Typesafe weiterentwickelt und
 ist das Standard Werkzeug zur automatischen Projekt- und Abhängigkeitsverwaltung in der Scala
 Progammierung. Da es selbst in Scala geschrieben wurde und auch die Konfiguration in Scala Objekten
-stattfindetist es leicht Erweiterungen dafür zu entwickeln. \acr{sbt} ist mit Maven, einem sehr
+stattfindet, ist es leicht Erweiterungen dafür zu entwickeln. \Acr{sbt} ist mit Maven, einem sehr
 verbreiteten Build Tool für Java, kompatibel, sodass auch Javabibliotheken, welche in einem Maven-
 Repository liegen als Abhängigkeiten definiert werden können. Typesafe stellt zudem eine sehr große
 Auswahl von Scala-Bibliotheken in einem eigenen Repository zur Verfügung. Es können aber auch
@@ -185,45 +196,36 @@ wie es bei Webanwendungen üblich ist. (Siehe auch \cite{iteratees})
 
 \subsection{Play Framework}
 
-Das \textit{Play Framework}\footnoter{http://www.playframework.org} ist ein Framework zur
-Entwicklung von Webanwendungen  auf der JVM mit einer speziellen API für Scala. Play ist ein sehr
-effizientes  Framework welches auf Akka aufbaut um hohe Skalierbarkeit zu gewährleisten. Damit wird
-es leichter verteilte hochperformante Webanwendungen zu realisieren. 
+Das \textit{Play Framework}\footnote{http://www.playframework.org} ist ein Rahmenwerk zur
+Entwicklung von Webanwendungen auf der JVM in Java mit einer speziellen API für Scala. Play ist ein
+sehr effizientes Zustandsfreies Framework welches auf Akka aufbaut um hohe Skalierbarkeit zu
+gewährleisten. Damit wird es leichter verteilte hochperformante Webanwendungen zu realisieren.
 
 Die Struktur einer Play Anwendung ähnelt der bewährten Struktur von Ruby on
-Rails\footnote{http://rubyonrails.org/}. Es existieren Modelle, Views und Controller. Views werden
-dabei als spezielle \acr{html}-Templates, die auch Scala Code zulassen, definiert.
+Rails\footnote{http://rubyonrails.org/}. Es existieren Modelle, Views und Controller. Auch der
+Workflow ist ein ähnlicher, und so ist es möglich während der Entwicklung der Anwendung durch
+auffrischen der Seite im Browser immer die neuste Version zu sehen. Play nutzt \acr{sbt} als Build
+System.
 
-Play ermöglicht es die Stylesheet-Sprache \textit{LESS} zu verwenden ohne,  dass diese auf
-Browserseite unterstützt werden muss. Hierfür werden die in  \textit{LESS} definierten Stylesheet
-auf Serverseite in \textit{CSS} übersetzt  und dem Browser zur Verfügung gestellt.
+Views werden als spezielle HTML-Templates, die auch Scala Code zulassen, definiert. Durch die
+Ausdrucksorientiertheit von Scala ist es damit möglich die Views Typsicher zu halten und somit schon
+zur Kompilierzeit über sehr viele Klassen von Fehlern informiert zu werden. Das ist ein klarer
+Vorteil gegenüber den meisten andern modernen Webframeworks.
 
-Dafür müssen die Dateien an einem vorher konfigurierten Ort liegen. Nach dem  übersetzen werden sie
-an der selben Stelle zur Verfügung gestellt wie normale  \textit{CSS} Dateien.
+Modelle können natürlicherweise als beliebige Scala Klassen bzw. Datenstrukturen repräsentiert
+werden. Play beschränkt den Entwickler auch nicht auf eine bestimmte Möglichkeit der
+Datenpersistenz.
 
-Genauso wie für \textit{LESS} existiert in Play die Serverseitige Unterstützung  für
-\textit{CoffeeScript}. Die in \textit{CoffeeScript} geschriebenen Dateien  werden ebenfalls an
-gleicher Stelle wie normale \textit{JavaScript}-Dateien dem  Browser als \acr{js} zur
-Verfügung gestellt.
+Die Controller gruppieren Aktionen, welche als Antworten auf Anfragen agieren und sind prinzipiell
+als Unterklassen von \texttt{play.mvc.controller}, welche in der Akka Infrastruktur leben,
+realisiert. Aktionen sind nicht mehr als Scala Funktionen, die die Parameter einer Anfrage
+verarbeiten und daraus eine Antwort produzieren, welche an den Browser zurückgesendet wird.
 
-\TODO{Play}
+Das Routing geschieht über eine Konfigurationsdatei \texttt{conf/routes} in welcher von URLs auf
+Aktionen abgebildet wird. Es ist möglich sogenanntes \textit{reverse routing} zu betreiben und von
+einer Scala Funktion zu einer \acr{url} zu gelangen. Des weiteren besteht die Möglichkeit \acr{js}
+Code zu generieren welcher im Browser zum reverse routing verwendet werden kann.
+
+Siehe auch Abschnitte \ref{sec:less}, \ref{sec:coffeescript} sowie \ref{sec:requirejs}.
 
 \label{sec:play}
-
-Die \textit{RequireJS} Bibliothek bietet die Möglichkeit den  \acr{js}-Code für den
-Produktiveinsatz zu optimieren. Dafür gibt es  das sogenannte \textit{r.js}-Script welches unter
-andem alle Abhängigkeiten  zusammenfasst und den Code durch das Entfernen von Whitespaces und
-Kommentaren  sowie dem Umbenennen von Variablennamen verkürzt. Zur Entwicklungszeit ist diese  nicht
-mehr lesbare Code nicht erwünscht. Deswegen bietet Play eine integrierte  Version von RequireJS,
-welche automatisch den lesbaren Code zur Entwicklungszeit  bereitstellt, im Produktiveisatz jedoch
-den optimierten.
-
-\subsubsection{Iteratees}
-
-\TODO{Iteratees}
-
-\subsubsection{Websockets}
-
-\TODO{WebSockets}
-
-Websockets werden direkt von Play unterstützt. ...

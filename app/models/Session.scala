@@ -249,11 +249,7 @@ class Session(project: Project) extends JSConnector {
           new java.io.File(project.dir + path).deleteOnExit()
           true
       }
-      
-      
-      
-      
-                  
+
     case "close" => json =>
       val nodeName = json.as[String] 
       
@@ -286,5 +282,5 @@ class Session(project: Project) extends JSConnector {
     session.stop();
   }
   
-  session.start(Nil)
+  session.start(List(project.logic))
 }

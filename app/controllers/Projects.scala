@@ -16,8 +16,12 @@ import scala.concurrent.duration._
 import scala.concurrent.Await
 import models.User
 import models.Project
+import play.api.data.Form
+import play.api.data.Forms._
+import akka.routing.Broadcast
+import views.html.defaultpages.badRequest
 
-object Projects extends Controller {
+object Projects extends Controller with Secured {
   def index(user: String) = Action {
     User.find(user) match {
       case Some(user) => Ok(views.html.projects(user))
@@ -25,7 +29,7 @@ object Projects extends Controller {
     }    
   }
   
-  def listProjects(user: String) = Action {    
+  def listProjects(user: String) = IsAuthenticated { _ => implicit request =>    
     User.find(user) match {
       case Some(user) =>        
         Ok(Json.toJson(user.projects))
@@ -33,7 +37,7 @@ object Projects extends Controller {
     }
   }
 
-  def getProject(user: String, project: String) = Action {
+  def getProject(user: String, project: String) = IsAuthenticated { _ => implicit request =>
     User.find(user) match {
       case Some(user) => user.projects.find(_.name == java.net.URLDecoder.decode(project,"UTF-8")) match {
         case Some(project) => Ok(Json.toJson(project.theories))
@@ -44,19 +48,53 @@ object Projects extends Controller {
   }
   
   def getSession(user: String, project: String) = WebSocket.using[JsValue] { request =>
-    val p = Project(java.net.URLDecoder.decode(project,"UTF-8"))(user)
-    val session = new models.Session(p)
-    (session.in, session.out)
+    User.find(user) match {
+      case Some(user) => user.projects.find(_.name == java.net.URLDecoder.decode(project,"UTF-8")) match {
+        case Some(project) => 
+          val session = new models.Session(project)
+          (session.in, session.out)
+        case None =>
+          val (out,channel) = Concurrent.broadcast[JsValue]
+          (Iteratee.ignore,out)
+      }
+      case None =>
+          val (out,channel) = Concurrent.broadcast[JsValue]
+          (Iteratee.ignore,out)
+    }        
   }
   
-  def project(user: String, project: String, path: String) = Action {
+  def project(user: String, project: String, path: String) = IsAuthenticated { _ => implicit request =>
     User.find(user) match {
       case Some(user) => user.projects.find(_.name == java.net.URLDecoder.decode(project,"UTF-8")) match {
         case Some(project) => Ok(views.html.ide(user.name,project.name,path))
         case None          => NotFound("project " + project + " does not exist")
       }
       case None       => NotFound("user " + user + " does not exist")
-    } 
+    }    
+  }
+
     
+  def setProjectConf(user: String, project: String) = IsAuthenticated { _ => implicit request =>
+    Form("logic" -> nonEmptyText).bindFromRequest.fold(
+      errors => BadRequest,
+      logic => { User.find(user).map(_.setLogic(project, logic)); Ok(logic) }
+    )
+  }  
+  
+  def createProject(user: String, project: String) = IsAuthenticated { _ => implicit request =>
+    User.find(user) match {
+      case None => BadRequest
+      case Some(user) => if (user.addProject(project))
+        Ok(project)
+      else BadRequest
+    }
+  }
+  
+  def removeProject(user: String, project: String) = IsAuthenticated { _ => implicit request =>
+    User.find(user) match {
+      case None => BadRequest
+      case Some(user) => user.removeProject(project)
+        Ok(project)      
+    }
   }
 }

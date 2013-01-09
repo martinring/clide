@@ -37,6 +37,8 @@
 \RequirePackage{setspace}
 \RequirePackage[nofancy]{svninfo}
 
+\RequirePackage{floatflt}
+
 \RequirePackage{xspace}
 \xspaceaddexceptions{"}
 
