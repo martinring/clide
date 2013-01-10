@@ -166,7 +166,7 @@ Repository liegen als Abhängigkeiten definiert werden können. Typesafe stellt 
 Auswahl von Scala-Bibliotheken in einem eigenen Repository zur Verfügung. Es können aber auch
 beispielsweise öffentliche Git-Repositories als Abhängigkeit definiert werden.
 
-\subsection{Akka}
+\subsection{Aktoren}
 \label{sec:akka}
 
 Akka\footnote{http://www.akka.io/} war ursprünglich eine Implementierung des aus Erlang bekannten
@@ -187,11 +187,35 @@ irgendwo auf der Welt ausgeführt werden. In dieser Eigenschaft liegt der Schlü
 Skalierbarkeit: In Akka entwickelte Systeme können ohne Veränderungen auf einem oder tausenden
 Rechnern gleichzeitig ausgeführt werden, ganz im Sinne des \textit{Cloud Computing}.
 
+\subsubsection{Iteratees}
+\label{sec:iteratees}
+
 Akka bietet über die Aktoren und deren Verwaltung hinaus noch viele weitere hilfreiche
 Abstraktionen. Besonders erwähnenswert sind hier noch die sogenannten \textit{Iteratees}. Iteratees
 sind eine Möglichkeit einen Datenstrom zu verarbeiten, ohne dass alle Daten verfügbar sind. Das ist
 dort besonders wichtig, wo es um nicht-blockierende kommunizierende Prozesse geht, wie es bei
 Webanwendungen üblich ist. Eine gute Einführung in Iteratees ist in \cite{iteratees} zu finden.
+
+\subsubsection{Futures}
+\label{sec:futures}
+
+Ein \textit{Future} ist ein Proxy für das Ergebnis einer Berechnung welches nicht unmittelbar
+bekannt ist. Futures finden dann Anwendung, wenn Rechnungen nicht blockierend Ausgeführt werden
+sollen und die Ergebnisse erst zu einem Späteren Zeitpunkt benötigt werden. Die Rechnung wird dabei
+nebenläufig Ausgeführt. Da Futures in Scala 2.10 einen Monaden bilden, können wie komponiert werden.
+
+\begin{lstlisting}
+val a = future[Int](expensiveComputation1)
+val b = future[Int](expensiveComputation2)
+val c = for { aResult <- a, bResult <- b } yield aResult + bResult
+\end{lstlisting}
+
+Bislang existierten Futures in zwei Ausprägungen. Zum Einen gab es eine Implementierung in der Scala
+Standardbibliothek zum anderen eine in Akka. Der Grund dafür war, dass die Futures in Scala einige
+Schwächen hatten, welche erst nach Veröffentlichung erkannt wurden. So war es nicht leicht möglich
+Futures zu kombinieren. In Scala 2.10 wurde eine überarbeitete Implementierung der Futures
+eingeführt und das Akka Team hat sich daraufhin entschieden in der aktuellen Version 2.1 des Akka
+Frameworks auf die Futures der Standardbibliothek zurückzugreifen.
 
 \subsection{Play Framework}
 

@@ -247,12 +247,136 @@ Abschnitt \ref{sec:dyn})
     }
 \end{lstlisting}
 
+\clearpage
+
+\section{Synchrone Repräsentation von Dokumenten}
+
+Bla bla
+
 \section{Clientseitiges Syntaxhighlighting}
 \label{sec:syntax}
 
-\texttt{isabelle.coffee}
+Auf Grund der in Kapitel \ref{sec:draft} beschriebenen Notwendigkeit, Verbindungskapazität
+einzusparen musste ein Teil des Syntaxhighlightings, welches von Isabelle/Scala betrieben wird auf
+Browserseite nachgebildet werden. Dafür wurde ein CodeMirror-\texttt{Mode} in CoffeeScript
+implementiert. (Zu finden unter \texttt{/app/assets/javascripts/mode/isabelle.coffee})
 
-\section{Synchrone Repräsentation von Dokumenten}
-\label{sec:linebuffer}
+Dafür wurde die glücklicherweise in \cite{isabelle} detailliert beschriebene äußere Syntax einfach
+in reguläre Ausdrücke übersetzt. Die Möglichkeit der Stringinterpolation in CoffeeScript hat sich
+hierbei als Hilfreich heausgestellt:
 
-\texttt{LineBuffer}
+\begin{lstlisting}
+  # extracted from the isabelle reference manual
+  greek       = "(?:\\\\<(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|' +
+    'mu|nu|xi|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|' +
+    'Pi|Sigma|Upsilon|Phi|Psi|Omega)>)"
+  digit       = "[0-9]"
+  latin       = "[a-zA-Z]"
+  sym         = "[\\!|\\#|\\$|\\%|\\&|\\*|\\+|\\-|\\/|\\<|\\=|\\>|\\?|\\@|\\^|\\_|\\||\\~]"
+  letter      = "(?:#{latin}|\\\\<#{latin}{1,2}>|#{greek}|\\\\<^isu[bp]>)"
+  quasiletter = "(?:#{letter}|#{digit}|\\_|\\')"
+  ident       = "(?:#{letter}#{quasiletter}*)"
+  longident   = "(?:#{ident}(?:\\.#{ident})+)"
+  symident    = "(?:#{sym}+|\\\\<#{ident}>)"
+  nat         = "(?:#{digit}+)"
+  floating    = "-?#{nat}\\.#{nat}"  
+  variable    = "\\?#{ident}(?:\\.#{nat})?"
+  typefree    = "'#{ident}"
+  typevar     = "\\?#{typefree}(?:\\.#{nat})"
+  string      = "\\\".*\\\""
+  altstring   = "`.*`"
+  verbatim    = "{\\*.*\\*}"  
+  abbrev =
+    '\\<\\.|\\.\\>|\\(\\||\\|\\)|\\[\\||\\|\\]|\\{\\.|\\.\\}|\\/\\\\|\\\\\\/' +
+    '|\\~\\:|\\(\\=|\\=\\)|\\[\\=|\\=\\]|\\+o|\\+O|\\*o|\\*O|\\.o|\\.O' +
+    '|\\-o|\\/o|\\=\\_\\(|\\=\\_\\)|\\=\\^\\(|\\=\\^\\)|\\-\\.|\\.\\.\\.|(?:Int|Inter' +
+    "|Un|Union|SUM|PROD)(?!#{quasiletter})"
+\end{lstlisting}
+
+Als besonderes schwierig stellte sich die Erkennung von Kontrollsymbolen für die korrekte
+Darstellung von Sub- und Superskript bzw. Fettgedruckten Zeichen sowie der Spezialsymbole, welche
+als entsprechende LaTeX-Symbole dargestellt werden sollen heraus, da diese an jeder beliebigen
+Stelle in der Syntax Vorkommen können und so nicht leicht mit entsprechenden Klassen markiert werden
+können. Um dieses Problem zu lösen wird ein Trick angewandt: Es wurden zwei Grammatiken
+implementiert, welche den Zeichenstrom zeilenweise simultan verarbeiten. Die Ergebnisse werden dann
+kombiniert, sodass für jedes Token jeweils die Vereinigung der Ergebnisse beider Parser
+zurückgegeben wird.
+
+Bei der Parsierung werden jeweils nur die sichtbaren Zeilen verarbeitet, deswegen ist es notwendig
+am Ende jeder Zeile einen eindeutigen Zustand zurückzugeben mit dem die Verarbeitung der nächsten
+Zeile ohne weitere kontextuelle Informationen fortgesetzt werden kann. Da Isabelle wie ML
+verschachtelte Kommentare zulässt muss dieser unter anderem auch die Kommentarebene enthalten.
+
+\section{Substitution von Symbolen}
+
+Die im vorherigen Abschnitt beschriebenen Tokenklassen werden verwendet um Symbole direkt im
+Quelltext zu substituieren. Da CodeMirror glücklicherweise seit Version 3.0 welche gegen Ende der
+Bearbeitungszeit dieser Diplomarbeit veröffentlicht wurde die Möglichkeit bietet Textstellen durch
+HTML-Widgets zu ersetzten, konnte eine vorheriger serverseitiger Ansatz, der von Natur aus recht
+Fehleranfällig war, da mit den Verschiedenen Positionssystemen von Isabelle und CodeMirror ständig
+herumgerechnet werden musste, glücklicherweise verworfen werden.
+
+Die Grundsätzliche Idee bei der Symbol-Substitution ist es, den eigentlich Isabelle-Quelltext auf
+Clientseite unverändert zu lassen und nur die Visualisierung anzupassen. Die Substitution findet in
+\texttt{/app/assets/javascripts/rjs/editor.coffee} statt.
+
+Hierfür werden beim Laden eines Dokuments zunächst alle Vorkommen von Spezialsymbolen ersetzt. Dafür
+bedienen wir uns des CodeMirror Plugins \texttt{SearchCursor}, das es erlaubt den Text mit regulären
+Ausdrücken effizient zu durchsuchen.
+
+\begin{lstlisting}
+cursor = @cm.getSearchCursor(/\\<(\^?[A-Za-z]+)>/)
+
+while cursor.findNext()
+  sym = symbols[cursor.pos.match[0]]
+  if sym?
+    from = cursor.from()
+    to   = cursor.to()
+    @cm.markText(from, to, {
+      replacedWith: sym(),
+      clearOnEnter: false
+    })
+\end{lstlisting}
+
+Im laufenden Betrieb werden dann bei jeder Veränderung die Tokenklassen an den veränderten
+Positionen betrachtet, um zu entscheiden, ob es sich um Spezialsymbole handelt.
+
+Dafür wird das \texttt{onchange}-Callback der CodeMirror Instanz implementiert. Wir verwenden an
+dieser Stelle \texttt{.operation} um die gesammte Operation auszuführen, bevor die Visualisierung
+angepasst wird, dadurch wird die Ausführungsgeschwindigkeit drastisch erhöht. Zudem gehen wir
+sicher, dass keine Selektion vorliegt, da in diesem Fall zunächst keine Ersetzungen Stattfinden
+sollen bis die Selektion wieder aufgehoben wurde.
+
+\begin{lstlisting}
+@cm.on 'change', (editor,change) => editor.operation => unless editor.somethingSelected()
+  ...
+\end{lstlisting}
+
+Nun löschen wir alle zuvor eingeführten Substitutionen (durch die Eingabe kann sich das zu
+Substitutierende Zeichen verändert haben) Da wir \texttt{CodeMirror.operation} verwenden, ist diese
+Aktion relativ performant.
+
+\begin{lstlisting}
+pos   = change.to
+token = editor.getTokenAt(pos)          
+marks = editor.findMarksAt(pos)
+mark.clear() if mark.__special for mark in marks 
+\end{lstlisting}
+
+Wenn es sich bei dem aktuellen Token nun um ein Spezielles Zeichen handelt, dann wird es mit Hilfe
+des CoffeeScript Moduls \texttt{symbols} welches über RequireJS importiert wurde zu einem Widget
+übersetzt, welches dann als Textsubstitution eingesetzt werden kann.
+
+\begin{lstlisting}            
+    if token.type? and (token.type.match(/special|symbol|control|sub|sup|bold/))
+      wid = symbols[token.string]
+      if wid?
+        @cm.markText from,to,          
+          replacedWith: wid(token.type)
+          clearOnEnter: false
+          __special:    true
+\end{lstlisting}
+
+Das \texttt{symbols}-Modul wurde aus der Datei \texttt{/etc/symbols} in der Isabelle Plattform
+abgeleitet. Zusätzlich wurden Informationen über den zu verwendenden LaTeX Font (Caligraphic,
+Fraktur, AMS, ...) für jedes Symbol manuell eingearbeitet.
