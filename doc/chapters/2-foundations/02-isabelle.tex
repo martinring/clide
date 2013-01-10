@@ -35,10 +35,12 @@ auf der Scala basiert. Isabelle/Scala stellt eine API zur Arbeit mit Isabelle be
 Nutzung relevanten Teile der SML Implementierung in Scala abbilden. \cite{iscala}
 
 Über statisch typisierte Methoden können die Dokumente modifiziert werden. Dafür wurde ein internes
-XML-Basiertes Protokoll eingeführt, das die Scala API mit der SML API verknüpft.
-Dementsprechend sind auch die Informationen, welche von Isabelle geliefert werden typisiert. Das
-macht Isabelle/Scala in der Nutzung recht robust, da ein Großteil der Fehler bereits zur
-Übersetzungszeit gefunden werden kann.
+XML-Basiertes Protokoll eingeführt, das die Scala API mit der SML API verknüpft. Dementsprechend
+sind auch die Informationen, welche von Isabelle geliefert werden typisiert. Das macht
+Isabelle/Scala in der Nutzung recht robust, da ein Großteil der Fehler bereits zur Übersetzungszeit
+gefunden werden kann. Die Schnittstelle basiert zu großen Teilen auf einfachen Aktoren aus der Scala
+Standardbibliothek, es wird jedoch auch eine Aktorenunabhängige API mit Callback-Funktionen
+bereitgestellt.
 
 Isabelle/Scala wurde für und zusammen mit der Anwendung \textit{Isabelle/jEdit} entwickelt. JEdit
 wurde hier unter anderem deswegen gewählt, weil es über sehr einfache API verfügt und somit das

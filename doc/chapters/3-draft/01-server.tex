@@ -41,7 +41,7 @@ vernachlässigt worden.
 
   \item Das \textit{Play Framework} (Siehe auch Abschnitt \ref{sec:play}) ist dagegen bewusst
 Leichtgewichtig gehalten und eher auf hohe Performance ausgelegt, als auf die Lösung möglichst
-vieler Anwendungsfälle in verschiedenster ausgefallener Weise. Darüber hinaus wird Play mittlerweile
+vieler Anwendungsfälle in verschiedener, ausgefallener Weise. Darüber hinaus wird Play mittlerweile
 kommerziell von Typesafe unterstützt und weiterentwickelt und verfügt über eine detaillierte und
 professionell gestaltete Dokumentation. \cite{play}
 
@@ -49,7 +49,7 @@ professionell gestaltete Dokumentation. \cite{play}
 
 Erfahrungen aus früheren Projekten mit Lift scheinen an dieser Stelle nicht zu nützen, da die größte
 Hürde die Implementierung der WebSocket Schnittstelle bildet und diese in Lift nur sehr spärlich
-Dokumentiert sind, und zudem auch kein eindeutiger Weg zu existieren scheint.
+Dokumentiert sind, und auch kein eindeutiger beschriebener Weg dafür existiert.
 
 \subsection{Authentifizierung}
 
@@ -60,7 +60,7 @@ Passwort einzuloggen, welche dann mit einer Konfigurationsdatei auf dem Server a
 können dann auf die Möglichkeit des Play Frameworks zur sicheren Verwaltung von Session-Bezogenen
 Daten zurückgreifen um die Anmeldung aufrechtzuerhalten.
 
-Es ist zu erwarten, dass in einer zukünfitigen Version von Play ein eigenes Konzept zur
+Es ist zu erwarten, dass in einer zukünfitigen Version von Play ein eigenes Modul zur
 Authentifizierung eingeführt wird, welches dann als Ersatz für die momentane Implementierung
 verwendet werden kann.
 
@@ -101,10 +101,37 @@ sind das die Dateien im Ordner \texttt{"/public"} welche unter der \acr{url} \te
 bereitgestellt werden.
 
 Die Bereitstellung der einzelnen Dokumente bzw. Theorien findet direkt über die WebSocket API statt.
-(Siehe auch Abschnitt \ref{sec:comm})
+(Siehe Abschnitt \ref{sec:comm})
 
 \subsection{Isabelle/Scala Integration}
 
-Zunächst ist es für die Arbeit mit Isabelle/Scala wichtig, die 
+Da die Isabelle/Scala Schnittstelle ständig weiter Entwickelt wird muss zunächst abgewogen werden,
+welche Version hier verwendet werden soll. Da es sich noch um ein junges Projekt handelt, das im
+Moment noch vielen größere Änderungen unterliegt, entscheiden wir uns dafür die aktuellste stabile
+Version - Isabelle 2012 - zu verwenden und damit deren Einschränkungen zu akzeptieren, da ein
+dauerndes \glqq Hinterherlaufen\grqq hier zu großen Aufwand bedeutet hätte.
 
-\TODO{Isabelle/Scala auf dem Server}
+Da Isabelle/Scala in Isabelle 2012 für Scala 2.9 übersetzt wurde, kann es nicht direkt in diesem
+Projekt verwendet werden. (Scala 2.9 und Scala 2.10 sind nicht binärkompatibel) Deswegen musste die
+Schnittstelle für Scala 2.10 neu Übersetzt werden. Die neu gebaute Version von \texttt{Pure.jar} ist
+im Anwendungsverzeichnis unter \texttt{lib/} zu finden. Bei Verwendung älterer Versionen kommt es zu
+unverständlichen Fehlermeldungen.
+
+Isabelle/Scala arbeitet intern mit offsetbasierten Textpositionen. Da das auf dem Client ineffizient
+wäre und der verwendete Editor (Abschnitt \ref{sec:editor}) mit zeilenbasierten Positionen arbeitet,
+ist es notwendig, eine effiziente Repräsentation der Dateien auf dem Server zu entwickeln, auf
+welche sowohl über die Zeile/Spalte als auch über absolute Offsets zugegriffen werden kann. (Die
+Implementierung wird in Abschnitt \texttt{sec:linebuffer} beschrieben) 
+
+Um die kummulierten Änderungen am Dokument, welche vom Client regelmäßig gesendet werden nicht nur
+in die eigene Repräsentation einzuarbeiten sondern auch an Isabelle/Scala weiterzuleiten, muss eine
+Umrechnung der Daten in die von der Schnittstelle verwendeten Datentypen geschehen.
+
+Nach jeder Veränderung an eizelnen Dokumenten leitet Isabelle/Scala die Daten an die Isabelle
+Platform weiter, welche die Dokumente dann dann überprüft. Über einen Nachrichtenkanal
+(\texttt{Session.commandsChanged}) kommen nach erfolgreichem Abschuss dann die Ergebnise zurück
+welche wiederum in ein für den Client verständliches Format (JSON) mit den Zeilen/Spalten-basierten
+Positionen.
+
+Für das Syntaxhighlighting auf dem Client ist es nötig eine Liste der gültigen Schlüsselwörter in
+der Theorie an den Browser zu übertragen und aktuell zu halten. (Siehe auch \ref{sec:syntax})

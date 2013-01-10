@@ -1,17 +1,258 @@
 \chapter{Implementierung}
 \label{sec:imp}
 
-Im folgenden werden einige interessante Gesichtspunkte der Implementierung herausgearbeitet.
+Im folgenden werden einige interessante Gesichtspunkte der Implementierung, die in Kapitel
+\ref{sec:draft} nur kurz angerissen wurden, genauer herausgearbeitet.
 
-\TODO{Implementierung}
-
-\section{ScalaConnector / JSConnector}
+\section{Abstraktion vom Protokoll}
 \label{sec:jsc}
 
+Um das Protokoll austauschbar zu gestalten wurde eine Abstraktion über WebSockets implementiert.
+Hierfür wurde auf der Browserseite der \texttt{ScalaConnector} und auf Seiten des Servers der
+\texttt{JSConnector} entwickelt.
+
+\subsection{ScalaConnector}
+
+Das \texttt{ScalaConnector} wurde in CoffeeScript als RequireJS-Modul implementiert und dient zur
+Kommunikation mit dem Webserver. Ein beliebiges Objekt kann sich über den ScalaConnector mit dem
+Server verbinden, sodass dieser dann direkt die Funktionen dieses Objekts aufrufen kann.
+
+\begin{lstlisting}
+define -> class ScalaConnector
+  constructor: (@url,@object,init) -> ...
+\end{lstlisting}
+
+Dem Konstruktor wird zum einen die url (\texttt{url}) des Websockets mit dem verbunden werden soll,
+zum anderen das Objekt (\texttt{object}), welches dem Server als Schnittstelle zur verfügung
+gestellt werden soll übergeben. Als optionales Argument kann eine \texttt{init}-Funktion übergeben
+werden, welche aufgerufen wird, sobald die Verbindung hergestellt worden ist.
+
+Intern wird im Konstruktor zunächst eine Verbindung aufgebaut und an das
+\texttt{onmessage}-Callback des Websockets verbunden:
+
+\begin{lstlisting}
+@socket = new WebSocket(@url) # Connect to server
+@socket.onmessage = (e) =>    
+  @bytesDown += e.data.length # Downstream traffic measure
+  recieve(JSON.parse(e.data)) # Interpret messages as JSON
+\end{lstlisting}
+
+Die \texttt{recieve}-Funktion unterscheidet hierbei zwischen Antworten auf eigene Anfragen und
+Anfragen bzw. Kommandos vom Server:
+
+\begin{lstlisting}
+recieve = (e) =>  
+  if e.action # if an action is defined this is a command from the server
+    f = @object[e.action] # we try to find the action on the connected object
+    if f?
+      result = f.apply(f,e.args) or null # execute the function and save the result
+      # if an id for the message is defined the server awaits an answer with the result of the
+      # function execution. otherwise this is just a command (or server-push)
+      if e.id then @socket.send JSON.stringify 
+        resultFor: e.id
+        success: true
+        data: result
+    else # if the action does not exist we send an error message to the server
+      if e.id then @socket.send JSON.stringify
+        resultFor: e.id
+        success: false
+        message: "action '#{e.action}' does not exist"
+      else console.error "action '#{e.action}' does not exist"
+  else # if no action is defined the message must be an answer to a request
+    callback = @results[e.resultFor] # retrieve the callback function for this action
+    if callback 
+      callback(e.data) # answer the callback
+      @results[e.resultFor] = null # delete the callback function
+\end{lstlisting}
+
+Hierbei werden 3 verschiedene Fälle unterschieden:
+
+\begin{itemize}  
+  \item Die Nachricht enthält das Feld \texttt{action}: Es handelt sich um eine
+Anfrage oder ein Kommando vom Server.
+  \begin{itemize}
+    \item Wenn zusätzlich das Feld \texttt{id} definiert ist, erwartet der Server eine Antwort mit 
+    dieser id als Referenz, es handelt sich also um eine Abfrage.
+    \item Wenn das Feld nicht enthalten ist, handelt es sich um eine einfache Nachricht vom Server
+    auf die nicht geantwortet wird.
+  \end{itemize}
+  \item Wenn die Nachricht das Feld \texttt{action} nicht enthält, handelt es sich um eine Antwort 
+  auf eine vorherige Anfrage des Clients. In diesem Fall wird die entsprechende Callbackfunktion mit
+  dem Ergebnis des Servers aufgerufen.
+\end{itemize}
+
+Der Vorteil der Repräsentation über fehlende Felder ist die Kompaktheit der Daten. Da der WebSocket
+konfiguriert ist, die Daten zusätzlich komprimiert zu übertragen, sind die Nachrichten sehr klein.
+Noch kleiner können sie gemacht werden indem ein eigenes Protokoll implementiert wird. Diese
+Abstrakte Implementierung erlaubt das sehr leicht, da nur an zwei Stellen etwas ausgetauscht werden
+muss.
+
+Das Gegenstück ist natürlich das Versenden von Daten. Antworten auf Serveranfragen, werden wie oben
+beschrieben automatisch verschickt. Anfragen können über die \texttt{call}-Funktion versendet
+werden.
+
+\begin{lstlisting}      
+    call: (options) =>      
+      if options and options.action        
+        if options.callback
+          @results[@id] = options.callback
+          options.id = @id
+          @id += 1
+        @socket.send JSON.stringify(options)
+      else
+        console.error 'no action defined'
+\end{lstlisting}
+
+Die Funktion erwartet ähnlich wie die \texttt{ajax}-Funktion aus jQuery ein Konfigurationsobjekt
+\texttt{options}, in welchem mindestens das Feld \texttt{action} definiert sein muss. (Andernfalls
+wird ein Fehler geworfen) Darüber wird definiert welche Funktion auf dem Server aufgerufen werden
+soll.
+
+Wenn zusätzlich das feld \texttt{callback} mit einer Callback-Funktion belegt wird, wird eine
+\texttt{id} generiert, welche dem Server gesendet wird um unter dieser \texttt{id} zu antworten.
+(Siehe oben) Das gesammte Objekt wird nun (natürlich ohne die Callbackfunktion) an den Server als
+JSON übertragen. Wenn keine Callbackfunktion definiert wurde, wird auch keine Antwort vom Server
+gesendet.
+
+\subsection{JSConnector}
+
+Das Gegenstück zum \texttt{ScalaConnector} auf der Serverseite ist der \texttt{JSConnector}. Dieser
+wurde mit Hilfe dynamischer Typisierung verwirklicht. (Zu finden unter \texttt{/app/js/JSConnector})
+
+Für die Kommunikation Verwenden wir die Akka-Iteratees und Enumerators (Siehe auch Abschnitt
+\ref{sec:iteratees}). Iteratees für den Eingehenden Datenstrom über den Websocket und Enumerator für
+die zu sendenden Daten verwendet. Da wir hier ein imperatives Modell entwickeln wollen, können wir
+zur Erzeugung des Enumeratee auf die \texttt{Concurrent.broadcast}-Funktion aus der Play API
+zurückgreifen.
+
+\begin{lstlisting}
+trait JSConnector {
+  val (out, channel) = Concurrent.broadcast[JsValue]
+  val in = Iteratee.foreach[JsValue] { json =>
+    ...
+\end{lstlisting}
+
+Über den \texttt{channel} ist es später möglich Nachrichten an den Client zu senden (Welcher per
+WebSocket an den Enumeratee \texttt{out} verbunden ist). Der eigentliche Knackpunkt sind jedoch wie
+beim Client das Empfangen sowie das Versenden von Nachrichten.
+
+Beim Empfang wird genau wie auf der Browserseite zwischen den 3 beschriebenen Fällen unterschieden:
+
+\begin{lstlisting}
+  val in = Iteratee.foreach[JsValue] { json =>    
+    (json \ "action").asOpt[String] match {
+      case Some(a) => // an action is defined    
+        require(actions.isDefinedAt(a))
+        scala.concurrent.future(actions(a)(json \ "data")).onComplete {
+          case Success(result) =>
+            (json \ "id").asOpt[Long].map(id => channel.push(JsObject(
+                "resultFor" -> JsNumber(id) ::
+                "data" -> js.convert(result) ::
+                Nil)))
+          case Failure(msg) =>
+            debug(msg)
+        }
+      case None => (json \ "resultFor").asOpt[Long] match {
+        case Some(id) =>          
+          val p: Promise[JsValue] = js.requests(id)
+          if (!(json \ "success").as[Boolean])
+            p.failure(new Exception((json \ "message").as[String]))
+          else
+            p.complete(Try(json \ "data"))
+          js.requests.remove(id)
+        case None =>
+      }
+    }
+  }.mapDone(_ => onClose)
+\end{lstlisting}
+
+Um die Ausführung nicht zu blockieren verwenden wir \textit{Futures} (Abschnitt \ref{sec:futures}),
+die Anfragen des Clients in eigenen Threads ausführen. Wenn der Client eine Anfrage stellt wird der
+enstprechenden Funktion das Datenobjekt aus dem Empfangenen JSON-Code übergeben und diese in einem
+Future ausgeführt. Wenn das Future die Ausführung erfolgreich beendet wird das Ergebnis im
+Bedarfsfall (\texttt{id} ist in der Anfrage definiert) an den Client zurückgesandt. Im Fehlerfall
+wird das Ereignis geloggt. Da Fehlerfälle für den Client uninteressant sind, da das debugging auf
+dem Server Stattfinden sollte werden sie in diese Richtung nicht übertragen. Wenn signalisiert
+werden soll, dass eine Aktion aus einem Bestimmten Grund nicht ausgeführt werden kann sollte mit
+einem geeigneten Datentyp ein Wohldefiniertes Ergebnis von der entprechenden Funktion zurückgegeben
+werden. (z.B: \texttt{Option[T]})
+
+Zu beachten ist, dass für ein erfolgreiches Versenden das Funktionsergebnis einen Typ haben muss,
+welcher die Typklasse \texttt{json.Writes} implementiert, damit die Daten konvertiert werden können.
+Ist dies nicht der Fall kann der Code nicht übersetzt werden, da ein Typfehler vorliegt.
+
+Für die Kommunikation nach \glqq unten\grqq nutzen wir dynamische Typisierung. In einer Klasse die
+den \texttt{JsConnector} einmischt werden drei Objekte zur Verfügung gestellt:
+
+\begin{itemize}
+  \item \texttt{js.ignore} kann verwendet werden um Kommandos oder Informationen an den Client zu 
+  senden, ohne dass eine Antwort erwartet wird.
+  \item Über \texttt{js.async} können Anfragen versendet werden, für welche man ein Future erhält, 
+  welches bei Erhalt der Nachricht erfüllt wird.
+  \item In manchen Fällen kann es notwendig sein, innerhalb eines Threads zu blockieren, bis die 
+  Antwort vom Browser erhalten wurde, dafür kann \texttt{js.sync} verwendet werden.
+\end{itemize}
+
+Der Aufruf \texttt{js.async.moveCursor(4,1)} Würde beispielsweise dazu führen, dass folgendes JSON
+Objekt an den Browser gesandt wird:
+
+\begin{lstlisting}
+{
+  action: "moveCursor",
+  id: 12803,
+  data: [4,1]
+}
+\end{lstlisting}
+
+Auf dem Client würde dadurch die Funktion \texttt{moveCursor} mit den beiden Argumenten \texttt{4}
+und \texttt{1} aufgerufen und das Ergebnis mit der Referenz-id 12803 zurück an den Server gesendet,
+wo dann das Future mit dem Funktionsergebnis erfüllt würde.
+
+Am Beispiel des \texttt{async}-Objekts wollen wir die Funktionsweise der Objekte Kurz illustrieren.
+Es werden die drei Funktionen \texttt{selectDynamic}, \texttt{applyDynamic} sowie
+\texttt{applyDynamicNamed} implementiert, sodass Aufrufe der Form \texttt{js.async.foo},
+\texttt{js.async.foo(1, bar)} sowie \texttt{js.async.foo(bar = 3, doo = 5)} möglich sind. (Siehe
+Abschnitt \ref{sec:dyn})
+
+\begin{lstlisting}
+    object async extends Dynamic {
+      def selectDynamic(action: String): Future[JsValue] =
+        applyDynamicNamed(action)()
+
+      def applyDynamicNamed(action: String)(args: (String, Any)*): Future[JsValue] = {
+        channel.push(JsObject(
+          "action" -> JsString(action) ::
+            "id" -> JsNumber(id) ::
+            "args" -> JsArray(JsObject(args.map { case (n, a) => (n, convert(a)) }) :: Nil) ::
+            Nil
+        ))
+        val result = Promise[JsValue]()
+        requests(id) = result
+        id += 1
+        result.future
+      }
+
+      def applyDynamic(action: String)(args: Any*): Future[JsValue] = {
+        channel.push(JsObject(
+          "action" -> JsString(action) ::
+            "id" -> JsNumber(id) ::
+            "args" -> JsArray(args map convert) ::
+            Nil
+        ))
+        val result = Promise[JsValue]()
+        requests(id) = result
+        id += 1
+        result.future
+      }
+    }
+\end{lstlisting}
+
 \section{Clientseitiges Syntaxhighlighting}
+\label{sec:syntax}
 
 \texttt{isabelle.coffee}
 
 \section{Synchrone Repräsentation von Dokumenten}
+\label{sec:linebuffer}
 
 \texttt{LineBuffer}
