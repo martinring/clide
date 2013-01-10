@@ -1,4 +1,5 @@
 \section{Kommunikation}
+\label{sec:comm}
 
 Da viele Daten in hoher Frequenz übertragen werden müssen, (Nach jeder Veränderung des Dokuments
 muss der Server informiert werden, der dann zu unbestimmten Zeitpunkten in mehreren Schritten die
@@ -6,7 +7,7 @@ Zustands- Informationen zurücksendet) ist eine normale Datenübertagung wie bei
 üblich über \acr{ajax} bzw. \acr{http}-Anfragen nicht gut geeignet: Bei normalem \acr{http} ist es
 zum einen immer nötig auf Browser Seite eine Anfrage zu stellen um Informationen vom Server zu
 erhalten, zum anderen hat jede Anfrage und jede Antwort zusätzlich einen Header, welcher mindestens
-einige hundert Bytes groß ist. 
+einige hundert Bytes groß ist.
 
 Als Worst-Case Beispiel kann das Entfernen von Kommandos aus dem Dokumenten-Modell betrachtet
 werden: Um das Modell eines Dokuments auf Server und Client synchron zu halten müssen ab und zu
@@ -62,6 +63,12 @@ allerding zu großen Teilen nichts Anfangen. (Siehe \ref{sec:comp}) Das Play-Web
 Serverseitige WebSocket-Verbindungen. Allerding muss bei der Benutzung auf viel Funktionalität
 verzichtet werden. Da WebSockets allerdings so unabdingbar sind werden diese Einschränkungen
 akzeptiert.
+
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{images/diagram-workflow}
+  \caption{Datenfluss in clide}  
+  \label{fig:diagram-workflow}
+\end{figure}
 
 \subsection{Protokoll}
 

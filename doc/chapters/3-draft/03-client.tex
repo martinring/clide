@@ -69,8 +69,14 @@ Abhängigkeiten anderer Beweisdokumente verarbeitet werden können.
 \subsubsection{Login}
 
 Der Anmeldebildschirm (Login) ist entsprechend einfach gehalten. Dem Nutzer wird lediglich ein
-Formular zur Eingabe von Benutzernamen und Passwort präsentiert. (Siehe Abbildung \ref{fig:screen-
-login})
+Formular zur Eingabe von Benutzernamen und Passwort präsentiert. (Siehe Abbildung 
+\ref{fig:screen-login})
+
+Die Kommunikation erfolgt an dieser Stelle noch über normales \acr{http} und bei Fehlerhaften
+Eingaben wird auf einer neu geladenen Seite eine Fehlermeldung über dem Formular angezeigt. Das
+stört an dieser Stelle nicht und eine Nutzung von WebSockets würde die Sache hier nur
+verkomplizieren, da so nicht die bereits ausgereiften Verfahren zur Anmeldung über \acr{http}
+genutzt werden könnten.
 
 \begin{figure}[ht]
 \includegraphics[width=\linewidth]{images/screen-login}
@@ -89,6 +95,7 @@ login})
 \subsubsection{Die Sidebar}
 
 \begin{figure}[ht]
+\centering
 \includegraphics[width=0.4\linewidth]{images/screen-sidebar}
   \caption{Die Sidebar}
   \label{fig:screen-sidebar}
@@ -185,6 +192,18 @@ Diese sind unter anderem die Unterstützung von
 
 Der Client muss zu jeder Zeit über ein konsistentes Abbild der relevanten Informationen verfügen.
 Das stellt sich als schwierige Herausforderung heraus. Insbesondere müssen der Inhalt des
-Texteditors mit dem Server synchron gehalten werden.
+Texteditors mit dem Server synchron gehalten werden. Abbildung \ref{fig:diagram-workflow} zeigt ein
+Vereinfachtes Abbild des Datenflusses in der Anwendung. Die besondere Schwierigkeit liegt darin,
+dass natürlich nicht jeder Tastendruck übertragen werden kann. Das würde auch wenig Sinn machen, da
+es nicht realistisch ist, jede einzelne Veränderung zu überprüfen. Den Nutzer würden Fehlermeldungen
+zu Zwischenzuständen stören und der Server wäre absolut überlastet. Also wird nach jedem Tastendruck
+ein \textit{Timeout} von 700 Millisekunden gestartet. Wenn es abläuft, ohne dass eine Taste gedrückt
+wird, werden die Veränderungen im Dokument an den Server übertragen. In dem häufigen Fall eines
+weiteren Tastendrucks innerhalb der Zeispanne, wird das Timeout neu gestartet (\textit{Reset}) so
+lange, bis der Nutzer über den Zeitraum von 700ms keine Veränderung mehr vornimmt.
+
+Die Zeitspanne von 700 Millisekunden hat sich in eigenen Experimenten als guter Wert herausgestellt
+und ähnliche Werte werden auch von anderen Entwicklungsumgebungen und Editoren (\acr{ace}, eclipse,
+Visual Studio, ...), Standardmäßig verwendet um den Präsentationskompiler zu entlasten.
 
 \TODO{Client-Modell}
