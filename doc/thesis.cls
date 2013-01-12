@@ -570,11 +570,11 @@
       \bfseries%
       \diplomaname
     \end{LARGE}\\[1cm]
-    \begin{Huge}
+    \begin{Large}
       \color{Night Blue}%
       \bfseries%
       \@title
-    \end{Huge}\\
+    \end{Large}\\
     \begin{large}
       \color{Night Blue}%
       \bfseries%

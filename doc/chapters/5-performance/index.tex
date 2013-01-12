@@ -1,33 +1,65 @@
-\chapter{Bewertung und Ausblick}
+\chapter{Bewertung}
 
 Das Ergebnis der Arbeit ist ein innovatives, funktionstüchtiges Werkzeug, das in der Lage ist dem
 Nutzer bei der Arbeit mit Beweisdokumenten eine sinnvolle und produktive Unterstützung zu gewähren.
 Als Maßstab für die Einordnung der Ergebnise bietet sich ein Vergleich mit dem bisherigen Ansatz
 Isabelle/jEdit an. 
 
+Dabei ist allerdings zu beachten, dass es sich bei diesem Projekt auch um eine Machbarkeitsstudie
+für die Umsetzung einer webbasierten IDE handelt, da es nicht möglich ist eine sogenannte
+\textit{full featured} IDE im Rahmen einer Diplomarbeit zu entwickeln und dabei noch die vielen
+neuen Aspekte im Zusammenhang mit der Kommunikation einer Webanwendung zu beachten.
 
+\section{Funktionalität}
 
-Dabei ist allerdings zu beachten, dass es sich bei diesem Projekt auch um eine
-Machbarkeitsstudie für die Umsetzung einer webbasierten IDE handelt.
+Ein klarer Nachteil gegenüber dem Proof General ist die fehlende Möglichkeit der
+\textbf{semantischen Suche} in Isabelle Quellen. Diese Funktionalität wird von der Isabelle
+Plattform bereit gestellt und ist bis jetzt leider von der Isabelle/Scala Schnittstelle noch nicht
+unterstützt (Und daher auch in Isabelle/jEdit nicht vorhanden).
 
-%“a mature programmer’s text editor with hundreds of person-years of development behind it”
-%
-%Nicht vollständig (Machbarkeitsstudie)
-%
-%Schwierigkeiten wegen des Zusammenspiels der Vielen Bibliotheken
-%
-%Was noch zu machen ist
-% 
-% - Volle Funktionalitäten
-%
-% - Usability
-%
-% - Browserkompatibilität
-%
-%Wo weiter gemacht werden kann
-%
-% - IDE Als Ansatz für andere Sprachen
-%
-% - Schnittstelle veralgemeinern
-%
-% - SML, Haskell, ...
+Darüber hinaus fehlt natürlich die Infrastruktur an Plugins welche für jEdit existiert, da es sich
+bei der Anwendung notwendiger Weise um eine Neuentwicklung handelt. Das macht es natürlich mühsamer
+zusätzliche Funktionalität, wie Versionsverwaltungssystem oder andere Erweiterungen, zu integrieren,
+da diese dann speziell für diese neue Plattform entwickelt werden müssen.
+
+\section{Zuverlässigkeit}
+
+Da die Browseranwendung zwingenderweise in \acr{js}, also einer dynamischen Sprache entwickelt
+werden musste ist es schwieriger, Fehler zu entdecken, da Typfehler in sprachen mit dynamischer
+Typisierung logischerweise nicht existieren und der Compiler so keine große Hilfe bei der
+Fehlerfindung darstellt. Während der Entwicklung wurden sogenannte \textit{cross checks} im Code
+geführt (Welche nun auskommentiert sind (Siehe z.B. \texttt{isabelle.coffee})) um die
+Datenkonsistenz regelmäßig zu überprüfen. Das reicht aber natürlich nicht aus um die Fehlerfreiheit
+zu garantieren und da darüber hinaus das systematische Testen von Benutzeroberflächen immer ein
+Problem darstellt, kann nicht ausgeschlossen werden, dass sich noch Fehler in der
+Benutzerschnittstelle befinden.
+
+\section{Benutzbarkeit}
+
+Ein umfangreiches Usability Testing war leider nicht mehr möglich, da 
+
+\section{Performanz}
+
+Da die selbe Bibliothek (Isabelle/Scala) zu Grunde liegt, gibt es keine Unterschiede in der
+Geschwindigkeit des Beweisers selbst. Bei der lokalen Ausführung auf einem Rechner mit Server und
+Browser ist zu erwarten, dass es durch die Kommunikation über Serialisierte Nachrichten und deren
+Umrechnung zu leichten Geschwindigkeitseinbußen gegenüber Isabelle/jEdit kommt. Die Performanz auf
+diese Weise zu vergleichen is jedoch nicht sinnvoll, da in einem normalen Szenario der Server auf
+einem zentralen Rechner ausgeführt wird, der über die nötigen Resourcen verfügt um die Isabelle
+Plattform tragen zu können. Der Zugriff geschieht dann über mehrere Clients die keine besonders
+hohen Ansprüche erfüllen müssen. Hier liegt ein Vorteil gegenüber der jEdit Implementierung.
+Mit \textit{clide} ist es theoretisch möglich einen Theorembeweiser von einem Netbook oder einem
+Tablet PC aus zu verwenden.
+
+\section{Visualisierung}
+
+Hier ist eine klare Verbesserung gegenüber Isabelle/jEdit zu erkennen. Während Isabelle/jEdit sich
+am festen Textraster, welches in jEdit vorgegeben ist orientieren musste und nur geringe
+Abweichungen implementieren konnte, ähnelt die Darstellung in der Bearbeitung bei der Webanwendung
+schon sehr stark der Endgültigen Darstellung in Veröffentlichten LaTeX Dokumenten.
+
+Darüber hinaus ist die Integration der Beweiser-Ausgaben flexibler gestaltet und es ist auch möglich
+dise teilweise oder vollständig \textit{inline} anzuzeigen.
+
+\section{Übertragbarkeit}
+
