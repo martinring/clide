@@ -3,29 +3,80 @@
 \section{Motivation}
 
 Die Benutzerschnittstellen interaktiver Theorembeweiser sind seit längerem ein wichtiger Teil der
-Forschung im Gebiet der formalen Beweissysteme. Für das Verbreitete Isabelle System ist das
-verbreiteteste Werkzeug der \textit{Proof General} welcher
+Forschung im Gebiet der formalen Beweissysteme. Lange Zeit wurde hier die Interaktion durch ein
+sequenzielles \textit{\acr{repl}} Modell dominiert. Für das verbreitete Isabelle System ist das
+Standard Werkzeug der \textit{Proof General} welcher auf \textit{emacs} basiert und damit in einer
+mächtigen Entwicklungsumgebung lebt und große Verbesserungen gegenüber den bisherigen Tools bietet.
+Das grundsätzliche Interaktionsmodell des Proof General wird in \cite{iscala}, S.2 jedoch immernoch
+als sequenziell beschrieben (\textit{\glqq one command after another\grqq}). 
 
-Proof General ist TTY
+\subsection{Isabelle/Scala}
 
-isabelle/jEdit ist ein Prototyp
+2010 wurde von Makarius Wenzel in \cite{iscala} die \textit{Isabelle/Scala} Schnittstelle
+eingeführt, die es erlaubt in der Sprache Scala über ein einfaches Dokumentenmodell auf die Isabelle
+Plattform zuzugreifen. Scala besitzt die nötige Flexibilität um die relevanten Teile von Isabelle,
+was in Standard ML implementiert wurde, abzubilden. Da Scala darüber hinaus in der \acr{jvm} lebt
+bieten sich vielfältige Möglichkeiten, die Schnittstelle zu integrieren. Unter anderem existieren
+für die \acr{jvm} viele ausgereifte Entwicklungsumgebungen.
 
-Isabelle zu Konfigurieren ist aufwändig
+Zusammen mit der Schnittstelle wurde zunächst die Isabelle/jEdit Umgebung eingeführt. Die Wahl fiel
+dabei auf jEdit, da es über eine einfache Plugin Achitektur verfügt und die Integration das Projekt
+nicht vom Weg abbringen sollte. Dadurch wurden auch die Einschränkungen von jEdit gegenüber
+mächtigen Entwicklungsumgebungen wie Eclipse, Netbeans oder IntelliJ akzeptiert. Isabelle/Scala
+wurde dabei aber bewusst so konzipiert, dass es möglichst universell in eine beliebige Umgebung
+integriert werden kann.
 
-Akademischer bereich
+Eine Integration der Plattform in eine der großen Entwicklungsumgebungen ist zweifelsohne ein
+wichtiges Projekt für ambitionierte Nutzer, birgt aber weiterhin den Nachteil, dass die komplexe,
+große und resourcenhungrige Isabelle Plattform zunächst lokal auf dem Rechner installiert und vor
+allem konfiguriert werden muss, was für Einsteiger eine Hürde darstellt und damit besonders für die
+Lehre nicht optimal ist.
+
+\subsection{HTML5}
+
+Durch die Entwicklung der letzten Jahre im Bereich der Webprogrammierung, insbesondere der
+Bemühungen des W3C um eine drastische Erweiterung der Möglichkeiten von HTML im zukünftigen
+HTML5-Standard, ist es heute möglich Anwendungen, wie sie früher nur auf dem Desktop denkbar waren,
+im Browser zu implementieren. Durch immer effizientere JavaScript Engines und wachsende
+Unterstützung für hardwarebeschleunigtes Rendering von Webseiten, wird die Webprogrammierung immer
+populärer und so hat beispielsweise Microsoft in der Aktuellen Version des Hauseigenen
+Betriebssystems sogar eine HTML/JS basierte API zur Programmierung von Desktopanwendungen
+integriert.
+
+Ein immer wichtiger werdendes Thema in Zeiten von Netbooks, Smartphones und Tablet PCs wird die
+Potabilität und Mobilität von Daten und Anwendungen. Der Hype des \textit{Cloud Computing} flaut
+nicht ab und der Erfolg der Einschlägigen Webdienste (\textit{Dropbox}, \textit{Google Docs},
+\textit{Instragram},...) bestätigt den Bedarf. Durch neue Techniken wie WebSockets werden die
+Möglichkeiten solche Dienste zu verwirklichen immer geeigneter.
 
 \section{Aufgabenstellung}
 
-Mobile Entwicklungsumgebung für die Lehre
+In diesem Projekt soll, durch Kombination der Isabelle/Scala Schnittstelle sowie der neusten
+Webtechniken eine mobile, platformunabhängige Entwicklungsumgebung, speziell für die Arbeit mit
+Isabelle, enstehen. Die Umgebung ist dabei der Browser. Die IDE soll ohne Konfigurationsaufwand für
+den Endnutzer auskommen und dabei trotzdem signifikante Verbesserungen gegenüber Isabelle/jEdit
+bieten:
 
+\begin{itemize}
+  \item Geringer Resourcenbedarf auf Clientseite,
+  \item verbesserte Visualisierung schon während der Bearbeitung
+  \item verbesserte integration der Ausgaben in die Visualisierung
+  \item volle Mobilität (Unabhängigkeit vom Client) sowie
+  \item Mehrbenutzerfähigkeit
+\end{itemize}
 
+Das Projekt versteht sich dabei als Machbarkeitsstudie, da der volle Funktionsumfang einer
+ausgereiften Entwicklungsumgebung hunterte von Personenjahren Entwicklungszeit benötigen würde.
 
 \section{Anmerkungen}
 
 Die beiligende Software kann unter Windows, OS X und Linux zum laufen gebracht werden. Genauere
 Anweisungen sind in Anhang\,\ref{sec:install} zu funden.
 
-Die Quellen sind sowohl auf dem beiliegenden USB-Stick als auch im Internet unter
-http://www.github.com/martinring/clide zu finden.
+Die Quellen sind sowohl auf dem beiliegenden USB-Stick als auch im Internet zu finden:
+
+\begin{quote}
+http://www.github.com/martinring/clide
+\end{quote}
 
 Wie zu benutzen
