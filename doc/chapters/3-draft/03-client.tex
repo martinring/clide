@@ -13,8 +13,8 @@ modularisieren.
 \subsection{Browserkompatibilität}
 \label{sec:comp}
 
-Auf Grund der in \ref{sec:ws} beschriebenen Notwendigkeit, kann auf WebSockets nicht verzichtet
-werden. Damit sind die meisten älteren Browser nicht mit der Anwendung kompatibel. 
+Auf Grund der in Abschnitt\,\ref{sec:ws} beschriebenen Notwendigkeit, kann auf WebSockets nicht
+verzichtet werden. Damit sind die meisten älteren Browser nicht mit der Anwendung kompatibel.
 
 \begin{table}[h]
 \centering
@@ -25,35 +25,36 @@ werden. Damit sind die meisten älteren Browser nicht mit der Anwendung kompatib
   WebSockets      & 14.0            & 6.0             & 10.0        & 11.0             & 12.1  \\
   History API     & 5.0             & 5.0             & 10.0        & 4.0              & 11.5  \\
   WebWorkers      & 4.0             & 4.0             & 10.0        & 3.5              & 10.6  \\
-  CSS Transitions & 4.0             & 3.1             & 10.0        & 4.0              & 10.5  \\
+  Webfonts        & 4.0             & 3.1             & 9.0         & 3.5              & 10.0  \\
+  CSS Transitions & 4.0             & 3.1             & 10.0        & 4.0              & 10.5  \\  
 
 \end{tabular}
 \caption{Kompatibilität der gängigsten Browser mit den Verwendeten Standards}
 \captionsetup{font={footnotesize,bf,it}}
-  \caption*{Datein von caniuse.com}
+  \caption*{Daten von \textit{caniuse.com}}
 \end{table}
 
 \TODO{Kompatibilitäts-Tabelle}
 
-Aus Tabelle \ref{tab:comp} ist zu entnehmen, dass alle weiteren in der Anwendung benutzten Standards
-eine geringere oder die gleiche Anforderung an die Aktualität des Browsers haben. Da WebSockets ein
-sehr neues Konzept sind,  dienen sie als Orientierung: Alle Features, welche von jedem Browser, der
-WebSockets unterstützt, auch unterstützt werden, dürfen verwendet werden. Alle anderen schließen wir
-aus, da sonst die Zahl der potentiellen Nutzer weiter eingeschränkt würde. Die Anwendung ist damit
-im Standardbrowser auf allen Systemen mit einem aktuellen Betriebssystem (Windows 8, Ubuntu 12.10,
-OpenSUSE 12.2, OS X 10.8.2), sowie auf dem iPad, und aktuellen Windows RT Tablets benutzbar. Bei der
-Entwicklung wurde jedoch besonderes Augenmerk auf WebKit-basierte Browser, insbesondere Google
-Chrome gelegt und einige der anderen genannten Systeme sind ungetestet und damit ohne Gewähr.
+Aus Tabelle\,\ref{tab:comp} ist zu entnehmen, dass alle weiteren in der Anwendung benutzten
+Standards eine geringere oder die gleiche Anforderung an die Aktualität des Browsers haben. Da
+WebSockets ein sehr neues Konzept sind,  dienen sie als Orientierung: Alle Features, welche von
+jedem Browser, der WebSockets unterstützt, auch unterstützt werden, dürfen verwendet werden. Alle
+anderen schließen wir aus, da sonst die Zahl der potentiellen Nutzer weiter eingeschränkt würde. Die
+Anwendung ist damit im Standardbrowser auf allen Systemen mit einem aktuellen Betriebssystem
+(Windows 8, Ubuntu 12.10, OpenSUSE 12.2, OS X 10.8.2), sowie auf dem iPad, und aktuellen Windows RT
+Tablets benutzbar. Bei der Entwicklung wurde jedoch besonderes Augenmerk auf WebKit-basierte
+Browser, insbesondere Google Chrome gelegt und einige der anderen genannten Systeme sind ungetestet
+und damit ohne Gewähr.
 
 \subsection{Benutzeroberfläche}
 
-Bei der Gestaltung des \acr{ui} wurde besonderes Augenmerk auf die User Experience gelegt
-um die Produktivität und die Zufriedenheit der Nutzer zu optimieren. \cite{emotionaldesign}
-Inspiriert wurde das Design durch die von Microsoft in Windows Phone 7 bzw. Window 8 eingeführte
-Design Sprache \textit{Metro UI} (bzw. seit 2012 \textit{Microsoft Design Language}). \cite{metroui}
-Dabei wird auf unnötige Grafiken verzichtet und die Typographie in den Vordergrund gestellt. Durch
-die Reduktion auf das Wesentliche entsteht eine neue Ästhetik welche eine willkommene Auffrischung
-der Icon- und Fensterbasierten Oberflächen wie sie seit jeher bestehen, bietet.
+Inspiriert wurde das Design des \acr{ui} durch die von Microsoft in Windows Phone 7 bzw. Window 8
+eingeführte Design Sprache \textit{Metro UI} (bzw. seit 2012 \textit{Microsoft Design Language}).
+\cite{metroui} Dabei wird auf unnötige Grafiken verzichtet und die Typographie in den Vordergrund
+gestellt. Durch die Reduktion auf das Wesentliche entsteht eine neue Ästhetik welche eine
+willkommene Auffrischung der Icon- und Fensterbasierten Oberflächen wie sie seit jeher bestehen,
+bietet.
 
 \begin{figure}[ht]
 \includegraphics[width=\linewidth]{images/screen-main}
@@ -61,16 +62,47 @@ der Icon- und Fensterbasierten Oberflächen wie sie seit jeher bestehen, bietet.
   \label{fig:screen-main}
 \end{figure}
 
-Besondere Herausforderungen sind das sinnvolle Unterbringen der Beweiszustände und
-Fehlerinformationen in der Darstellung sowie die Darstellung des Fortschritts, der einzelnen
-Theorien, welche nicht zwingend vom Nutzer geöffnet werden müssen sondern auch implizit als
-Abhängigkeiten anderer Beweisdokumente verarbeitet werden können.
+Für die Gestaltung von \acr{html} \acr{ui}s gibt es bereits viele ausgereifte Frameworks, wie
+\textit{Twitter Bootstrap} oder \textit{jQuery UI}. Leider sind diese Frameworks vorallem für
+klassische Browseranwendungen konzipiert, in denen es um einfaches realisieren von Formularen und
+Fließtext-Elementen geht. Da in diser Anwendung jedoch nur wenige Elemente klassischer Seiten zum
+Einsatz kommen, entscheiden wir uns, die \acr{ui} Komponenten selbst zu entwickeln. In diesem
+Zusammenhang ist es nötig eine kleine Sammlung von \textit{\acr{ui}-Controls} zu realisieren:
+
+\begin{itemize}
+  \item Registerkarten,
+  \item Kontextmenüs,
+  \item Die Siedebar mit
+    \begin{itemize}      
+      \item gliedernden Abschnitten,
+      \item einer Navigationsleiste zur Auswahl der Abschnitten und
+      \item \textit{Commands} welche von den Abschnitten gegliedert wurden,
+    \end{itemize}
+  \item Fortschrittsbalken,
+  \item usw.
+\end{itemize}
+
+Der Vorteil der eigenen Entwicklung ist darüber hinaus, dass die Komponenten als Backbone-Views
+implementiert werden können, und damit direkt und einfach mit den Backbone-Modellen verbunden werden
+können.
+
+Besondere Herausforderungen im Zusammenhang mit der \acr{ui} sind außerdem das sinnvolle
+Unterbringen der Beweiszustände und Fehlerinformationen in der Darstellung der Dokumente sowie die
+Darstellung des Fortschritts, der einzelnen Theorien, welche nicht zwingend vom Nutzer geöffnet
+werden müssen sondern auch implizit als Abhängigkeiten anderer Beweisdokumente verarbeitet werden
+können und die Darstellung der Dokumente selbst in einer möglichst LaTeX nahen Form.
 
 \subsubsection{Login}
 
 Der Anmeldebildschirm (Login) ist entsprechend einfach gehalten. Dem Nutzer wird lediglich ein
 Formular zur Eingabe von Benutzernamen und Passwort präsentiert. (Siehe Abbildung 
-\ref{fig:screen-login})
+\,\ref{fig:screen-login})
+
+\begin{figure}[!ht]
+\includegraphics[width=\linewidth]{images/screen-login}
+  \caption{Das Anmeldeformular}
+  \label{fig:screen-login}
+\end{figure}
 
 Die Kommunikation erfolgt an dieser Stelle noch über normales \acr{http} und bei Fehlerhaften
 Eingaben wird auf einer neu geladenen Seite eine Fehlermeldung über dem Formular angezeigt. Das
@@ -78,15 +110,14 @@ stört an dieser Stelle nicht und eine Nutzung von WebSockets würde die Sache h
 verkomplizieren, da so nicht die bereits ausgereiften Verfahren zur Anmeldung über \acr{http}
 genutzt werden könnten.
 
-\begin{figure}[ht]
-\includegraphics[width=\linewidth]{images/screen-login}
-  \caption{Das Anmeldeformular}
-  \label{fig:screen-login}
-\end{figure}
-
 \subsubsection{Projektübersicht}
 
-\begin{figure}[ht]
+Die Projektübersicht dient dem Benutzer als Startpunkt. Hier kann er ein Projekt zur Bearbeitung
+auswählen, Projekt anlegen und löschen sowie die Konfiguration ändern. Dem Nutzer wird hierfür in
+einer Spalte neben jedem Projekt eine Dropdown-Box präsentiert mit einer Liste der auf dem Server
+verfügbaren Logik-Images. Änderungen werden direkt per AJAX an den Server gesendet und übernommen.
+
+\begin{figure}[!ht]
 \includegraphics[width=\linewidth]{images/screen-projects}
   \caption{Die Projektübersicht}
   \label{fig:screen-projects}
@@ -94,14 +125,41 @@ genutzt werden könnten.
 
 \subsubsection{Die Sidebar}
 
-\begin{figure}[ht]
+Sobald der Nutzer ein auf der Übersichtsseite ein Projekt auswählt indem er es anklickt, wird ihm
+ein Ladebildschirm präsentiert, welcher dann nach erfolgreichem Aufbau der Sitzung mit dem Server
+verschwindet. Darunter kommt die IDE zum Vorschein, welche zunächst nur die Sidebar anzeigt.
+
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=0.4\linewidth]{images/screen-sidebar}
   \caption{Die Sidebar}
   \label{fig:screen-sidebar}
 \end{figure}
 
+Die Sidebar ist die \glqq Kommandozentrale\grqq der eigentlichen Entwicklungsumgebung. Hier werden
+dem Nutzer die Liste der Theorien, Möglichkeiten zum Bearbeiten der Beweisdokumente, zum einfügen
+von Symbolen sowie zum Anpassen der Einstellungen präsentiert.
+
 \subsubsection{Webfonts}
+
+Da ein formuliertes Ziel ist, dem Nutzer eine möglichst nah an den LaTeX Veröffentlichungen
+orientierte Visualisierung der Beweisdukumente zu präsentieren, müssen hierfür spezielle Fonts
+verwendet werden. Glücklicherweise wurden im CSS3 Standard die Webfonts eingeführt (Siehe
+Abschnitt\,\ref{sec:css3}), mit denen es möglich ist, beliebige OTF- und TTF-Schriftarten seitens
+des Servers bereitzustellen.
+
+In ersten Designprototypen wurde zunächst \textit{Cambria Math} verwendet, da es sich dabei um einen
+der umfangreichsten Fonts mit Mathematischen Symbolen handelt. Dieser Font ist allerdings nicht frei
+und kann daher in diesem Projekt keine Verwendung finden. Das OpenSource Projekt \textit{MathJax},
+welches sich zur Aufgabe gemacht hat MathML und LaTeX Formeln per JavaScript in HTML Seiten korrekt
+anzuzeigen, hat als glückliches Nebenprodukt die Standard Fonts der LaTeX-Plattform in die
+verschiedensten Formate übertragen. Unter anderem auch OTF. Die Fonts sind unter der Apache License
+2.0 lizensiert und damit nutzbar.
+
+Da diese Fonts getrennt wurden in \textit{Main}, \textit{Math}, \textit{AMS}, \textit{Caligraphic},
+\textit{Fraktur} und \textit{Typewriter}, muss wie in Abschnitt\,\ref{sec:syntax} beschrieben, beim
+Syntaxhighlighting immer auch entschieden werden, welcher Font an welcher Stelle benutzt werden
+soll.
 
 \subsubsection{Die Editor-Komponente}
 \label{sec:editor}
@@ -148,8 +206,8 @@ Zwecke geeignet ist.
 
 \begin{description} 
 
-\item {Der \textbf{MDK-Editor}\footnote{http://www.mdk-photo.com/Editor/}} bietet viele Features, wird
-aber seit 2008 nicht mehr weiter entwickelt und scheidet damit sofort aus.
+\item {Der \textbf{MDK-Editor}\footnote{http://www.mdk-photo.com/Editor/}} bietet viele Features,
+wird aber seit 2008 nicht mehr weiter entwickelt und scheidet damit sofort aus.
 
 \item {Der \textbf{\acr{ace}}\footnote{http://ace.ajax.org/}} (Ehemals Mozilla SkyWriter) wird
 momentan sehr stark weiter entwickelt. \acr{ace} bietet bereits ein ausgeklügeltes Framework für das
@@ -191,13 +249,20 @@ Diese sind unter anderem die Unterstützung von
 
 \subsubsection{Beweiszustände}
 
-\TODO{Beweiszustände}
+Die Integration der Beweiszustände wurde in bisherigen Werkzeugen meist so gelöst, dass ein eigenes
+Fenster die Informationn über das Kommando unter dem Cursor visualisiert. Diese Lösung übernehmen
+wir (Erreichbar über den Button \glqq Output\grqq\ am unteren Rand), integrieren jedoch zusätzlich
+einen neuen Ansatz. Um während der Entwicklung einfacher Beweise, wie sie in der Lehre am Anfang
+häufiger vorkommen eine Übersicht zu behalten, bieten wir die Möglichkeit eine Inline-Anzeige aller
+Beweiszustände zu integrieren. Das ist vorallem für das Verständnis der Zusammenhänge hilfreich. Da
+bei komplexeren Beweisen die Ausgaben jedoch sehr lang sein können, ist diese Option konfigurierbar.
+Ansonsten würden die Zustände zwischen den Zeilen in diesen Fällen die Lesbarkeit erschweren.
 
 \subsection{Modell auf dem Client}
 
 Der Client muss zu jeder Zeit über ein konsistentes Abbild der relevanten Informationen verfügen.
 Das stellt sich als schwierige Herausforderung heraus. Insbesondere müssen der Inhalt des
-Texteditors mit dem Server synchron gehalten werden. Abbildung \ref{fig:diagram-workflow} zeigt ein
+Texteditors mit dem Server synchron gehalten werden. Abbildung\,\ref{fig:diagram-workflow} zeigt ein
 Vereinfachtes Abbild des Datenflusses in der Anwendung. Die besondere Schwierigkeit liegt darin,
 dass natürlich nicht jeder Tastendruck übertragen werden kann. Das würde auch wenig Sinn machen, da
 es nicht realistisch ist, jede einzelne Veränderung zu überprüfen. Den Nutzer würden Fehlermeldungen
@@ -206,6 +271,12 @@ ein \textit{Timeout} von 700 Millisekunden gestartet. Wenn es abläuft, ohne das
 wird, werden die Veränderungen im Dokument an den Server übertragen. In dem häufigen Fall eines
 weiteren Tastendrucks innerhalb der Zeispanne, wird das Timeout neu gestartet (\textit{Reset}) so
 lange, bis der Nutzer über den Zeitraum von 700ms keine Veränderung mehr vornimmt.
+
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{images/diagram-workflow}
+  \caption{Datenfluss in clide}  
+  \label{fig:diagram-workflow}
+\end{figure}
 
 Die Zeitspanne von 700 Millisekunden hat sich in eigenen Experimenten als guter Wert herausgestellt
 und ähnliche Werte werden auch von anderen Entwicklungsumgebungen und Editoren (\acr{ace}, eclipse,

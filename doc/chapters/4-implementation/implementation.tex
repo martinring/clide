@@ -1,8 +1,8 @@
 \chapter{Implementierung}
 \label{sec:imp}
 
-Im folgenden werden einige interessante Gesichtspunkte der Implementierung, die in Kapitel
-\ref{sec:draft} nur kurz angerissen wurden, genauer herausgearbeitet.
+Im folgenden werden einige interessante Gesichtspunkte der Implementierung, die in
+Kapitel\,\ref{sec:draft} nur kurz angerissen wurden, genauer herausgearbeitet.
 
 \section{Abstraktion vom Protokoll}
 \label{sec:jsc}
@@ -17,7 +17,7 @@ Das \texttt{ScalaConnector} wurde in CoffeeScript als RequireJS-Modul implementi
 Kommunikation mit dem Webserver. Ein beliebiges Objekt kann sich über den ScalaConnector mit dem
 Server verbinden, sodass dieser dann direkt die Funktionen dieses Objekts aufrufen kann.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=coffee]
 define -> class ScalaConnector
   constructor: (@url,@object,init) -> ...
 \end{lstlisting}
@@ -30,7 +30,7 @@ werden, welche aufgerufen wird, sobald die Verbindung hergestellt worden ist.
 Intern wird im Konstruktor zunächst eine Verbindung aufgebaut und an das
 \texttt{onmessage}-Callback des Websockets verbunden:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=coffee]
 @socket = new WebSocket(@url) # Connect to server
 @socket.onmessage = (e) =>    
   @bytesDown += e.data.length # Downstream traffic measure
@@ -40,7 +40,7 @@ Intern wird im Konstruktor zunächst eine Verbindung aufgebaut und an das
 Die \texttt{recieve}-Funktion unterscheidet hierbei zwischen Antworten auf eigene Anfragen und
 Anfragen bzw. Kommandos vom Server:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=coffee]
 recieve = (e) =>  
   if e.action # if an action is defined this is a command from the server
     f = @object[e.action] # we try to find the action on the connected object
@@ -65,7 +65,7 @@ recieve = (e) =>
       @results[e.resultFor] = null # delete the callback function
 \end{lstlisting}
 
-Hierbei werden 3 verschiedene Fälle unterschieden:
+Hierbei werden drei verschiedene Fälle unterschieden:
 
 \begin{itemize}  
   \item Die Nachricht enthält das Feld \texttt{action}: Es handelt sich um eine
@@ -91,7 +91,7 @@ Das Gegenstück ist natürlich das Versenden von Daten. Antworten auf Serveranfr
 beschrieben automatisch verschickt. Anfragen können über die \texttt{call}-Funktion versendet
 werden.
 
-\begin{lstlisting}      
+\begin{lstlisting}[language=coffee] 
     call: (options) =>      
       if options and options.action        
         if options.callback
@@ -119,11 +119,11 @@ gesendet.
 Das Gegenstück zum \texttt{ScalaConnector} auf der Serverseite ist der \texttt{JSConnector}. Dieser
 wurde mit Hilfe dynamischer Typisierung verwirklicht. (Zu finden unter \texttt{/app/js/JSConnector})
 
-Für die Kommunikation Verwenden wir die Akka-Iteratees und Enumerators (Siehe auch Abschnitt
-\ref{sec:iteratees}). Iteratees für den Eingehenden Datenstrom über den Websocket und Enumerator für
-die zu sendenden Daten verwendet. Da wir hier ein imperatives Modell entwickeln wollen, können wir
-zur Erzeugung des Enumeratee auf die \texttt{Concurrent.broadcast}-Funktion aus der Play API
-zurückgreifen.
+Für die Kommunikation Verwenden wir die Akka-Iteratees und Enumerators (Siehe auch
+Abschnitt\,\ref{sec:iteratees}). Iteratees für den Eingehenden Datenstrom über den Websocket und
+Enumerator für die zu sendenden Daten verwendet. Da wir hier ein imperatives Modell entwickeln
+wollen, können wir zur Erzeugung des Enumeratee auf die \texttt{Concurrent.broadcast}-Funktion aus
+der Play API zurückgreifen.
 
 \begin{lstlisting}
 trait JSConnector {
@@ -166,7 +166,7 @@ Beim Empfang wird genau wie auf der Browserseite zwischen den 3 beschriebenen F�
   }.mapDone(_ => onClose)
 \end{lstlisting}
 
-Um die Ausführung nicht zu blockieren verwenden wir \textit{Futures} (Abschnitt \ref{sec:futures}),
+Um die Ausführung nicht zu blockieren verwenden wir \textit{Futures} (Abschnitt\,\ref{sec:futures}),
 die Anfragen des Clients in eigenen Threads ausführen. Wenn der Client eine Anfrage stellt wird der
 enstprechenden Funktion das Datenobjekt aus dem Empfangenen JSON-Code übergeben und diese in einem
 Future ausgeführt. Wenn das Future die Ausführung erfolgreich beendet wird das Ergebnis im
@@ -212,7 +212,7 @@ Am Beispiel des \texttt{async}-Objekts wollen wir die Funktionsweise der Objekte
 Es werden die drei Funktionen \texttt{selectDynamic}, \texttt{applyDynamic} sowie
 \texttt{applyDynamicNamed} implementiert, sodass Aufrufe der Form \texttt{js.async.foo},
 \texttt{js.async.foo(1, bar)} sowie \texttt{js.async.foo(bar = 3, doo = 5)} möglich sind. (Siehe
-Abschnitt \ref{sec:dyn})
+Abschnitt\,\ref{sec:dyn})
 
 \begin{lstlisting}
     object async extends Dynamic {
@@ -250,22 +250,101 @@ Abschnitt \ref{sec:dyn})
 \clearpage
 
 \section{Synchrone Repräsentation von Dokumenten}
+\label{sec:linebuffer}
 
-Bla bla
+Da Isabelle/Scala intern mit absoluten Text-Offests, die Browseranwendung dagegen mit
+Zeilen/Spaltennummern arbeitet, ist es notwendig auf dem Server eine effiziente Umrechnung
+bereitzustellen. Bei langen Dokumenten wäre ein einfaches Durchlaufen des Dokuments um die
+Positionen der Zeilenumbrüche zu erkennen, bei jeder Änderung nicht performant genug. Um das Problem
+zu lösen wurde der \texttt{LineBuffer} auf dem Server imlementiert. Darüber hinaus wurde zur
+Synchronisierung die Klasse \texttt{RemoteDocumentModel} entwickelt.
+
+\subsection{LineBuffer}
+
+Der \texttt{LineBuffer} ist ein Textpuffer, welcher über zwei Zugriffsmethoden verfügt:
+
+\begin{itemize}
+  \item Über \texttt{LineBuffer.chars} kann effizient über Offsets auf den Text zugegriffen werden. 
+  \texttt{chars} implementiert den Trait \texttt{IndexedSeq[Char]} aus der Scala Standardbibliothek
+  und ermöglicht so alle Funktionen, welche von normalen Scala-Collections bekannt sind.
+  \item Über \texttt{LineBuffer.lines} kann auf den Text Zeilenweise zugegriffen werden. Es können 
+  außerdem Zeilen verändert, eingefügt und gelöscht werden. Dafür implementiert \texttt{lines} den 
+  Trait \texttt{Buffer[String]}.
+\end{itemize}
+
+Intern verwaltet der \texttt{LineBuffer} dafür zum einen einen Effizienten \texttt{CharBuffer} mit
+dem Inhalt des Dokuments, zum anderen wird parallel ein \texttt{Buffer[(Int,Int)]} mit den Offsets
+der einzelnen Zeilen verwaltet.
+
+\begin{lstlisting}
+class LineBuffer {
+  private var rngs    = Buffer[(Int,Int)]()  
+  private val buffer  = Buffer[Char]()     
+
+  ...
+    
+  object lines extends Buffer[String] { ... } 
+  
+  object chars extends IndexedSeq[Char] { ... } 
+}
+\end{lstlisting}
+
+Bei jeder Modifikation werden nun zum einen der Inhalt des Dokuments, zum anderen die Offsets
+aktualisiert. So zum Beispiel bei der Update Funktion:
+
+\begin{lstlisting}
+def update(n: Int, c: String): Unit = {
+  require(!c.contains(newline), "updated line may not contain newlines")
+  if (n == rngs.length) this += c
+  else {      
+    val (of,ot) = rngs(n)
+    val len = ot - of
+    val diff = c.length - len
+    buffer.remove(of, len)
+    buffer.insertAll(of, c)
+    rngs = (rngs.take(n) :+ (of,of + c.length)) ++ 
+            rngs.drop(n + 1).map{ case (from,to) => (from + diff, to + diff) }
+  }
+}    
+\end{lstlisting}
+
+Zunächst wird der Trivialfall überprüft, dass es sich um die Zeile hinter der letzten bisherigen
+handelt. In diesem Fall wird die Zeile über die \texttt{+=} Funktion angehangen und dort auch die
+Offsets eingearbeitet. In jedem Anderen Fall wird der \texttt{buffer} aktualisiert und dann die
+bisherigen Offsets bis zur veränderten Zeile übernommen, das der veränderten Zeile wird verkürzt
+bzw. verlängert und auf alle weiteren wird die Differenz zwischen neuer und alter Zeile aufaddiert.
+So ist es nie nötig, den Text tatsächlich zu durchlaufen. Der Aufwand ist nur Linear zur Zeilenzahl
+und nicht mehr zur Zeichenzahl und damit deutlich reduziert.
+
+Ein Aufruf \texttt{myLineBuffer.lines(5) = "Hallo"} würde so den bisherigen Text der sechsten Zeile
+mit dem Text \texttt{"Hallo"} erzetzen und die Offsets der siebten bis letzten Zeile aktualisieren.
+
+\subsection{RemoteDocumentModel}
+
+Um Isabelle/Scala unter anderem mit den benötigten Datentypen zur Signalisierung von
+Textmodifikationen zu Füttern wird in der Klasse \texttt{RemoteDokumentModel} implementiert, die
+einen \texttt{LineBuffer} verwaltet und auf welche direkt die vom Browser erhaltenen
+\texttt{Change}s angewandt werden können. Dafür existiert die Funktion \texttt{change}, welche eine
+Liste von \texttt{isabelle.Text.Edit} zurückgibt, die dann an Isabelle/Scala übergeben werden kann.
+
+Darüber hinaus wird hier die Versionsnummer des Dokuments, die auf selbe Art und Weise (Nach jedem
+ChangeSet wird eins hochgezählt) vom Client geführt wirt, verwaltet sodass dem Client immer
+mitgeteilt werden kann auf welche Version des Dokuments sich in einer Nachricht bezogen wird. Das
+ist deswegen wichtig, damit auf dem Client keine Inkonsistenzen entstehen.
 
 \section{Clientseitiges Syntaxhighlighting}
 \label{sec:syntax}
 
-Auf Grund der in Kapitel \ref{sec:draft} beschriebenen Notwendigkeit, Verbindungskapazität
+Auf Grund der in Kapitel\,\ref{sec:draft} beschriebenen Notwendigkeit, Verbindungskapazität
 einzusparen musste ein Teil des Syntaxhighlightings, welches von Isabelle/Scala betrieben wird auf
 Browserseite nachgebildet werden. Dafür wurde ein CodeMirror-\texttt{Mode} in CoffeeScript
 implementiert. (Zu finden unter \texttt{/app/assets/javascripts/mode/isabelle.coffee})
 
-Dafür wurde die glücklicherweise in \cite{isabelle} detailliert beschriebene äußere Syntax einfach
+Dafür wurde die glücklicherweise in\,\cite{isabelle} detailliert beschriebene äußere Syntax einfach
 in reguläre Ausdrücke übersetzt. Die Möglichkeit der Stringinterpolation in CoffeeScript hat sich
 hierbei als Hilfreich heausgestellt:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=coffee]
   # extracted from the isabelle reference manual
   greek       = "(?:\\\\<(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|' +
     'mu|nu|xi|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|' +
@@ -307,6 +386,135 @@ am Ende jeder Zeile einen eindeutigen Zustand zurückzugeben mit dem die Verarbe
 Zeile ohne weitere kontextuelle Informationen fortgesetzt werden kann. Da Isabelle wie ML
 verschachtelte Kommentare zulässt muss dieser unter anderem auch die Kommentarebene enthalten.
 
+Um der variablilität der äußeren Syntax gerecht zu werden (Die Schlüsselwörter können sich
+verändern), werden die Schlüsselwörter als Parameter an den Parser übergeben, so dass dieser bei
+Bedarf neu initialisiert werden kann.
+
+\section{Serverseitiges Syntaxhighlighting}
+
+Für das Highlighting auf dem Server wird die Isabelle/Scala Schnittstelle verwendet. Die
+Herausforderung besteht darin, die Daten in geeigneter Form an den Client zu übermitteln, damit
+dieser das verzögerte Highlighting der inneren Syntax vornehmen kann.
+
+Im Browser wird eine Liste der Kommandos im Quelltext verwaltet, welche der Server ständig durch
+Nachrichten aktualisiert. Dafür wurde auf dem Client in \texttt{isabelle.coffee} ein Backbone-Modell
+für die repräsentation der relevanten Daten von Kommandos (\texttt{Command}) entworfen.
+
+\begin{lstlisting}[language=coffee]
+  class Command extends Backbone.Model
+    ...
+
+  class Commands extends Backbone.Collection
+    model: Command    
+    getCommandAt: (line) => 
+      ...
+    getTokenAt: (line,column) =>
+      ...
+\end{lstlisting}
+
+Das \texttt{Commands} Modell dient der Verwaltung der Liste und ist eine Backbone Collection, welche
+den Vorteil bietet, dass sie über Callbacks für Modifikationen (\texttt{on 'remove'}, \texttt{on
+'add'}, ...) verfügt und somit, das Markup im Editor bei Bedarf aufgefrischt werden kann.
+
+Die Klasse \texttt{Session} in \texttt{isabelle.coffee} dient hier als Schnittstelle für den Server
+und wird über einen ScalaConnector (Abschnitt\,\ref{sec:jsc}) mit dem WebSocket verbunden.
+
+Auf Serverseite existiert ebenfalls eine Klasse \texttt{Session} in \texttt{Session.scala} welche
+wiederum das Gegenstück darstellt und über den \texttt{JSConnector} in die andere Richtung verbunden
+ist. 
+
+Wenn nach einer Änderung am Dokument, neue Kommandos erkannt werden, bzw. sich Kommandos verändert
+haben oder Kommandos wegfallen, wird dies über den Nachrichtenkanal \texttt{Session.commandsChanged}
+in Erfahrung gebracht und die Information aufbereitet.
+
+\begin{lstlisting}
+session.commands_changed += { change =>
+  change.nodes.foreach { node =>
+    delayedLoad(node)
+    val snap = session.snapshot(node, Nil)
+    val status = Protocol.node_status(snap.state, snap.version, snap.node)      
+    js.ignore.status( ... )      
+    for {
+      doc <- docs.get(node)        
+    } {        
+      js.ignore.states(node.theory, MarkupTree.getStates(snap, doc.buffer.ranges))
+      val cmds = snap.node.commands.map(_.id)
+      doc.commands.keys.foreach { id =>
+        if (!cmds.contains(id)) {
+          doc.commands.remove(id)
+          js.ignore.removeCommand(node.toString, id)
+        }
+      }
+    }       
+  }
+  change.commands.foreach(pushCommand)    
+}
+\end{lstlisting}
+
+Im \texttt{RemoteDocumentModel} wird dafür eine synchrone Repräsentation der Kommandos verwaltet.
+Sollte ein Kommando hier nicht mehr existieren, wird es über die Nachricht
+\texttt{js.ignore.removeCommand(...)} im Browser entfernt, damit die Resourcen dort freigegeben
+werden können bzw. Syntaxmarkierungen aus dem Dokument entfernt werden können.
+
+Über \texttt{pushCommand} werden dann alle veränderten Kommandos verarbeitet. Wenn sich dann die
+gefilterten relevanten Informationen von denen im \texttt{RemoteDocumentModel} unterscheiden,
+werden die neuen Informationen dort an den Client weitergeleitet. In diesen Informationen Enthalten
+sind:
+
+\begin{itemize}
+  \item Token aus der Inneren Syntax,
+  \item Token mit Typinformationen
+  \item Fehlerhafte Token mit den zugehörigen Fehlermeldungen sowie
+  \item der Beweiszustand des Kommandos
+\end{itemize}
+
+Auf dem Client werden von den Editoren (\texttt{Editor.coffee}) die Callbacks der Kommandoliste der
+jeweils angeschlossenen Theorie verarbeitet und dann die Informationen in die Darstellung
+integriert.
+
+\begin{lstlisting}
+includeCommand: (cmd) => if cmd.get('version') is @model.get('currentVersion') then @cm.operation =>
+  unless cmd.get('registered')      
+    cmd.on 'remove', (cmd) => if cmd?
+      for m in cmd.get 'markup'
+        m.clear()
+      wid = cmd.get('widget')
+      if wid?
+        @cm.removeLineWidget(wid)
+    cmd.set registered: true
+
+  # add line widget
+  @addCommandWidget(cmd)
+
+  # mark Stuff
+  old = cmd.get('markup')
+  if old?
+    for m in old
+      m.clear()
+  range  = cmd.get 'range'
+  length = range.end - range.start
+  marks = []
+  for line, i in cmd.get 'tokens'
+    l = i + range.start
+    p = 0
+    for tk in line
+      from = 
+        line: l
+        ch: p
+      p += tk.value.length
+      unless (tk.type is "text" or tk.type is "")
+        to =
+          line: l
+          ch: p              
+        marks.push(@cm.markText from,to,
+          className: "cm-#{tk.type.replace(/\./g,' cm-')}"
+          tooltip: tk.tooltip
+          __isabelle: true)
+  cmd.set((markup: marks),(silent: true))
+\end{lstlisting}
+
+
+
 \section{Substitution von Symbolen}
 
 Die im vorherigen Abschnitt beschriebenen Tokenklassen werden verwendet um Symbole direkt im
@@ -324,7 +532,7 @@ Hierfür werden beim Laden eines Dokuments zunächst alle Vorkommen von Spezials
 bedienen wir uns des CodeMirror Plugins \texttt{SearchCursor}, das es erlaubt den Text mit regulären
 Ausdrücken effizient zu durchsuchen.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=coffee]
 cursor = @cm.getSearchCursor(/\\<(\^?[A-Za-z]+)>/)
 
 while cursor.findNext()
@@ -347,7 +555,7 @@ angepasst wird, dadurch wird die Ausführungsgeschwindigkeit drastisch erhöht. 
 sicher, dass keine Selektion vorliegt, da in diesem Fall zunächst keine Ersetzungen Stattfinden
 sollen bis die Selektion wieder aufgehoben wurde.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=coffee]
 @cm.on 'change', (editor,change) => editor.operation => unless editor.somethingSelected()
   ...
 \end{lstlisting}
@@ -356,7 +564,7 @@ Nun löschen wir alle zuvor eingeführten Substitutionen (durch die Eingabe kann
 Substitutierende Zeichen verändert haben) Da wir \texttt{CodeMirror.operation} verwenden, ist diese
 Aktion relativ performant.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=coffee]
 pos   = change.to
 token = editor.getTokenAt(pos)          
 marks = editor.findMarksAt(pos)
@@ -367,7 +575,7 @@ Wenn es sich bei dem aktuellen Token nun um ein Spezielles Zeichen handelt, dann
 des CoffeeScript Moduls \texttt{symbols} welches über RequireJS importiert wurde zu einem Widget
 übersetzt, welches dann als Textsubstitution eingesetzt werden kann.
 
-\begin{lstlisting}            
+\begin{lstlisting}[language=coffee]
     if token.type? and (token.type.match(/special|symbol|control|sub|sup|bold/))
       wid = symbols[token.string]
       if wid?

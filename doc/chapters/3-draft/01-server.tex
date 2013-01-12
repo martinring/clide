@@ -39,7 +39,7 @@ in verschiedenste Richtungen weiterentwicklet, dabei ist die Dokumentation jedoc
 vernachlässigt worden.
 
 
-  \item Das \textit{Play Framework} (Siehe auch Abschnitt \ref{sec:play}) ist dagegen bewusst
+  \item Das \textit{Play Framework} (Siehe auch Abschnitt\,\ref{sec:play}) ist dagegen bewusst
 Leichtgewichtig gehalten und eher auf hohe Performance ausgelegt, als auf die Lösung möglichst
 vieler Anwendungsfälle in verschiedener, ausgefallener Weise. Darüber hinaus wird Play mittlerweile
 kommerziell von Typesafe unterstützt und weiterentwickelt und verfügt über eine detaillierte und
@@ -86,7 +86,7 @@ aufzulösen und eine Optimierte \acr{js}-Datei bereitzustellen. Da in der in Kü
 Version 2.1 des Play Framework ganau diese Funktionalität entwickelt wurde, liegt die Entscheidung
 nahe, diese neue Funktionalität zu nutzen und das eigene Modul wegfallen zu lassen, da so eine
 Weiterentwicklung bzw. die Kompatibilität mit zukünftigen Versionen des Frameworks gesichert ist.
-(Siehe Abschnitt \ref{sec:coffeescript} sowie \ref{sec:requirejs})
+(Siehe Abschnitt\,\ref{sec:coffeescript} sowie\,\ref{sec:requirejs})
 
 Ebenfalls von Play unterstützt wird die Möglichkeit  \textbf{\acr{less}-Dateien} mit ihren
 Abhängigkeiten zu einer \acr{css}-Datei zu übersetzen. Da diese genau wie bei der CoffeeScript-
@@ -101,15 +101,16 @@ sind das die Dateien im Ordner \texttt{"/public"} welche unter der \acr{url} \te
 bereitgestellt werden.
 
 Die Bereitstellung der einzelnen Dokumente bzw. Theorien findet direkt über die WebSocket API statt.
-(Siehe Abschnitt \ref{sec:comm})
+(Siehe Abschnitt\,\ref{sec:comm})
 
 \subsection{Isabelle/Scala Integration}
 
 Da die Isabelle/Scala Schnittstelle ständig weiter Entwickelt wird muss zunächst abgewogen werden,
 welche Version hier verwendet werden soll. Da es sich noch um ein junges Projekt handelt, das im
-Moment noch vielen größere Änderungen unterliegt, entscheiden wir uns dafür die aktuellste stabile
-Version - Isabelle 2012 - zu verwenden und damit deren Einschränkungen zu akzeptieren, da ein
-dauerndes \glqq Hinterherlaufen\grqq hier zu großen Aufwand bedeutet hätte.
+Moment noch vielen größeren Änderungen unterliegt, entscheiden wir uns dafür die aktuellste stabile
+Version - die in Isabelle 2012 enthaltene - zu verwenden und damit deren Einschränkungen gegenüber
+aktuellen Entwicklungsversionen zu akzeptieren, da ein dauerndes \glqq Hinterherlaufen\grqq\ hier zu
+großen Aufwand bedeutet hätte.
 
 Da Isabelle/Scala in Isabelle 2012 für Scala 2.9 übersetzt wurde, kann es nicht direkt in diesem
 Projekt verwendet werden. (Scala 2.9 und Scala 2.10 sind nicht binärkompatibel) Deswegen musste die
@@ -118,10 +119,10 @@ im Anwendungsverzeichnis unter \texttt{lib/} zu finden. Bei Verwendung älterer 
 unverständlichen Fehlermeldungen.
 
 Isabelle/Scala arbeitet intern mit offsetbasierten Textpositionen. Da das auf dem Client ineffizient
-wäre und der verwendete Editor (Abschnitt \ref{sec:editor}) mit zeilenbasierten Positionen arbeitet,
+wäre und der verwendete Editor (Abschnitt\,\ref{sec:editor}) mit zeilenbasierten Positionen arbeitet,
 ist es notwendig, eine effiziente Repräsentation der Dateien auf dem Server zu entwickeln, auf
 welche sowohl über die Zeile/Spalte als auch über absolute Offsets zugegriffen werden kann. (Die
-Implementierung wird in Abschnitt \texttt{sec:linebuffer} beschrieben) 
+Implementierung wird in Abschnitt\,\ref{sec:linebuffer} beschrieben) 
 
 Um die kummulierten Änderungen am Dokument, welche vom Client regelmäßig gesendet werden nicht nur
 in die eigene Repräsentation einzuarbeiten sondern auch an Isabelle/Scala weiterzuleiten, muss eine
@@ -131,7 +132,7 @@ Nach jeder Veränderung an eizelnen Dokumenten leitet Isabelle/Scala die Daten a
 Platform weiter, welche die Dokumente dann dann überprüft. Über einen Nachrichtenkanal
 (\texttt{Session.commandsChanged}) kommen nach erfolgreichem Abschuss dann die Ergebnise zurück
 welche wiederum in ein für den Client verständliches Format (JSON) mit den Zeilen/Spalten-basierten
-Positionen.
+Positionen übertragen wird.
 
 Für das Syntaxhighlighting auf dem Client ist es nötig eine Liste der gültigen Schlüsselwörter in
-der Theorie an den Browser zu übertragen und aktuell zu halten. (Siehe auch \ref{sec:syntax})
+der Theorie an den Browser zu übertragen und aktuell zu halten. (Siehe auch\,\ref{sec:syntax})

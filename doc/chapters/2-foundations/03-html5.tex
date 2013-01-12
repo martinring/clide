@@ -37,6 +37,7 @@ den Inhalt einer Seite beschränken, während alle die grafische Anzeige  belang
 Stilvorlagen in \acr{css}-Dateien ausgelagert  werden.
 
 \subsubsection{CSS3}
+\label{sec:css3}
 
 In der kommenden \acr{css} Version 3.0, die bereits zu großen Teilen von den meisten aktuellen
 Browsern unterstützt wird, kommen einige interesante Neuerungen hinzu, die es vor allem ermöglichen,
@@ -73,7 +74,7 @@ werden, müssen alle Dateien einzeln geladen werden, was zu längeren Ladezeiten
 Funktionsdefinitionen, verschachtelte Definitionen sowie  Dateiimports erlaubt. Damit werden die
 oben genannten Einschränkungen von \acr{css} zu großen Teilen aufgehoben.
 
-Das Play Framework (Siehe Abschnitt \ref{sec:play}) ermöglicht es, die Stylesheet-Sprache
+Das Play Framework (Siehe Abschnitt\,\ref{sec:play}) ermöglicht es, die Stylesheet-Sprache
 LESS zu verwenden, ohne dass diese auf Browserseite unterstützt werden muss. Hierfür
 werden die in  LESS definierten Stylesheet auf Serverseite in CSS übersetzt  und
 dem Browser zur Verfügung gestellt. Dafür müssen die Dateien an einem vorher konfigurierten Ort
@@ -125,7 +126,7 @@ gegenüber \acr{js}:
   \item mehrzeilige Strings und reguläre Ausdrücke mit Kommentaren.
 \end{itemize}
 
-Genauso wie für LESS existiert im Play Framework (Siehe Abschnitt \ref{sec:play}) eine serverseitige
+Genauso wie für LESS existiert im Play Framework (Siehe Abschnitt\,\ref{sec:play}) eine serverseitige
 Unterstützung  für CoffeeScript. Die in CoffeeScript geschriebenen Dateien  werden ebenfalls an
 gleicher Stelle wie normale \acr{js}-Dateien dem  Browser als \acr{js} zur Verfügung gestellt.
 
@@ -229,6 +230,6 @@ RequireJS erlaubt es, den  \acr{js}-Code für den Produktiveinsatz zu optimieren
 gibt es  das sogenannte \textit{r.js}-Script, das unter anderm alle Abhängigkeiten in eine Datei
 zusammenfasst und den Code durch entfernen von Whitespaces und Kommentaren  sowie umbenennen
 von Variablennamen verkürzt. Zur Entwicklungszeit ist dieser nicht mehr lesbare Code nicht
-erwünscht. Deswegen bietet das Play Framework (Siehe Abschnitt \ref{sec:play}) eine integrierte
+erwünscht. Deswegen bietet das Play Framework (Siehe Abschnitt\,\ref{sec:play}) eine integrierte
 Version von RequireJS, die automatisch den lesbaren Code zur Entwicklungszeit  bereitstellt, im
 Produktiveisatz jedoch den optimierten.

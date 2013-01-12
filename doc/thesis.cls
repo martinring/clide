@@ -82,14 +82,14 @@
 %]{calibri.ttf}
 %\def\textsuperscript#1{$^{\text{#1}}$}
 
-%\setsansfont[
-%  Scale=1.04,
-%  Mapping=tex-text,
-%  ExternalLocation=./fonts/,
-%  BoldFont={HelveticaNeue-Condensed.otf},
-%  ItalicFont={HelveticaNeue-ThinItalic.otf},
-%  BoldItalicFont={HelveticaNeue-CondensedObl.otf}
-%]{HelveticaNeue-Thin.otf}
+\setsansfont[
+  Scale=1.04,
+  Mapping=tex-text,
+  ExternalLocation=./fonts/,
+  BoldFont={segoeuil.ttf},
+  ItalicFont={segoeuii.ttf},
+  BoldItalicFont={segoeuiz.ttf}
+]{segoeui.ttf}
 
 \setmonofont[
   Scale=0.9,
@@ -285,13 +285,13 @@
 \titleformat{\chapter}    [display] {\large\sffamily}          {\@chapapp\space\thechapter} {1ex} {\huge\bfseries\sffamily}
 \titleformat{\section}       [hang] {\Large\bfseries\sffamily} {\thesection}                {1em} {}
 \titleformat{\subsection}    [hang] {\large\bfseries\sffamily} {\thesubsection}             {1em} {}
-\titleformat{\subsubsection} [hang] {\large\sffamily}          {\thesubsubsection}          {1em} {}
+\titleformat{\subsubsection} [hang] {\large\bfseries\sffamily} {\thesubsubsection}          {1em} {}
 \titleformat{\paragraph}     [hang] {\large\sffamily}          {\theparagraph}              {1em} {}
 \titleformat{\subparagraph}  [hang] {\normalsize\sffamily}     {\thesubparagraph}           {1em} {}
 
 \titlespacing{\section}       {0pt} {*9} {*1.5}
 \titlespacing{\subsection}    {0pt} {*7} {*1.5}
-\titlespacing{\subsubsection} {0pt} {*6} {*1.5}
+\titlespacing{\subsubsection} {0pt} {*5} {*1.5}
 \titlespacing{\paragraph}     {0pt} {*5} {*1.5}
 \titlespacing{\subparagraph}  {0pt} {*4} {*1.5}
 
@@ -337,6 +337,19 @@
   morecomment=[s]{/*}{*/},
   morestring=[b]"
 }
+\lstdefinelanguage{coffee}{
+  morekeywords={true,false,null,this,new,delete,typeof,in,instanceof,return,throw,break,continue,
+  debugger,if,else,switch,for,while,do,try,catch,finally,class,extends,super,undefined,then,unless,
+  until,loop,of,by,when,and,or,is,isnt,not,yes,no,on,off},
+  otherkeywords={->,=>},
+  sensitive=true,
+  morecomment=[l]{\#},
+  morecomment=[s]{\#\#\#}{\#\#\#},
+  morestring=[b]\",
+  morestring=[b]\'
+}
+
+
 % Default settings for code listings
 \lstset{
   frame=tb,
@@ -552,16 +565,16 @@
     \includegraphics[width=.5\linewidth]{images/institute-logo}\\
     \@department
     \vfill%
-    \begin{Huge}
-      \color{Night Blue}%
-      \bfseries%
-      \diplomaname
-    \end{Huge}\\[1cm]
     \begin{LARGE}
       \color{Night Blue}%
       \bfseries%
+      \diplomaname
+    \end{LARGE}\\[1cm]
+    \begin{Huge}
+      \color{Night Blue}%
+      \bfseries%
       \@title
-    \end{LARGE}\\
+    \end{Huge}\\
     \begin{large}
       \color{Night Blue}%
       \bfseries%

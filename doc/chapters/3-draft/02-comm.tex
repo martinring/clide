@@ -42,10 +42,20 @@ Das sind zusammen über 250 Zeichen um zu signalisieren, dass Kommando 178 entfe
 Damit wurde die Information um den Faktor 30 aufgeblasen. Zusätzlich kommt es zu Verzögerungen durch
 die zusätzlichen Anfragen. 
 
+\subsection{Google SPDY}
+
+Google experimentiert zu zeit mit einem neuen Protokoll für schnellere Webanwendungen bei dem die
+Header komprimiert werden und vor allem unbegrenzt viele parallele Anfragen gestellt werden können.
+SPDY führt zu einem drastischen Geschwindigkeitsgewinn bei der Arbeit mit vielen kleinen
+Nachrichten. Das Protokoll ist jedoch zur Zeit noch experimentell und wird lediglich von einem
+experimentellen Build des Google eigenen Chrome Browsers unterstützt. Eine Unterstützung in Play
+fehlt vollständig. Eine Implementierung, welche auf SPDY aufbaut wäre damit nicht von einer größeren
+Nutzerzahl verwendbar. Darüber hinaus ist der Erfolg des Protokolls ungewiss.
+
 \subsection{WebSockets}
 \label{sec:ws}
 
-Die im \acr{html}5-Standard eingeführten WebSockets sind die ideale Lösung für dieses Problem. Bei
+Die im \acr{html}5-Standard eingeführten WebSockets sind die ideale Lösung für das Problem. Bei
 WebSockets wird eine vollduplex Verbindung über TCP aufgebaut, welche ohne den HTTP-Overhead
 auskommt und lediglich ein Byte pro Nachricht benötigt um zu signalisiern, dass eine Nachricht
 endet. Außerdem ist es durch die duplex Verbindung möglich sogenannte Server-Pushes wie in dem
@@ -59,23 +69,15 @@ Verzögerungen bei teilweise weit über 1000 Nachrichten pro Minute so negativ a
 Ausführungsgeschwindigkeit auswirken würden, dass ein produktives Arbeiten mit dem System nicht mehr
 möglich wäre. Aktuell werden WebSockets von allen relevanten Browsern in der neusten Version
 unterstützt. Browser die seit einem Jahr nicht mehr aktualisiert wurden können mit dem Aufruf
-allerding zu großen Teilen nichts Anfangen. (Siehe \ref{sec:comp}) Das Play-Webframwork unterstützt
-Serverseitige WebSocket-Verbindungen. Allerding muss bei der Benutzung auf viel Funktionalität
-verzichtet werden. Da WebSockets allerdings so unabdingbar sind werden diese Einschränkungen
-akzeptiert.
-
-\begin{figure}[ht]
-\includegraphics[width=\linewidth]{images/diagram-workflow}
-  \caption{Datenfluss in clide}  
-  \label{fig:diagram-workflow}
-\end{figure}
+allerding zu großen Teilen nichts Anfangen. (Siehe Abschnitt\,\ref{sec:comp}) Das Play-Webframwork
+unterstützt Serverseitige WebSocket-Verbindungen. Allerding muss bei der Benutzung auf viel
+Funktionalität verzichtet werden. Da WebSockets allerdings so unabdingbar sind werden diese
+Einschränkungen akzeptiert.
 
 \subsection{Protokoll}
 
 Für das Protokoll wurde zunächst der Einfachheit halber \acr{json} gewählt mit der Möglichkeit im
 Hinterkopf, es zu einem späteren Zeitpunkt leicht duch das komprimierte \acr{bson}-Protokoll zu
 ersetzen. Um das möglich zu machen wird unter Verwendung von Dynamischer Typisierung in Scala (Siehe
-Abschnitt\ref{sec:dyn}) vom Protokoll abstrahiert, (Siehe Abschnitt \ref{sec:jsc}) damit es das
-Übertragungsprotokoll selbst ohne größeren Aufwand ausgetauscht werden kann.
-
-\clearpage
+Abschnitt\,\ref{sec:dyn}) vom Übertragungsprotokoll abstrahiert, (Siehe Abschnitt\,\ref{sec:jsc})
+damit es ohne größeren Aufwand ausgetauscht werden kann.

@@ -1966,19 +1966,20 @@
     <bcf:citekey order="5">isabelle</bcf:citekey>
     <bcf:citekey order="6">parproof</bcf:citekey>
     <bcf:citekey order="7">iscala</bcf:citekey>
-    <bcf:citekey order="8">html5</bcf:citekey>
-    <bcf:citekey order="9">dom</bcf:citekey>
-    <bcf:citekey order="10">js</bcf:citekey>
-    <bcf:citekey order="11">http</bcf:citekey>
-    <bcf:citekey order="12">ajax</bcf:citekey>
-    <bcf:citekey order="13">websockets</bcf:citekey>
-    <bcf:citekey order="14">jquery</bcf:citekey>
-    <bcf:citekey order="15">backbone</bcf:citekey>
-    <bcf:citekey order="16">play</bcf:citekey>
-    <bcf:citekey order="17">emotionaldesign</bcf:citekey>
-    <bcf:citekey order="18">metroui</bcf:citekey>
-    <bcf:citekey order="19">iscala</bcf:citekey>
-    <bcf:citekey order="20">isabelle</bcf:citekey>
+    <bcf:citekey order="8">iscala</bcf:citekey>
+    <bcf:citekey order="9">iscala</bcf:citekey>
+    <bcf:citekey order="10">html5</bcf:citekey>
+    <bcf:citekey order="11">dom</bcf:citekey>
+    <bcf:citekey order="12">js</bcf:citekey>
+    <bcf:citekey order="13">http</bcf:citekey>
+    <bcf:citekey order="14">ajax</bcf:citekey>
+    <bcf:citekey order="15">websockets</bcf:citekey>
+    <bcf:citekey order="16">jquery</bcf:citekey>
+    <bcf:citekey order="17">backbone</bcf:citekey>
+    <bcf:citekey order="18">play</bcf:citekey>
+    <bcf:citekey order="19">metroui</bcf:citekey>
+    <bcf:citekey order="20">iscala</bcf:citekey>
+    <bcf:citekey order="21">isabelle</bcf:citekey>
   </bcf:section>
   <bcf:sortlist section="0" type="entry" label="anyt">
   <bcf:sorting>

@@ -15,13 +15,13 @@ eine gewisse Verantwortung seitens des Programmierers um  lesbaren und wartbaren
 
 Seit 2011 wird Scala von der durch Martin Odersky ins Leben gerufenen Firma
 \textit{Typesafe}\footnote{http://www.typesafe.com} zusammen mit den Frameworks \textit{Akka}
-(Abschnitt \ref{sec:akka}) und \textit{Play} (Abschnitt \ref{sec:play}) sowie des Buildtools
-\textit{sbt} (Abschnitt \ref{sec:sbt}) kommerziell im sogenannten \textit{Typesafe Stack}
+(Abschnitt\,\ref{sec:akka}) und \textit{Play} (Abschnitt\,\ref{sec:play}) sowie des Buildtools
+\textit{sbt} (Abschnitt\,\ref{sec:sbt}) kommerziell im sogenannten \textit{Typesafe Stack}
 weiterentwickelt und unterstützt. Dadurch wird Scala zu einer ernstzunehmenden Sprache, die auch in
 Zukunft noch schnell weiterentwickelt wird. Scala eignet sich nicht zuletzt durch die Aktoren-
 Bibliothek Akka dafür hochskalierbare verteilte Systeme zu entwickeln. Firmen wie Twitter, LinkedIn,
 Siemens, TomTom, Sony, Amazon und die NASA treiben die Entwicklung immer schneller voran und sorgen
-dafür, dass eine große Infrastruktur um Scala herum entsteht. (Siehe auch \cite{scala})
+dafür, dass eine große Infrastruktur um Scala herum entsteht. (Siehe auch\,\cite{scala})
 
 \subsection{Sprachkonzepte}
 
@@ -166,7 +166,7 @@ Repository liegen als Abhängigkeiten definiert werden können. Typesafe stellt 
 Auswahl von Scala-Bibliotheken in einem eigenen Repository zur Verfügung. Es können aber auch
 beispielsweise öffentliche Git-Repositories als Abhängigkeit definiert werden.
 
-\subsection{Aktoren}
+\subsection{Akka}
 \label{sec:akka}
 
 Akka\footnote{http://www.akka.io/} war ursprünglich eine Implementierung des aus Erlang bekannten
@@ -174,7 +174,9 @@ Aktoren Modells, ist mitlerweile jedoch zu einem umfangreichen Framework zur Ent
 hochperformanten verteilten Systemen gewachsen. Die Grundlage bilden nach wie vor Aktoren, wenn auch
 in, gegenüber anderen Implementierungen, leicht veränderter Form. \cite{actors}
 
-Aktoren habe sich als eine sehr wertvolle Abstraktion zur Modellierung von nebenläufigen Systemen
+\subsubsection{Aktoren}
+
+Aktoren haben sich als eine sehr wertvolle Abstraktion zur Modellierung von nebenläufigen Systemen
 herausgestellt. Dabei wird die Software in mehrere, parallel agierende Aktoren aufgeteilt, die
 sich untereinander Nachrichten senden. Um ungewollte Nebenläufigkeitseffekte auszuschließen, müssen
 die Nachrichten unveränderbar sein, was in Scala bislang leider noch nicht überprüfbar ist und somit
@@ -249,6 +251,6 @@ Aktionen abgebildet wird. Es ist möglich, sogenanntes \textit{reverse routing} 
 einer Scala-Funktion zu einer URL zu gelangen. Des weiteren besteht die Möglichkeit, JavaScript-Code 
 zu generieren, der im Browser zum reverse routing verwendet werden kann.
 
-(Siehe auch Abschnitte \ref{sec:less}, \ref{sec:coffeescript} sowie \ref{sec:requirejs})
+(Siehe auch Abschnitte\,\ref{sec:less},\,\ref{sec:coffeescript} sowie\,\ref{sec:requirejs})
 
 \label{sec:play}
