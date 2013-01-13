@@ -9,22 +9,46 @@ object LineBuffer {
     }.tail  
 }
 
+/**
+ * Provides a synchronized view on a buffered Text which can be accessed both via absolute offsets
+ * and in a line/column manner.
+ **/
 class LineBuffer {
   private var rngs    = Buffer[(Int,Int)]()  
   private val buffer  = Buffer[Char]()     
-      
+     
+  /**
+   * Retrieve the contents of the buffer as a string
+   **/  
   def mkString = buffer.mkString
     
+  /**
+   * Line start and end offsets
+   **/
   def ranges = rngs.toVector
       
+  /**
+   * The newline character used to intersperse lines
+   **/
   val newline = '\n'
     
+  /**
+   * Convert an absolute offset to a linenumber
+   * @param offset the offset
+   **/
   def line(offset: Int) =
     rngs.indexWhere { case (from,until) => from <= offset && offset <= until }   
   
+  /**
+   * Get the absolute offset of the start of a specific line
+   * @param line the line
+   **/
   def offset(line: Int) = 
     rngs(line)._1
     
+  /**
+   * Access lines
+   **/
   object lines extends Buffer[String] {
     def += (elem: String): this.type  = {
       if (!buffer.isEmpty)
@@ -105,6 +129,9 @@ class LineBuffer {
     }    
   } 
   
+  /**
+   * Absolute access
+   **/
   object chars extends IndexedSeq[Char] {
     def apply(n: Int): Char = {
       buffer(n)

@@ -20,11 +20,6 @@
 
 define ->
   # extracted from the isabelle reference manual
-  abbrev =
-    '\\<\\.|\\.\\>|\\(\\||\\|\\)|\\[\\||\\|\\]|\\{\\.|\\.\\}|\\/\\\\|\\\\\\/' +
-    '|\\:|\\~\\:|\\(\\=|\\=\\)|\\[\\=|\\=\\]|\\+o|\\+O|\\*o|\\*O|\\.o|\\.O' +
-    '|\\-o|\\/o|\\=\\_\\(|\\=\\_\\)|\\=\\^\\(|\\=\\^\\)|\\-\\.|\\.\\.\\.|Int|Inter' +
-    '|Un|Union|SUM|PROD'
   greek       = "(?:\\\\<(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|' +
     'mu|nu|xi|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|' +
     'Pi|Sigma|Upsilon|Phi|Psi|Omega)>)"
@@ -44,28 +39,33 @@ define ->
   string      = "\\\".*\\\""
   altstring   = "`.*`"
   verbatim    = "{\\*.*\\*}"  
+  abbrev =
+    '\\<\\.|\\.\\>|\\(\\||\\|\\)|\\[\\||\\|\\]|\\{\\.|\\.\\}|\\/\\\\|\\\\\\/' +
+    '|\\~\\:|\\(\\=|\\=\\)|\\[\\=|\\=\\]|\\+o|\\+O|\\*o|\\*O|\\.o|\\.O' +
+    '|\\-o|\\/o|\\=\\_\\(|\\=\\_\\)|\\=\\^\\(|\\=\\^\\)|\\-\\.|\\.\\.\\.|(?:Int|Inter' +
+    "|Un|Union|SUM|PROD)(?!#{quasiletter})"  
 
-  (
-    greek       = RegExp greek      
-    digit       = RegExp digit      
-    latin       = RegExp latin      
-    sym         = RegExp sym        
-    letter      = RegExp letter     
-    quasiletter = RegExp quasiletter
-    ident       = RegExp ident      
-    longident   = RegExp longident  
-    symident    = RegExp symident   
-    nat         = RegExp nat        
-    floating    = RegExp floating   
-    variable    = RegExp variable   
-    typefree    = RegExp typefree   
-    typevar     = RegExp typevar    
-    string      = RegExp string     
-    altstring   = RegExp altstring  
-    verbatim    = RegExp verbatim   
-    num         = /\#?-?[0-9]+(?:\.[0-9]+)?/
-    escaped     = /\\[\"\\]/
-    special     = RegExp("\\\\<#{ident}>|\\\\<\\^#{ident}>|#{sym}+|#{abbrev}")
-    control     = RegExp("\\\\<\\^#{ident}>")
-    abbrev      = RegExp(abbrev)
-  )
+  abbrev      = RegExp abbrev
+  greek       = RegExp greek      
+  digit       = RegExp digit      
+  latin       = RegExp latin      
+  sym         = RegExp sym        
+  letter      = RegExp letter     
+  quasiletter = RegExp quasiletter
+  ident       = RegExp ident      
+  longident   = RegExp longident  
+  symident    = RegExp symident   
+  nat         = RegExp nat        
+  floating    = RegExp floating   
+  variable    = RegExp variable   
+  typefree    = RegExp typefree   
+  typevar     = RegExp typevar    
+  string      = RegExp string     
+  altstring   = RegExp altstring  
+  verbatim    = RegExp verbatim   
+  num         = /\#?-?[0-9]+(?:\.[0-9]+)?/
+  escaped     = /\\[\"\\]/
+  special     = /\\<[A-Za-z]+>/
+  control     = /\\<\^[A-Za-z]+>/
+  incomplete  = /\\<\^{0,1}[A-Za-z]*>?/
+  lineComment = /--.*/

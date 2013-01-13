@@ -22,6 +22,9 @@ import akka.routing.Broadcast
 import views.html.defaultpages.badRequest
 
 object Projects extends Controller with Secured {
+  /**
+   * Project overview for a specific user
+  **/
   def index(user: String) = IsAuthenticated { _ => implicit request =>  
     User.find(user) match {
       case Some(user) => Ok(views.html.projects(user))
@@ -29,6 +32,9 @@ object Projects extends Controller with Secured {
     }    
   }
   
+  /**
+   * JSON-Formatted list of projects for a specific user
+  **/
   def listProjects(user: String) = IsAuthenticated { _ => implicit request =>    
     User.find(user) match {
       case Some(user) =>        
@@ -37,6 +43,9 @@ object Projects extends Controller with Secured {
     }
   }
 
+  /**
+   * JSON-Formatted Project Info
+   **/
   def getProject(user: String, project: String) = IsAuthenticated { _ => implicit request =>
     User.find(user) match {
       case Some(user) => user.projects.find(_.name == java.net.URLDecoder.decode(project,"UTF-8")) match {
@@ -47,6 +56,9 @@ object Projects extends Controller with Secured {
     }
   }
   
+  /**
+   * Create a WebSocket Session, connected via ScalaConnector/JSConnector
+   **/
   def getSession(user: String, project: String) = WebSocket.using[JsValue] { request =>
     User.find(user) match {
       case Some(user) => user.projects.find(_.name == java.net.URLDecoder.decode(project,"UTF-8")) match {
@@ -63,6 +75,9 @@ object Projects extends Controller with Secured {
     }        
   }
   
+  /**
+   * IDE for a specific project
+   */
   def project(user: String, project: String, path: String) = IsAuthenticated { _ => implicit request =>
     User.find(user) match {
       case Some(user) => user.projects.find(_.name == java.net.URLDecoder.decode(project,"UTF-8")) match {
@@ -74,6 +89,9 @@ object Projects extends Controller with Secured {
   }
 
     
+  /**
+   * Modify Project configuration
+   **/
   def setProjectConf(user: String, project: String) = IsAuthenticated { _ => implicit request =>
     Form("logic" -> nonEmptyText).bindFromRequest.fold(
       errors => BadRequest,
@@ -81,6 +99,9 @@ object Projects extends Controller with Secured {
     )
   }  
   
+  /**
+   * Create a project
+   **/
   def createProject(user: String, project: String) = IsAuthenticated { _ => implicit request =>
     User.find(user) match {
       case None => BadRequest
@@ -90,6 +111,9 @@ object Projects extends Controller with Secured {
     }
   }
   
+  /**
+   * Remove a project
+   **/
   def removeProject(user: String, project: String) = IsAuthenticated { _ => implicit request =>
     User.find(user) match {
       case None => BadRequest

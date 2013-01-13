@@ -1,7 +1,23 @@
-###
-## This is the main entry point for the ide application. This file gets executed opon load of the
-## session page
-###
+####################################################################################################
+#
+# Copyright (c) 2012, 2013 All Right Reserved, Martin Ring
+#
+# This source is subject to the General Public License (GPL).
+# Please see the License.txt file for more information.
+# All other rights reserved.
+#
+# THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+# KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+# PARTICULAR PURPOSE.
+#
+# author:  Martin Ring
+# email:   martinring@live.de
+# summary: This is the main entry point for the ide application. This code gets executed opon load 
+#          of the session page.
+#
+####################################################################################################
+
 $('#loadingStatus').append("<li>initializing</li>")
 require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Router'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,router) ->
   user = globalOptions.user

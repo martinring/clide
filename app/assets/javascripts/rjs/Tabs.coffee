@@ -1,3 +1,22 @@
+####################################################################################################
+#
+# Copyright (c) 2012, 2013 All Right Reserved, Martin Ring
+#
+# This source is subject to the General Public License (GPL).
+# Please see the License.txt file for more information.
+# All other rights reserved.
+#
+# THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+# KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+# PARTICULAR PURPOSE.
+#
+# author:  Martin Ring
+# email:   martinring@live.de
+# summary: Tabs control
+#
+####################################################################################################
+
 define ['icons','contextMenu'], (icons,menu) ->   
   class TabView extends Backbone.View
     tagName: 'li'
@@ -40,9 +59,7 @@ define ['icons','contextMenu'], (icons,menu) ->
         ,
           text: 'Close All'
           command: @closeAll
-        ])
-      #@close()
-      console.log('context menu')
+        ])          
 
   class Tabs extends Backbone.View
     constructor: (@el) ->
@@ -85,7 +102,6 @@ define ['icons','contextMenu'], (icons,menu) ->
         else
           @remove(tab)
         tab.off()
-      console.log 'append content'
       @content.append(view.model.get 'content')
       @pane.append(view.el)
       tab.set active: true

@@ -65,7 +65,7 @@ object Application extends Controller with Secured {
 }
 
 /**
- * Provide security features
+ * Provide security features (See /play20/samples/scala/zentasks)
  */
 trait Secured {  
   /**

@@ -1,5 +1,6 @@
 # Authentication
-GET     /                              controllers.Application.login
+GET     /                              controllers.Application.index
+GET     /login                         controllers.Application.login
 POST    /login                         controllers.Application.authenticate
 GET     /logout                        controllers.Application.logout
 
@@ -14,4 +15,7 @@ GET     /api/:user/                    controllers.Projects.listProjects(user: S
 GET     /api/:user/:project/           controllers.Projects.getSession(user: String, project: String)
 GET     /:user/                        controllers.Projects.index(user)
 GET     /:user/:project/               controllers.Projects.project(user: String, project: String, path="")
+PUT     /:user/:project/               controllers.Projects.setProjectConf(user: String, project: String)
+POST    /:user/:project/               controllers.Projects.createProject(user: String, project: String)
+DELETE  /:user/:project/               controllers.Projects.removeProject(user: String, project: String)
 GET     /:user/:project/*path          controllers.Projects.project(user: String, project: String, path: String)

@@ -4,6 +4,10 @@ import isabelle._
 import play.api.libs.json._
 import scala.collection.SortedMap
 
+/**
+ * Utility functions to retrieve Information from Isabelle/Scala Markup Trees
+ * (See IsabelleMarkup.scala in the Isabelle/jEdit sample application)
+ **/
 object MarkupTree {
   def getStates(
     snapshot: Document.Snapshot,

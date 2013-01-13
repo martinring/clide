@@ -16,6 +16,10 @@ import scala.concurrent.duration._
 import scala.actors.Futures
 import ExecutionContext.Implicits.global
 
+/**
+ * The JSConnector trait can be used to establish an abstracted WebSocket connection with direct 
+ * access to the functions and properties of a client side JS class. (See ScalaConnector.coffee)
+ **/
 trait JSConnector {
   val (out, channel) = Concurrent.broadcast[JsValue] 
   
@@ -78,7 +82,10 @@ trait JSConnector {
       def applyDynamic(action: String)(args: Any*): JsValue =
         Await.result(async.applyDynamic(action)(args :_*), Duration(5,"seconds"))      
     }
-    
+ 
+    /**
+     * Can be extended to support more conversions
+     **/   
     var convert: PartialFunction[Any,JsValue] = {
       case i: Int => JsNumber(i)
       case b: Boolean => JsBoolean(b)
@@ -95,8 +102,14 @@ trait JSConnector {
     var id: Long = 1     
   }          
           
+  /**
+   * Needs to be implemented to provide functions to the client.
+   **/
   def actions: PartialFunction[String,JsValue => Any]    
   
+  /**
+   * Can be implemented to execute code upon a connection close
+   **/
   def onClose(): Unit = {}
   
   val in = Iteratee.foreach[JsValue] { json =>    

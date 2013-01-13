@@ -9,11 +9,23 @@ import play.api.Logger
 import java.lang.Throwable
 import isabelle.Thy_Info
 
+/**
+ * Provides a Session interface to the client
+ **/
 class Session(project: Project) extends JSConnector {
+  /**
+   * The list of currently opened documents
+   */
   val docs = scala.collection.mutable.Map[Document.Node.Name,RemoteDocumentModel]()
   
+  /**
+   * The focused document. Can be None to represent no focus.
+   */
   var current: Option[Document.Node.Name] = None
   
+  /**
+   * Custom Thy_Load to support internal LineBuffer representation
+   */
   val thyLoad = new Thy_Load {
     override def read_header(name: Document.Node.Name): Thy_Header = {
       if (docs.isDefinedAt(name)) {
@@ -37,8 +49,11 @@ class Session(project: Project) extends JSConnector {
   
   val thyInfo = new Thy_Info(thyLoad)
   
+  /**
+   * The Isabelle session that is provided
+   **/
   val session = new isabelle.Session(thyLoad)    
-  
+
   session.phase_changed += { phase =>    
     js.ignore.setPhase(phase.toString)
     phase match {
@@ -81,6 +96,10 @@ class Session(project: Project) extends JSConnector {
     change.commands.foreach(pushCommand)    
   }
 
+  /**
+   * Extract and compress command infos (See MarkupTree.scala) and send them to the client if 
+   * necessary
+   */
   def pushCommand(cmd: Command): Unit = {
     val node = cmd.node_name
     if (Some(node) != current) return 
@@ -129,9 +148,15 @@ class Session(project: Project) extends JSConnector {
     }
   }
   
+  /**
+   * Retrieve the Isabelle compatible Name of a Thy-File
+   */
   def name(path: String) =
     Document.Node.Name(Path.explode(project.dir + path))  
    
+  /**
+   * Extract the header of a specific node
+   */
   def node_header(name: isabelle.Document.Node.Name): isabelle.Document.Node_Header = Exn.capture {
     thyLoad.check_header(name,
       thyLoad.read_header(name))
@@ -153,6 +178,9 @@ class Session(project: Project) extends JSConnector {
     )
   }
   
+  /**
+   * Convert command infos to HTML
+   */
   def commandInfo(cmd: Command) = {
     val snap = session.snapshot(cmd.node_name, Nil)
     val start = snap.node.command_start(cmd).map(docs(cmd.node_name).buffer.line(_)).get
@@ -171,6 +199,9 @@ class Session(project: Project) extends JSConnector {
     Pretty.string_of(state.results.values.toList)
   }
   
+  /**
+   * Load dependencies if necessary
+   **/
   def delayedLoad(thy: Document.Node.Name) {    
     thyInfo.dependencies(List(thy)).foreach { case (name,header) =>      
       if (!docs.isDefinedAt(name)) try {                
@@ -187,7 +218,7 @@ class Session(project: Project) extends JSConnector {
       }     
     }
   }
-  
+
   val actions: PartialFunction[String, JsValue => Any] = {     
     case "getTheories" => json => project.theories
       
@@ -231,9 +262,8 @@ class Session(project: Project) extends JSConnector {
       
       for (doc <- docs.get(node)) {
         val out = scalax.io.Resource.fromFile(path)
-        out.write(doc.buffer.mkString)        
-      }
-        
+        out.write(doc.buffer.mkString)
+      }       
       
     case "delete" => json =>
       println("delete " + json)
@@ -277,7 +307,8 @@ class Session(project: Project) extends JSConnector {
       current = Some(name(json.as[String]))
       
   }
-  
+ 
+  // We need to release the session in order to release all the resources attached 
   override def onClose() {
     session.stop();
   }
