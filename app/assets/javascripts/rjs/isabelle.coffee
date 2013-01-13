@@ -62,6 +62,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
           progress: 0
 
     defaults:
+      clean:          true
       name:           "unnamed"
       currentVersion: 0
       remoteVersion:  0
@@ -82,9 +83,11 @@ define ['ScalaConnector'], (ScalaConnector) ->
     start: (@user,@project) =>
       @theories.on 'add', (thy) =>
         thy.on 'open', (x) => @open(x)
-        thy.on 'change:active', (t,a) => if a then @scala.call
-          action: 'setCurrentDoc'
-          data: t.get 'path'
+        thy.on 'change:active', (t,a) => if a 
+          @set active: t
+          @scala.call
+            action: 'setCurrentDoc'
+            data: t.get 'path'
         thy.on 'change:perspective', (t,p) =>           
           @scala.call
             action: 'changePerspective'
@@ -195,15 +198,18 @@ define ['ScalaConnector'], (ScalaConnector) ->
 
     new: (name) =>      
       if @theories.get(name)?
-        return false
+        false
       else 
         @scala.call
           action: 'new'
           data:   name
 
     save: (all) =>
-      alert(if all then "save all" else "save active")       
-
+      active = @get('active')
+      active?.trigger('saved')
+      @scala.call
+        action: 'save'
+        data:   all or false
 
   session = new Session
   

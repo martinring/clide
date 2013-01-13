@@ -44,7 +44,8 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
     className: 'theory'
     initialize: =>
       icon = $("<div class='icon'>#{icons.file}</div>")
-      title = $("<div class='title'><span class='name'>#{@model.get 'path'}</span></div>")      
+      name = $("<span class='name'>#{@model.get 'path'}</span>")
+      title = $("<div class='title'></div>")      
       message = $("<span class='message'>#{@model.get 'path'}</span>")
       progress = $("<div class = 'progress'></div>")
       f = $("<div class='finished'></div>")
@@ -52,7 +53,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       w = $("<div class='warned'></div>")
       fl = $("<div class='failed'></div>")
       progress.append f, r, w, fl
-      title.append progress
+      title.append name, progress
       @model.on 'change:status', (m,s) ->
         f.animate width: (s.finished + "%")
         if s.failed > 0
@@ -70,6 +71,8 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
         fl.animate width: s.failed + "%"
       @model.on 'change:active', (m,active) =>
         @$el.toggleClass 'selected', active
+      @model.on 'change:clean', (m,clean) =>
+        name.text((if clean then '' else '*') + (@model.get 'path'))
       @$el.append icon, title
     events:
       'click'       : 'open'      
@@ -105,10 +108,10 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       @$el.append "<h1>#{@options.title}</h1>"
       if @options.buttons?
         @buttons = $("<div class='buttons'></div>")
-        @$el.append @buttons        
-        for button in @options.buttons
+        @$el.append @buttons
+        for button in @options.buttons          
           bv = $("<div class='button'>#{button.icon}</div>")
-          bv.on 'click', => @options.content[button.action]()
+          bv.on 'click', @options.content[button.action]
           @buttons.append bv
       if @options.content.length        
         @$el.append x.$el for x in @options.content
@@ -188,16 +191,14 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       @$el.html('')
       @collection.forEach (theory) =>        
         view = new FileItemView model: theory
-        @$el.append(view.el)
-        
+        @$el.append(view.el)        
     new: (again) =>
-      name = prompt(if again then "Invalid name. Enter different name" else "Enter name")
+      name = prompt(if again is true then "Invalid name. Enter different name" else "Enter name")
       if /^[a-zA-Z0-9]+$/.test(name)
         unless isabelle.new(name)
           @new(true)        
       else if name?
-        @new(true)
-        
+        @new(true)        
     save: =>
       isabelle.save()
 

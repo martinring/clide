@@ -27,14 +27,23 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
 
   openfiles = []
 
-  commands.open.bind (file) ->    
+  commands.open.bind (file,fl,fc,tl,tc) ->    
     path = file.get 'path'
     name = file.get 'id'    
-    if openfiles[name]?
+    if openfiles[name]?      
       openfiles[name].activate()
+      file.trigger 'focus', fl, fc, tl, tc
     else
       console.log "command"
-      editor = new Editor model: file
+      editor = new Editor 
+        model: file
+        focus:
+          from:
+            line: fl
+            ch: fc
+          to: 
+            line: tl
+            ch: tc
       tab = new Tab
         title: name
         content: editor.$el
@@ -92,9 +101,10 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
     root: "/#{user}/#{project}/"
     pushState: true
 
-  router.on 'route:node', (node) ->
+  router.on 'route:node', (node, pos) ->
+    [exp,fl,fc,tl,tc] = pos.match /^([0-9]+):([0-9]+)(?:-([0-9]+):([0-9]+))?$/ if pos?    
     thy = isabelle.theories.get(node)
-    commands.open.execute(thy) if thy?
+    commands.open.execute(thy,fl,fc,tl,tc) if thy?        
 
   $('#loadingStatus').append("<li>connecting</li>")
   isabelle.start user, project

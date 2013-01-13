@@ -257,13 +257,19 @@ class Session(project: Project) extends JSConnector {
       js.ignore.addTheory(Theory(name,path))
       
     case "save" => json =>            
-      val path = (json \ "path").as[String]
-      val node = this.name(path)
-      
-      for (doc <- docs.get(node)) {
-        val out = scalax.io.Resource.fromFile(path)
-        out.write(doc.buffer.mkString)
-      }       
+      if (json.as[Boolean]) {
+        for ((path,doc) <- docs) {          
+          println("save " + path)
+          //val out = scalax.io.Resource.fromFile(path)
+		  //out.write(doc.buffer.mkString)
+        }
+      } else {              
+		for (current <- current; doc <- docs.get(current)) {		  
+		  val out = scalax.io.Resource.fromFile(project.dir + current + ".thy")
+		  out.truncate(0)
+		  out.write(doc.buffer.mkString)
+	    }
+      }
       
     case "delete" => json =>
       println("delete " + json)

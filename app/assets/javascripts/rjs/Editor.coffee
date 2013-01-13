@@ -17,7 +17,7 @@
 #
 ####################################################################################################
 
-define ['isabelle', 'commands', 'symbols', 'settings'], (isabelle, commands, symbols, settings) ->    
+define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], (isabelle, commands, symbols, settings, defaultWords) ->    
   # options: user, project, path to set the routes
   class Editor extends Backbone.View
     # tag for new editors is <div>
@@ -25,7 +25,7 @@ define ['isabelle', 'commands', 'symbols', 'settings'], (isabelle, commands, sym
 
     initialize: ->
       @model.on 'opened', @initModel
-      @model.on 'close', @close         
+      @model.on 'close', @close      
 
     changes: []
 
@@ -41,8 +41,8 @@ define ['isabelle', 'commands', 'symbols', 'settings'], (isabelle, commands, sym
 
     substitutions: []
 
-    initModel: (text) =>
-      currentLine = 0          
+    initModel: (text) =>      
+      currentLine = 0
 
       @cm = new CodeMirror @el, 
         value: text
@@ -54,14 +54,38 @@ define ['isabelle', 'commands', 'symbols', 'settings'], (isabelle, commands, sym
           'Ctrl-Down' : 'sub'
           'Ctrl-Up'   : 'sup'
           'Ctrl-B'    : 'bold'
-        mode: "isabelle"
+          'Ctrl-S'    : 'save'
+        mode: 
+          name: "isabelle"
+          words: defaultWords
 
       settings.on 'change:showLineNumbers', (m,v) =>
         @cm.setOption('lineNumbers',v)
 
       lastAbbrev = null
+
+      if @options.focus.from.fl?
+        @cm.setCursor(@options.focus.from)
+        @cm.scrollIntoView(null)
+        @cm.setExtending(true)
+        if @options.focus.to.tl?
+          @cm.setCursor(@options.focus.to)
+        @cm.setExtending(false)
+
+      @model.on 'focus', (fl,fc,tl,tc) => if fl?
+        @cm.setCursor (line: fl, ch: fc)
+        @cm.scrollIntoView(null)
+        @cm.setExtending(true)
+        if tl?
+          @cm.setCursor (line: tl, ch: tc)
+        @cm.setExtending(false)        
         
-      @cm.on 'change', (editor,change) => editor.operation =>
+      @model.on 'saved', =>
+        @cm.markClean()        
+        @model.set(clean: true)
+
+      @cm.on 'change', (editor,change) => editor.operation =>        
+        @model.set(clean: editor.isClean())
         unless editor.somethingSelected()          
           pos   = change.to
           cur   = editor.getCursor()
@@ -161,6 +185,8 @@ define ['isabelle', 'commands', 'symbols', 'settings'], (isabelle, commands, sym
               line: pos.line
               ch:   token.end
           )
+      CodeMirror.commands.save = ->
+        isabelle.save()
       CodeMirror.commands.bold = (cm) ->
         cm.replaceRange('\\<^bold>' ,cm.getCursor()) unless cm.somethingSelected()
       CodeMirror.commands.isub = (cm) ->
