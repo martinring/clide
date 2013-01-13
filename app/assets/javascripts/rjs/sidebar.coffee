@@ -124,20 +124,34 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
     initialize: =>
       @render()
     render: =>      
-      @$el.append x for x in @options.content
+      @$el.append x.$el for x in @options.content
 
   class Command extends Backbone.View
     tagName: 'li'
     className: 'command'
     initialize: =>
-      @a = $("<a title='#{@options.text}'>#{@options.text}</a>")
-      @a.attr('data-icon',@options.icon)
-      @$el.append(@a)
+      @icon = $("<div class='icon'>#{@options.icon}</div>")
+      @a = $("<div class='title'><a class='name' title='#{@options.text}'>#{@options.text}</a></div>")
+      @$el.append(@icon,@a)
       @a.on 'click', @options.command.execute
 
   class CheckBox extends Backbone.View
     tagName: 'li'
-    className: 'checkBox'
+    className: 'command'
+    initialize: =>
+      @isChecked = settings.get(@options.setting) or false
+      @icon = $("<div class='icon'>#{icons.checkbox.fromBool(@isChecked)}</div>")
+      @a = $("<div class='title'><a class='name' title='#{@options.text}'>#{@options.text}</a></div>")
+      @$el.append(@icon,@a)
+      @$el.on 'click', =>
+        @isChecked = not @isChecked
+        attrs = {}
+        attrs[@options.setting] = @isChecked
+        settings.set attrs        
+      settings.on "change:#{@options.setting}", (m,v) =>
+        @isChecked = v
+        @icon.text(icons.checkbox.fromBool(@isChecked))
+
 
   class DropBox extends Backbone.View
     tagName: 'li'
@@ -170,6 +184,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
 
   class HelpView extends Backbone.View
     tagName: 'div'
+    className: 'content'
     initialize: =>
       #isabelle.on 'change:output', (m,out) => @$el.html(out)
       @render()
@@ -220,10 +235,21 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       title: 'View'
       icon: icons.view
       content: [
-        new Command
-          text: 'Show Linenumbers'
-          icon: icons.checkbox.checked
-          command: commands.copy
+        new CommandGroup
+          content: [
+            new CheckBox
+              text: 'Linenumbers'
+              setting: 'showLineNumbers'
+            new CheckBox
+              text: 'Inline States'
+              setting: 'inlineStates'
+            new CheckBox
+              text: 'Inline Errors'
+              setting: 'inlineErrors'
+            new CheckBox
+              text: 'Output Panel'
+              setting: 'outputPanel'
+          ]
       ]
 
     settings: new Section
@@ -258,7 +284,7 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
       @addSection(@theories)
       @addSection(@edit)
       @addSection(@view)
-      @addSection(@settings)
+      #@addSection(@settings)
       @addSection(@help)
       @theories.activate()
       

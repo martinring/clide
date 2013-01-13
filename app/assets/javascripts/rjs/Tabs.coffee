@@ -8,8 +8,8 @@ define ['icons','contextMenu'], (icons,menu) ->
       @$el.text(@model.get 'title')
       close = $("<a class='icon'>#{icons.close}</a>")
       @$el.append close
-      close.on 'click', => 
-        @model.close
+      close.on 'click', =>         
+        @model.close()
       @model.on 'change:active', (model,active) =>
         if active
           @$el.addClass 'active'
@@ -22,8 +22,9 @@ define ['icons','contextMenu'], (icons,menu) ->
       @model.set active: true
     deactivate: =>
       @model.set active: false
-    close: =>
+    close: =>      
       @$el.remove()
+      @trigger('close')
     closeOthers: =>
       @options.tabs.closeOthers(@model)
     closeAll: => 
@@ -80,10 +81,11 @@ define ['icons','contextMenu'], (icons,menu) ->
       tab.on 'close', =>
         if @top() is tab
           @remove(tab)
-          @top()?.activate()
+          @top()?.activate()          
         else
           @remove(tab)
         tab.off()
+      console.log 'append content'
       @content.append(view.model.get 'content')
       @pane.append(view.el)
       tab.set active: true

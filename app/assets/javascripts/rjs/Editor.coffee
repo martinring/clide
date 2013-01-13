@@ -1,4 +1,4 @@
-define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->    
+define ['isabelle', 'commands', 'symbols', 'settings'], (isabelle, commands, symbols, settings) ->    
   # options: user, project, path to set the routes
   class Editor extends Backbone.View
     # tag for new editors is <div>
@@ -28,7 +28,7 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
       @cm = new CodeMirror @el, 
         value: text
         indentUnit: 2
-        lineNumbers: true
+        lineNumbers: settings.get('showLineNumbers')
         gutters: ['CodeMirror-linenumbers','states']
         extraKeys: 
           'Ctrl-Space': 'autocomplete'
@@ -36,6 +36,9 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           'Ctrl-Up'   : 'sup'
           'Ctrl-B'    : 'bold'
         mode: "isabelle"
+
+      settings.on 'change:showLineNumbers', (m,v) =>
+        @cm.setOption('lineNumbers',v)
 
       lastAbbrev = null
         
@@ -67,9 +70,7 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
               @cm.markText from,to,          
                 replacedWith: wid(token.type)
                 clearOnEnter: false
-                __special:    true
-          else if lastAbbrev?
-            console.log 'substitute abbreviation'
+                __special:    true          
         clearTimeout(@pushTimeout)
         if @changes.length is 0
           v = @model.get('currentVersion')
@@ -123,7 +124,7 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
           marker.className = 'gutter-state-' + state
           @cm.setGutterMarker(i, 'states' ,marker)
       @model.on 'change:remoteVersion', (m,v) =>
-        console.log v
+        #console.log v
       @model.on 'check', (content) =>
         if @cm.getValue() isnt content          
           console.error "cross check failed: ", @cm.getValue(), content              
@@ -142,15 +143,21 @@ define ['isabelle', 'commands', 'symbols'], (isabelle, commands, symbols) ->
               ch:   token.end
           )
       CodeMirror.commands.bold = (cm) ->
-        cm.replaceRange('\\<^bold>' ,cm.getCursor())
+        cm.replaceRange('\\<^bold>' ,cm.getCursor()) unless cm.somethingSelected()
+      CodeMirror.commands.isub = (cm) ->
+        cm.replaceRange('\\<^isub>' ,cm.getCursor()) unless cm.somethingSelected()
+      CodeMirror.commands.isup = (cm) ->
+        cm.replaceRange('\\<^isup>' ,cm.getCursor()) unless cm.somethingSelected()
       CodeMirror.commands.sub = (cm) ->
         if cm.somethingSelected()
-          console.log 'TODO'
+          s = cm.getSelection()
+          cm.replaceSelection("\\<^bsub>#{s}\\<^esub>")
         else
           cm.replaceRange('\\<^sub>' ,cm.getCursor())
       CodeMirror.commands.sup = (cm) ->
         if cm.somethingSelected()
-          console.log 'TODO'
+          s = cm.getSelection()
+          cm.replaceSelection("\\<^bsup>#{s}\\<^esup>")
         else
           cm.replaceRange('\\<^sup>' ,cm.getCursor())
       CodeMirror.commands.isub = (cm) ->

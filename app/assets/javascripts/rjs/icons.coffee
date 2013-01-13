@@ -16,10 +16,11 @@ define ->
     in: '\uE12E'
     out: '\uE0BD'
   io: '\uE07D'
-  checkbox: 
-    empty: '\uE003'
-    checked: '\uE0A2'
-    partial: '\uE003\uE004'
+  checkbox:
+    empty: '\u20e3'
+    checked: '\u22a0'
+    partial: '\u22a1'
+    fromBool: (checked) -> if checked? then (if checked then '\ue0e7' else '') else '\u25a2'
   radio:
     empty: '\uE070'
     checket: '\uE0A3'

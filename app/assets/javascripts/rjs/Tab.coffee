@@ -11,4 +11,4 @@ define ->
     close: (silent) =>
       @deactivate()
       @get('content')?.remove?()
-      @trigger 'close'
+      @trigger 'close' unless silent

@@ -7,7 +7,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
         start: 0
         stop: 0
       body: null
-      state: "no information"
+      state: "no information available"
 
   class Commands extends Backbone.Collection
     model: Command    
@@ -36,19 +36,20 @@ define ['ScalaConnector'], (ScalaConnector) ->
     constructor: (args...) ->      
       super(args...)
       @set commands: new Commands
+      @on 'close', =>
+        @set 
+          opened: false
+          active: false
+          progress: 0
+
     defaults:
       name:           "unnamed"
       currentVersion: 0
       remoteVersion:  0
-    open: =>
+    open: =>      
       @trigger 'open', @
-    close: =>      
-      @set 
-        opened: false
-        active: false
-        progress: 0
-      #@trigger 'close', @    
-      @.off()
+    close: =>    
+      @trigger 'close', @
 
   class Theories extends Backbone.Collection
     model: Theory
@@ -159,7 +160,7 @@ define ['ScalaConnector'], (ScalaConnector) ->
       @scala.call
         action: 'open'
         data:   thy.get('path')
-        callback: (text) =>  
+        callback: (text) =>          
           thy.set
             opened: true        
           thy.trigger 'opened', text

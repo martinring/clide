@@ -1,3 +1,7 @@
+###
+## This is the main entry point for the ide application. This file gets executed opon load of the
+## session page
+###
 $('#loadingStatus').append("<li>initializing</li>")
 require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Router'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,router) ->
   user = globalOptions.user
@@ -13,6 +17,7 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
     if openfiles[name]?
       openfiles[name].activate()
     else
+      console.log "command"
       editor = new Editor model: file
       tab = new Tab
         title: name
@@ -25,6 +30,7 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
         file.set active: a
         if a then router.navigate name
       file.on 'close', ->
+        openfiles[name] = null
         tab.close(true)
       tabs.add tab
       file.open()
@@ -45,17 +51,28 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
     $('#sessionLogic').text('logic: ' + logic)
 
   isabelle.on 'println', (msg) ->
+    $('#loadingStatus').append("<li>#{msg}</li>".toLowerCase())
     console.log("server says: '#{msg}'")
     $('#syslog').html(msg)
 
   $('#consoleButton').on 'click', ->
-    $('#consoleButton').toggleClass 'active'
-    $('body').toggleClass 'extendedStatusbar'
+    old = settings.get('outputPanel')
+    settings.set(outputPanel: (not old))
+
+  settings.on 'change:outputPanel', (m,v) ->
+    $('#consoleButton').toggleClass 'active', v
+    $('body').toggleClass 'extendedStatusbar', v
+
+  settings.on 'change:inlineStates', (m,v) ->    
+    $('body').toggleClass 'inlineStates', v  
+
+  settings.on 'change:inlineErrors', (m,v) ->    
+    $('body').toggleClass 'inlineErrors', v  
 
   isabelle.on 'change:output', (m,out) ->
     $('#output').html(out)
   
-  console.log Backbone.history.start
+  Backbone.history.start
     root: "/#{user}/#{project}/"
     pushState: true
 

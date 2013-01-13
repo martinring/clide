@@ -1,3 +1,23 @@
+####################################################################################################
+#
+# Copyright (c) 2012, 2013 All Right Reserved, Martin Ring
+#
+# This source is subject to the General Public License (GPL).
+# Please see the License.txt file for more information.
+# All other rights reserved.
+#
+# THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+# KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+# PARTICULAR PURPOSE.
+#
+# author:  Martin Ring
+# email:   martinring@live.de
+# summary: This file defines regular expressions for processing the outer syntax of isabelle
+#          code.
+#
+####################################################################################################
+
 define ->
   # extracted from the isabelle reference manual
   abbrev =

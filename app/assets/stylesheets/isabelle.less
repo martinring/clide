@@ -5,11 +5,6 @@
 @verbatim: gray;
 @comment: rgb(76, 136, 107);
 
-.extendedStatusbar .outputWidget {
-  height: 0;
-  visibility: hidden;
-}
-
  /* outer syntax */
 .cm-s-default {   
   span.cm-sup { 
@@ -26,6 +21,8 @@
     font-weight: bold;    
   }
   .outputWidget {
+    height: 0;
+    visibility: hidden;
     white-space: pre;
     margin-left: 8px;
     padding-left: 8px;
@@ -262,3 +259,15 @@ div.gutter-state-warning {
   val BAD = "bad"
 
 */
+
+.inlineStates .active .outputWidget {  
+  height: auto;
+  visibility: visible;  
+}
+
+.inlineErrors .active .outputWidget {
+  &.error, &.failed, &.warning {
+    height: auto;
+    visibility: visible;
+  }
+}

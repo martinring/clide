@@ -22,7 +22,7 @@ import akka.routing.Broadcast
 import views.html.defaultpages.badRequest
 
 object Projects extends Controller with Secured {
-  def index(user: String) = Action {
+  def index(user: String) = IsAuthenticated { _ => implicit request =>  
     User.find(user) match {
       case Some(user) => Ok(views.html.projects(user))
       case None => NotFound("user " + user + " does not exist")

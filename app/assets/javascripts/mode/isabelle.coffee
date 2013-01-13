@@ -444,12 +444,6 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     'uses' : 'keyword'
     'where' : 'keyword'
 
-
-  delimiters = [
-    'rightarrow'
-    'Rightarrow'
-  ]
-
   tokenBase = (stream, state) ->    
     if stream.match(lineComment)
       return "comment"

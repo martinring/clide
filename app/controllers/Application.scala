@@ -7,7 +7,11 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 
-object Application extends Controller {  
+object Application extends Controller with Secured {
+  def index = IsAuthenticated { user => implicit request =>
+    Redirect(routes.Projects.index(user))
+  }
+  
   // -- Javascript routing
   def javascriptRoutes = Action { implicit request =>
     import routes.javascript._
