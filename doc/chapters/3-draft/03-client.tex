@@ -18,7 +18,6 @@ verzichtet werden. Damit sind die meisten älteren Browser nicht mit der Anwendu
 
 \begin{table}[h]
 \centering
-\label{tab:comp}
 \begin{tabular}{rlllll}
                   & \textbf{Chrome} & \textbf{Safari} & \textbf{IE} & \textbf{Firefox} 
                   & \textbf{Opera} \\\hline
@@ -32,20 +31,21 @@ verzichtet werden. Damit sind die meisten älteren Browser nicht mit der Anwendu
 \caption{Kompatibilität der gängigsten Browser mit den Verwendeten Standards}
 \captionsetup{font={footnotesize,bf,it}}
   \caption*{Daten von \textit{caniuse.com}}
+\label{tab:comp}
 \end{table}
-
-\TODO{Kompatibilitäts-Tabelle}
 
 Aus Tabelle\,\ref{tab:comp} ist zu entnehmen, dass alle weiteren in der Anwendung benutzten
 Standards eine geringere oder die gleiche Anforderung an die Aktualität des Browsers haben. Da
 WebSockets ein sehr neues Konzept sind,  dienen sie als Orientierung: Alle Features, welche von
 jedem Browser, der WebSockets unterstützt, auch unterstützt werden, dürfen verwendet werden. Alle
 anderen schließen wir aus, da sonst die Zahl der potentiellen Nutzer weiter eingeschränkt würde. Die
-Anwendung ist damit im Standardbrowser auf allen Systemen mit einem aktuellen Betriebssystem
+Anwendung sollte damit im Standardbrowser auf allen Systemen mit einem aktuellen Betriebssystem
 (Windows 8, Ubuntu 12.10, OpenSUSE 12.2, OS X 10.8.2), sowie auf dem iPad, und aktuellen Windows RT
-Tablets benutzbar. Bei der Entwicklung wurde jedoch besonderes Augenmerk auf WebKit-basierte
-Browser, insbesondere Google Chrome gelegt und einige der anderen genannten Systeme sind ungetestet
-und damit ohne Gewähr.
+Tablets benutzbar sein. Bei der Entwicklung wurde jedoch besonderes Augenmerk auf WebKit-basierte
+Browser, insbesondere Google Chrome gelegt und einige der anderen genannten Systeme sind teilweise
+ungetestet und für den Intenet Explorer und Firefox ist bekannt, dass Probleme mit dem
+Rechtemanagement bei einem lokal ausgeführten Server bestehen und beispielsweise Webfonts teilweise
+nicht ordnungsgemäß funktionieren.
 
 \subsection{Benutzeroberfläche}
 
