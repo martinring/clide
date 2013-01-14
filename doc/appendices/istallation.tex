@@ -1,2 +1,45 @@
 \chapter{Istallationsanweisungen}
 \label{sec:install}
+
+Für die lokale Ausführung des Servers kann die auf dem beiliegenden USB-Stick bereitsgestellte
+Software verwendet werden. Dafür müssen zunächst folgende Voraussetzungen erfüllt sein.
+
+\begin{enumerate}
+  \item Die Isabelle 2012 Plattform muss installiert werden. Diese ist zusammen mit detaillierten 
+  Installationsanweisungen zu finden unter:
+  \begin{quote}
+  http://isabelle.in.tum.de/
+  \end{quote}
+  Wichtig ist hierbei, dass die Umgebungsvariable \texttt{ISABELLE\_HOME} gesetzt ist, damit die 
+  Anwendung den Ort der Distribution festellten Kann.
+  \item Ein aktuelles Java Development Kit (JDK) der Version 7 oder höher muss installiert und als 
+  Standardplattform konfiguriert sein. (JDK < 7 führt zu unerwarteten Fehlermeldungen und Abstürzen, 
+  da Inkompatibilitäten bestehen.)
+  \begin{quote}
+  http://www.oracle.com/technetwork/java/javase/downloads/index.html
+  \end{quote}
+  \item Das Play Framework in Version 2.1 ist zu installieren. Es muss sichergestellt sein, dass
+  \texttt{play} im Pfad steht und damit von der Konsole aus aufrufbar ist. Zu diesem Zeitpunkt ist
+  die aktuelle Version 2.1-RC1
+  \begin{quote}
+  http://download.playframework.org/releases/
+  \end{quote}
+\end{enumerate}
+
+Um die Anwendung zu starten, muss zunächst in das Stammverzeichnis gewechselt werden. (Entweder der
+USB-Stick oder eine Kopie davon auf der lokalen Platte)
+
+Hier kann nun das Kommando
+
+\begin{quote}
+\texttt{> play start}
+\end{quote}
+
+ausgeführt werden, wodurch der Server gestartet wird. Mit \textit{CTRL-D} kann die Logausgabe
+verlassen werden.
+
+Die Anwendung ist nun unter \textit{http://localhost:9000} vom Browser aus Verfügbar. Es wird
+empfohlen, Google Chrome in Version 24 oder höher für die Betrachtung zu verwenden.
+
+Standardmäßig ist der Benutzer \texttt{martinring} mit dem Passwort \texttt{secret} eingerichtet.
+Weitere Nutzer können durch Anpassen der Datei \texttt{/data/.users} hinzugefügt werden.

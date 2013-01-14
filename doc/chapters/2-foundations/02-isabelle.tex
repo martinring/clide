@@ -22,17 +22,82 @@ Sub- und Superskript zu repräsentieren bzw. Zeichen fett darzustellen. Da die k
 Isabelle-Plattform selbst für diese Arbeit eine eher untergeordnete Relevanz hat, wird an dieser
 Stelle für weitere Informationen auf die Isabelle Referenz in \cite{isabelle} verwiesen.
 
+\subsection{Proof General}
+
+Das bisherige Standardwerkzeug für die Erstellung von Beweisdokumenten ist der generische
+\textit{Proof General}, der auf der \textit{emacs} Plattform lebt. Der Proof General bietet
+sogenanntes \textit{script management}. (Vgl. \cite{sm}) Gegenüber bisherigen Ansätzen entsteht hier
+ein neues Interaktionsmodell, bei dem Beweisskripte erstellt werden, die vom Proof General so
+verwaltet werden, dass es möglich ist, in Beweisen Schritte zurück zu gehen, bzw. Beweiserzustände
+an den Kommandos automatisch gespeichert und wiederhergestellt werden. 
+
+Problematisch ist dabei, dass keine explizite Nebenläufigkeit besteht, und damit keine Kontrolle über die Performanz.
+
+\clearpage
+
+In \cite{parproof} wird folgendes Beispielskript zur Illustration des Problems aufgeführt:
+
+\begin{quote}
+\textbf{theory} C \textbf{imports} A B\\
+\textbf{begin}\\
+\textbf{inductive} $path$ \textbf{for} $rel :: \alpha \Rightarrow \alpha \Rightarrow bool$\\
+\textbf{where}\\
+\hspace*{7 mm}$base:\ path\ rel\ x\ x$\\
+$|$\hspace*{6 mm}$step: rel\ x\ y \Longrightarrow path\ rel\ y\ z\ \Longrightarrow path\ rel\ x\ z$\\
+\\
+\textbf{theorem} $example:$\\
+\hspace*{7 mm}\textbf{ﬁxes} $x\ z :: \alpha$\\
+\hspace*{7 mm}\textbf{assumes} $path\ rel\ x\ z$\\
+\hspace*{7 mm}\textbf{shows} $P\ x\ z$\\
+\textbf{using} $assms$\\
+\textbf{proof} $induct$\\
+\hspace*{7 mm}\textbf{ﬁx} $x$\\
+\hspace*{7 mm}\textbf{show} $P\ x\ x\ \langle proof\rangle$\\
+\textbf{next}\\
+\hspace*{7 mm}\textbf{ﬁx} $x\ y\ z$\\
+\hspace*{7 mm}\textbf{assume} $rel\ x\ y$ \textbf{and} $path\ rel\ y\ z$\\
+\hspace*{7 mm}\textbf{moreover}\\
+\hspace*{7 mm}\textbf{assume} $P\ y\ z$\\
+\hspace*{7 mm}\textbf{ultimately}\\
+\hspace*{7 mm}\textbf{show} $P\ x\ z\ \langle proof\rangle$\\
+\textbf{qed}\\
+\\
+\textbf{end}
+\end{quote}
+
+Hier können die verschiedenen Schichten von Isabelle/Isar erläutert werden:
+
+\begin{enumerate}
+  \item Theorien - Es existiert ein azyklischer Graph von Theorien, der die äußere Modulare Struktur
+  der Anwendung abbilden. Im Beispiel Theory C die von A und B abhängt. 
+
+  \item Definitionen und Kommandos -   Diese müssen sequenziell betrachtet werden. Im Beispiel sind
+  das die Definition   \textbf{inductive} und das Kommando \textbf{theorem}.
+
+  \item Toplevel Beweise - Hier wird der meiste Rechenaufwand benötigt.
+
+  \item Verschachtelte Beweise - Beweise sind hierarchisch Strukturiert. 
+\end{enumerate}
+
+In Proof General werden die Toplevel Beweise sequenziell ausgeführt. Lediglich die einzelnen Module
+werden bereits Parallel überprüft.
+
+Da Beweise allerdings unwichtig sind in dem Sinne, dass es für einen Abhängigen Beweis nicht wichtig
+ist abzuwarten ob eine Vorbedingung erfolgreich bewiesen wurde, könnte diese Sequenzielle Struktur
+aufgebrochen werden. \textit{(Ende der Zitation von \cite{parproof})}
+
 \subsection{Asynchrones Beweisen}
 
-Mit Erscheinung der Version 2009 von Isabelle wurde es möglich, Beweisdokumente bzw. Theorien
-nebenläufig zu überprüfen. Das macht es realistisch, Echtzeitinformationen während der Bearbeitung
-verfügbar zu machen. \cite{parproof}
+Mit Erscheinung der Version 2009 von Isabelle wurde es dann möglich, Beweisdokumente bzw. Theorien
+nebenläufig zu überprüfen. Also die Toplevel Beweise gleichzeitig zu überprüfen. \cite{parproof}
 
 \subsection{Isabelle/Scala}
 
 Seit 2010 existiert mit \textit{Isabelle/Scala} eine neue Schnittstelle zur Isabelle-Platform, die
-auf der Scala basiert. Isabelle/Scala stellt eine API zur Arbeit mit Isabelle bereit, welche die zur
-Nutzung relevanten Teile der SML Implementierung in Scala abbilden. \cite{iscala}
+auf Scala basiert. Isabelle/Scala stellt eine API zur Arbeit mit Isabelle bereit, welche die zur
+Nutzung relevanten Teile der SML Implementierung in Scala abbilden. \cite{iscala} (Siehe auch
+Abbildung\,\ref{fig:diagram-iscala}) Dabei werden die in \cite{parproof} erarbeiteten Konzepte des
+asynchronen Beweisens angewendet.
 
 Über statisch typisierte Methoden können die Dokumente modifiziert werden. Dafür wurde ein internes
 XML-Basiertes Protokoll eingeführt, das die Scala API mit der SML API verknüpft. Dementsprechend

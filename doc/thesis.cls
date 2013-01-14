@@ -166,7 +166,7 @@
   headheight=35pt,
   footskip=40pt,
   headsep=35pt,
-  marginparwidth=70pt
+  marginparwidth=70pt,  
 }
 
 % reducing ToC, LoF, LoT pagestyle, margins and indention

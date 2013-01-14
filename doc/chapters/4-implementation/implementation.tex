@@ -4,6 +4,31 @@
 Im folgenden werden einige interessante Gesichtspunkte der Implementierung, die in
 Kapitel\,\ref{sec:draft} nur kurz angerissen wurden, genauer herausgearbeitet.
 
+\section{Layout}
+\label{sec:layout}
+
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{images/layout}
+  \caption{Architekturlayout}
+  \label{fig:layout}
+\end{figure}
+
+Abbildung\,\ref{fig:layout} zeigt ein grobes Architekturlayout. Server und Browser kommunizieren
+über die Serverseitige Schnittstelle \texttt{JSConnector} bzw.Clientseitig über den
+\texttt{ScalaConnector}. (Abschnitt\,\ref{sec:jsc}) Die verknüpften Objekte sind dabei
+\texttt{Session} aus \texttt{Session.scala} wovon für jede Clientseitige Sizung eine Instanz besteht
+sowie im Browser das Objekt \texttt{Session} aus \texttt{isabelle.coffee}.
+
+Im Browser wird ein Modell aller Theorien verwaltet, welches sowohl von der \texttt{Session}
+verändert wird (Serverseitiges Syntaxhighlighting in Abschnitt\,\ref{sec:ssyntax}), als auch vom
+Editor. Die Kommunikation erfoglt über Eventbasierte Callbacks. Jeder \texttt{Editor} erzeugt eine
+angepasste \texttt{CodeMirror} Instanz zur Visualisierung mit einem Parser, welcher die Äußere
+Syntax erkennent und direkt in die Darstellung integriert (Abschnitt\,\ref{sec:syntax}).
+
+Auf dem Server wird das \texttt{RemoteDocumentModel} mit den \texttt{LineBuffer}n (Siehe
+Abschnitt\,\ref{sec:linebuffer}) verwendet um den Zustand der Theorien synchron zum Client zu
+verwalten.
+
 \section{Abstraktion vom Protokoll}
 \label{sec:jsc}
 
@@ -391,6 +416,7 @@ verändern), werden die Schlüsselwörter als Parameter an den Parser übergeben
 Bedarf neu initialisiert werden kann.
 
 \section{Serverseitiges Syntaxhighlighting}
+\label{sec:ssyntax}
 
 Für das Highlighting auf dem Server wird die Isabelle/Scala Schnittstelle verwendet. Die
 Herausforderung besteht darin, die Daten in geeigneter Form an den Client zu übermitteln, damit
@@ -524,6 +550,12 @@ HTML-Widgets zu ersetzten, konnte eine vorheriger serverseitiger Ansatz, der von
 Fehleranfällig war, da mit den Verschiedenen Positionssystemen von Isabelle und CodeMirror ständig
 herumgerechnet werden musste, glücklicherweise verworfen werden.
 
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{images/subst}
+  \caption{Substitution von Symbolen}
+  \label{fig:subst}
+\end{figure}
+
 Die Grundsätzliche Idee bei der Symbol-Substitution ist es, den eigentlich Isabelle-Quelltext auf
 Clientseite unverändert zu lassen und nur die Visualisierung anzupassen. Die Substitution findet in
 \texttt{/app/assets/javascripts/rjs/editor.coffee} statt.
@@ -588,3 +620,10 @@ des CoffeeScript Moduls \texttt{symbols} welches über RequireJS importiert wurd
 Das \texttt{symbols}-Modul wurde aus der Datei \texttt{/etc/symbols} in der Isabelle Plattform
 abgeleitet. Zusätzlich wurden Informationen über den zu verwendenden LaTeX Font (Caligraphic,
 Fraktur, AMS, ...) für jedes Symbol manuell eingearbeitet.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.5\linewidth]{images/completion}
+  \caption{Vervollständigung von Symbolsubstitutionen}
+  \label{fig:subst}
+\end{figure}
