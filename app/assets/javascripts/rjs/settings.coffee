@@ -27,3 +27,5 @@ define ->
 
   return new Settings
     showLineNumbers: true
+    inlineStates: true
+    inlineErrors: true

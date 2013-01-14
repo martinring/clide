@@ -114,8 +114,8 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       return null
 
   tokenBase = (stream, state) ->    
-    if stream.match(lineComment)
-      return "comment"
+    #if stream.match(lineComment)
+    #  return "comment"
       
     ch = stream.peek()    
 
