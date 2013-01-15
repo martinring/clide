@@ -1,7 +1,7 @@
 \chapter{Implementierung}
 \label{sec:imp}
 
-Im folgenden werden einige interessante Gesichtspunkte der Implementierung, die in
+Im Folgenden werden einige interessante Gesichtspunkte der Implementierung, die in
 Kapitel\,\ref{sec:draft} nur kurz angerissen wurden, genauer herausgearbeitet.
 
 \section{Layout}
@@ -47,13 +47,13 @@ define -> class ScalaConnector
   constructor: (@url,@object,init) -> ...
 \end{lstlisting}
 
-Dem Konstruktor wird zum einen die url (\texttt{url}) des Websockets mit dem verbunden werden soll,
+Dem Konstruktor wird zum einen die url (\texttt{url}) des WebSockets mit dem verbunden werden soll,
 zum anderen das Objekt (\texttt{object}), welches dem Server als Schnittstelle zur verfügung
 gestellt werden soll übergeben. Als optionales Argument kann eine \texttt{init}-Funktion übergeben
 werden, welche aufgerufen wird, sobald die Verbindung hergestellt worden ist.
 
 Intern wird im Konstruktor zunächst eine Verbindung aufgebaut und an das
-\texttt{onmessage}-Callback des Websockets verbunden:
+\texttt{onmessage}-Callback des WebSockets verbunden:
 
 \begin{lstlisting}[language=coffee]
 @socket = new WebSocket(@url) # Connect to server
@@ -135,7 +135,7 @@ soll.
 
 Wenn zusätzlich das feld \texttt{callback} mit einer Callback-Funktion belegt wird, wird eine
 \texttt{id} generiert, welche dem Server gesendet wird um unter dieser \texttt{id} zu antworten.
-(Siehe oben) Das gesammte Objekt wird nun (natürlich ohne die Callbackfunktion) an den Server als
+(Siehe oben) Das gesamte Objekt wird nun (natürlich ohne die Callbackfunktion) an den Server als
 JSON übertragen. Wenn keine Callbackfunktion definiert wurde, wird auch keine Antwort vom Server
 gesendet.
 
@@ -582,7 +582,7 @@ Im laufenden Betrieb werden dann bei jeder Veränderung die Tokenklassen an den 
 Positionen betrachtet, um zu entscheiden, ob es sich um Spezialsymbole handelt.
 
 Dafür wird das \texttt{onchange}-Callback der CodeMirror Instanz implementiert. Wir verwenden an
-dieser Stelle \texttt{.operation} um die gesammte Operation auszuführen, bevor die Visualisierung
+dieser Stelle \texttt{.operation} um die gesamte Operation auszuführen, bevor die Visualisierung
 angepasst wird, dadurch wird die Ausführungsgeschwindigkeit drastisch erhöht. Zudem gehen wir
 sicher, dass keine Selektion vorliegt, da in diesem Fall zunächst keine Ersetzungen Stattfinden
 sollen bis die Selektion wieder aufgehoben wurde.
