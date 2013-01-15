@@ -18,19 +18,29 @@
 #
 ####################################################################################################
 
-require ['contextMenu'], (menu) ->  
-  create = (again) ->    
-    name = prompt('Please enter a name for the new project')
-    unless name?
-      return
-    if name.match(/^[A-Za-z][A-Za-z0-9_]*$/)
-      routes.controllers.Projects.createProject(user,name).ajax
-        success: ->
-          history.go(0)
-        error: ->
+require ['contextMenu','Dialog'], (menu,Dialog) ->  
+  create = (again,name) ->    
+    new Dialog
+      title: 'New project'
+      message:
+        if again is true 
+          (if name? then "<p>Name #{name} is allready taken</p>" else "<p>You entered an invalid name</p>") + 
+          '<p>Please enter a unique alphanumerical name</p>'
+        else 
+          'Please enter a name for the new project'
+      defaultText: ''
+      buttons: ['Ok','Cancel']
+      defaultAction: 'Ok'
+      done: (e) => if e.action is 'Ok'
+        name = e.text
+        if name.match(/^[A-Za-z][A-Za-z0-9_]*$/)
+          routes.controllers.Projects.createProject(user,name).ajax
+            success: ->
+              history.go(0)
+            error: ->
+              create(true,name)
+        else
           create(true)
-    else
-      create(true)
   
   $('#newProject').on 'click', create
 
@@ -38,8 +48,13 @@ require ['contextMenu'], (menu) ->
     e.preventDefault()
     menu.show(e.pageX,e.pageY,[
         text: 'Delete'
-        command: -> if confirm("Do you really want to delete project #{$(elem).data('name')}?")
-          deleteProject(user,$(elem).data('name'))
+        command: ->
+          new Dialog
+            title: "Delete Project"
+            message: "Do you really want to delete project '#{$(elem).data('name')}'?"
+            buttons: ['Yes','No']
+            defaultAction: 'Yes'
+            done: (e) => if e.action is 'Yes' then deleteProject(user,$(elem).data('name'))                  
       ])
   
   window.changeLogic = (user, project) ->

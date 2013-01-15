@@ -19,7 +19,7 @@
 ####################################################################################################
 
 $('#loadingStatus').append("<li>initializing</li>")
-require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Router'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,router) ->
+require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Router','Dialog'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,router,Dialog) ->
   user = globalOptions.user
   project = globalOptions.project
 
@@ -59,6 +59,19 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
         tab.close(true)
       tabs.add tab
       file.open()
+
+  clipboardUnsupported = () ->
+    new Dialog
+      title: "Missing Browser Support"
+      message: "<p>Unfortunately, up to now, no modern browser implements the new 'HTML5 Clipboard API'.</p>" +
+          "<p>Up to then there is no Access to the clipboard from JS.</p>" + 
+          "Meanwhile, please use the normal key combinations CTRL-X, CTRL-C and CTRL-V respectively for cut, copy and paste."
+      buttons: ['Ok']
+      defaultAction: 'Ok'
+
+  commands.cut.bind clipboardUnsupported
+  commands.copy.bind clipboardUnsupported
+  commands.paste.bind clipboardUnsupported
 
   isabelle.on 'change:phase', (model,phase) -> 
     $('#loadingStatus').append("<li>Session #{phase}</li>".toLowerCase())

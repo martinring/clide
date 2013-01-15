@@ -17,7 +17,7 @@
 #
 ####################################################################################################
 
-define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,settings,commands,icons,menu) ->
+define ['isabelle','settings','commands','icons','contextMenu','Dialog'], (isabelle,settings,commands,icons,menu,Dialog) ->
   class Ribbon extends Backbone.View    
     el: '#ribbon'
     events:
@@ -62,9 +62,10 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
           icon.text(icons.shield)        
         else if s.running > 0
           icon.text(icons.clock)          
-        else
+        else if s.finished == 100
           icon.text(icons.check)
-          
+        else
+          icon.text(icons.minus)
         r.animate width: s.running + "%"
         w.animate width: s.warned + "%"
 
@@ -86,8 +87,13 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
           command: @open
         ,
           text: 'Delete'
-          command: => if confirm("Do you really want to delete theory '#{@model.get 'id'}'?")
-            isabelle.delete(@model)
+          command: => 
+            new Dialog
+              title: "Delete Theory"
+              message: "Do you really want to delete theory '#{@model.get 'id'}'?"
+              buttons: ['Yes','No']
+              defaultAction: 'Yes'
+              done: (e) => if e.action is 'Yes' then isabelle.delete(@model)
         ])
 
   class Section extends Backbone.View    
@@ -193,12 +199,22 @@ define ['isabelle','settings','commands','icons','contextMenu'], (isabelle,setti
         view = new FileItemView model: theory
         @$el.append(view.el)        
     new: (again) =>
-      name = prompt(if again is true then "Invalid name. Enter different name" else "Enter name")
-      if /^[a-zA-Z0-9]+$/.test(name)
-        unless isabelle.new(name)
-          @new(true)        
-      else if name?
-        @new(true)        
+      dia = new Dialog
+        title: 'New Theory'
+        message: if again is true
+            '<p>You entered an invalid name which is either taken or not supported</p><p>Please enter a valid name</p>'
+          else 
+            'Please enter a name for the new Theory file (without the .thy-extension)'
+        defaultText: ''
+        buttons: ['Ok','Cancel']
+        defaultAction: 'Ok'
+        done: (e) => switch e.action
+          when 'Ok'           
+            if /^[a-zA-Z0-9]+$/.test(e.text)
+              unless isabelle.new(e.text)
+                @new(true)
+            else
+              @new(true)          
     save: =>
       isabelle.save()
 
