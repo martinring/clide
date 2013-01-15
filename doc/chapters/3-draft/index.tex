@@ -3,7 +3,7 @@
 
 Auf Grund der Komplexität und dem unvermeidbaren Rechenaufwand, welcher ein Theorembeweiser
 mitbringt, ist es aus aktueller Sicht nahezu ausgeschlossen diese Arbeit zu größeren Teilen im
-Browser zu verwirklichen. Die einzige von allen größeren Browsern unterstützte Scriptsprache ist zur
+Browser zu verwirklichen. Die einzige von allen größeren Browsern unterstützte Skriptsprache ist zur
 Zeit immernoch \acr{js}, welche vor allem auf Grund der dynamischen Typisierung und der
 fehlenden Parallelisierbarkeit um einige Faktoren langsamer ausgeführt wird, als nativer Code.
 
@@ -22,9 +22,9 @@ Webanwendung generell sehr Zeitaufwändig ist - abhängig von der Internetanbind
 Verzögerungen kommen - muss abgewogen werden, welche Arbeit im Browser und welche auf dem Server
 erledigt werden soll. Als illustratives Beispiel kann das Syntax-Highlighting genannt werden:
 Isabelle verfügt über eine innere und eine äußere Syntax, die sich im analytischen Aufwand stark
-unterscheiden. Während die äußere Syntax relativ leicht zu parsieren ist und dabei bereits viele
+unterscheiden. Während die äußere Syntax relativ leicht zu verarbeiten ist und dabei bereits viele
 Informationen liefert, ist die innere Syntax sehr komplex, flexibel und stark vom jeweiligen Kontext
-abhängig. Somit liegt es nahe, das Syntaxhighlighting aufzuteilen: Um Übertragungskapazität zu
+abhängig. Somit liegt es nahe, das Syntax-Highlighting aufzuteilen: Um Übertragungskapazität zu
 sparen kann das Highlighting der äußeren Syntax bereits im Browser mittels \acr{js} stattfinden. Die
 feiner granulierten Informationen aus der inneren Syntax können dann auf dem Server ermittelt werden
 und mit kurzer Verzögerung in die Darstellung integriert werden.

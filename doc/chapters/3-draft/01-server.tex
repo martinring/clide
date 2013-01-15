@@ -12,7 +12,7 @@ für die Arbeit mit den Theorien bereitstellen. Vom Browser aus muss es möglich
 \end{itemize}
 
 All diese Informationen müssen zuvor Serverseitig aufbereitet und bereitgestellt werden. Dabei ist
-es aus Sicht der Perfomanz wichtig, unnötige Informationen zu eliminieren und die Daten zu
+es aus Sicht der Performanz wichtig, unnötige Informationen zu eliminieren und die Daten zu
 komprimieren.
 
 Der Server stellt zum einen eine normale \acr{http} API zur Authentifizierung und zur Verwaltung der
@@ -35,7 +35,7 @@ gibt es gleich mehrere Lösungen. Lift wird allerdings auf Grund des Rückzugs v
 der Entwicklung seit einiger Zeit nicht mehr geordnet weiter entwickelt wird und ist zudem für
 unsere Zwecke überdimensioniert. Da die Webanwendung eher unkonventionelle Anforderungen an den
 Server hat, nutzen die meisten Funktionen von Lift nichts. Lift wurde in der Vergangenheit schnell
-in verschiedenste Richtungen weiterentwicklet, dabei ist die Dokumentation jedoch stets
+in verschiedenste Richtungen weiterentwickelt, dabei ist die Dokumentation jedoch stets
 vernachlässigt worden.
 
 
@@ -60,7 +60,7 @@ Passwort einzuloggen, welche dann mit einer Konfigurationsdatei auf dem Server a
 können dann auf die Möglichkeit des Play Frameworks zur sicheren Verwaltung von Session-Bezogenen
 Daten zurückgreifen um die Anmeldung aufrechtzuerhalten.
 
-Es ist zu erwarten, dass in einer zukünfitigen Version von Play ein eigenes Modul zur
+Es ist zu erwarten, dass in einer zukünftigen Version von Play ein eigenes Modul zur
 Authentifizierung eingeführt wird, welches dann als Ersatz für die momentane Implementierung
 verwendet werden kann.
 
@@ -76,7 +76,7 @@ müssen, ist die Einrichtung und Anbindung einer Datenbank nicht von Nöten.
 
 \subsection{Bereitstellung von Resourcen}
 
-Das Play-Framework bietet ausgefeilte Möglichkeiten sowohl statische als aus dynamische Resourcen
+Das Play-Framework bietet ausgefeilte Möglichkeiten sowohl statische als aus dynamische Ressourcen
 bereit zu stellen. Ein Hauptaugenmerk liegt hierbei auf der Bereitstellung der nötigen \acr{js}-,
 \acr{css}- sowie \acr{html}-Dateien.
 
@@ -90,11 +90,11 @@ Weiterentwicklung bzw. die Kompatibilität mit zukünftigen Versionen des Framew
 
 Ebenfalls von Play unterstützt wird die Möglichkeit  \textbf{\acr{less}-Dateien} mit ihren
 Abhängigkeiten zu einer \acr{css}-Datei zu übersetzen. Da diese genau wie bei der CoffeeScript-
-Übersetzung zur Entwicklungszeit in lesbare und im Produktiveinsatz in optimmierte Dateien übersetzt
+Übersetzung zur Entwicklungszeit in lesbare und im Produktiveinsatz in optimierte Dateien übersetzt
 werden. Da die Oberfläche im Fall der Entwicklungsumgebung sehr vielschichtig und komplex ist, ist
 eine Modularisierung der Stilvorlagen eine willkommene Erleichterung und im Sinne der Wartbarkeit.
 
-\textbf{Statische Resourcen} wie in unserem Fall z.B. Font-Dateien oder fremde \acr{js}-Bibliotheken
+\textbf{Statische Ressourcen} wie in unserem Fall z.B. Font-Dateien oder fremde \acr{js}-Bibliotheken
 werden durch einen sogenannten \textit{Asset}-Controler aus dem Play-Framework bereitgestellt.
 Dieser bietet die Möglichkeit alle Dateien in einem Ordner statisch bereitzustellen. In unserem Fall
 sind das die Dateien im Ordner \texttt{"/public"} welche unter der \acr{url} \texttt{"/assets"}
@@ -118,21 +118,21 @@ Schnittstelle für Scala 2.10 neu Übersetzt werden. Die neu gebaute Version von
 im Anwendungsverzeichnis unter \texttt{lib/} zu finden. Bei Verwendung älterer Versionen kommt es zu
 unverständlichen Fehlermeldungen.
 
-Isabelle/Scala arbeitet intern mit offsetbasierten Textpositionen. Da das auf dem Client ineffizient
+Isabelle/Scala arbeitet intern mit Offset-basierten Textpositionen. Da das auf dem Client ineffizient
 wäre und der verwendete Editor (Abschnitt\,\ref{sec:editor}) mit zeilenbasierten Positionen arbeitet,
 ist es notwendig, eine effiziente Repräsentation der Dateien auf dem Server zu entwickeln, auf
 welche sowohl über die Zeile/Spalte als auch über absolute Offsets zugegriffen werden kann. (Die
 Implementierung wird in Abschnitt\,\ref{sec:linebuffer} beschrieben) 
 
-Um die kummulierten Änderungen am Dokument, welche vom Client regelmäßig gesendet werden nicht nur
+Um die kumulierten Änderungen am Dokument, welche vom Client regelmäßig gesendet werden nicht nur
 in die eigene Repräsentation einzuarbeiten sondern auch an Isabelle/Scala weiterzuleiten, muss eine
 Umrechnung der Daten in die von der Schnittstelle verwendeten Datentypen geschehen.
 
-Nach jeder Veränderung an eizelnen Dokumenten leitet Isabelle/Scala die Daten an die Isabelle
-Platform weiter, welche die Dokumente dann dann überprüft. Über einen Nachrichtenkanal
-(\texttt{Session.commandsChanged}) kommen nach erfolgreichem Abschuss dann die Ergebnise zurück
+Nach jeder Veränderung an einzelnen Dokumenten leitet Isabelle/Scala die Daten an die Isabelle
+Plattform weiter, welche die Dokumente dann dann überprüft. Über einen Nachrichtenkanal
+(\texttt{Session.commandsChanged}) kommen nach erfolgreichem Abschuss dann die Ergebnisse zurück
 welche wiederum in ein für den Client verständliches Format (JSON) mit den Zeilen/Spalten-basierten
 Positionen übertragen wird.
 
-Für das Syntaxhighlighting auf dem Client ist es nötig eine Liste der gültigen Schlüsselwörter in
+Für das Syntax-Highlighting auf dem Client ist es nötig eine Liste der gültigen Schlüsselwörter in
 der Theorie an den Browser zu übertragen und aktuell zu halten. (Siehe auch\,\ref{sec:syntax})

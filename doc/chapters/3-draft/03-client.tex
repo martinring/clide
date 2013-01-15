@@ -1,7 +1,7 @@
 \section{Client}
 
-Zur Realisierung des Clients wird auf die etwas komforablere Scriptsprache CoffeeScript
-zurückgegriffen. CoffeeScript-Code is gegenüber \acr{js}-Code deutlich kürzer, (Etwa 30\%) und hat
+Zur Realisierung des Clients wird auf die etwas komfortablere Skriptsprache CoffeeScript
+zurückgegriffen. CoffeeScript-Code ist gegenüber \acr{js}-Code deutlich kürzer, (Etwa 30\%) und hat
 eine an Funktionale Sprachen wie Haskell erinnernde Syntax. Da mit den neuen Möglichkeiten in Play
 2.1 CoffeeScript problemlos verwendet werden kann (Der Browser erhält kompiliertes \acr{js}) ,
 entstehen hierdurch keine Nachteile.
@@ -49,12 +49,11 @@ nicht ordnungsgemäß funktionieren.
 
 \subsection{Benutzeroberfläche}
 
-Inspiriert wurde das Design des \acr{ui} durch die von Microsoft in Windows Phone 7 bzw. Window 8
+Inspiriert wurde das Design des \acr{ui} durch die von Microsoft in Windows Phone 7 bzw. Windows 8
 eingeführte Design Sprache \textit{Metro UI} (bzw. seit 2012 \textit{Microsoft Design Language}).
 \cite{metroui} Dabei wird auf unnötige Grafiken verzichtet und die Typographie in den Vordergrund
 gestellt. Durch die Reduktion auf das Wesentliche entsteht eine neue Ästhetik welche eine
-willkommene Auffrischung der Icon- und Fensterbasierten Oberflächen wie sie seit jeher bestehen,
-bietet.
+willkommene Auffrischung der Fensterzentrierten Oberflächen wie sie seit langem bestehen, bietet.
 
 \begin{figure}[ht]
 \includegraphics[width=\linewidth]{images/screen-main}
@@ -63,9 +62,9 @@ bietet.
 \end{figure}
 
 Für die Gestaltung von \acr{html} \acr{ui}s gibt es bereits viele ausgereifte Frameworks, wie
-\textit{Twitter Bootstrap} oder \textit{jQuery UI}. Leider sind diese Frameworks vorallem für
+\textit{Twitter Bootstrap} oder \textit{jQuery UI}. Leider sind diese Frameworks vor allem für
 klassische Browseranwendungen konzipiert, in denen es um einfaches realisieren von Formularen und
-Fließtext-Elementen geht. Da in diser Anwendung jedoch nur wenige Elemente klassischer Seiten zum
+Fließtext-Elementen geht. Da in dieser Anwendung jedoch nur wenige Elemente klassischer Seiten zum
 Einsatz kommen, entscheiden wir uns, die \acr{ui} Komponenten selbst zu entwickeln. In diesem
 Zusammenhang ist es nötig eine kleine Sammlung von \textit{\acr{ui}-Controls} zu realisieren:
 
@@ -143,7 +142,7 @@ von Symbolen sowie zum Anpassen der Einstellungen präsentiert.
 \subsubsection{Webfonts}
 
 Da ein formuliertes Ziel ist, dem Nutzer eine möglichst nah an den LaTeX Veröffentlichungen
-orientierte Visualisierung der Beweisdukumente zu präsentieren, müssen hierfür spezielle Fonts
+orientierte Visualisierung der Beweisdokumente zu präsentieren, müssen hierfür spezielle Fonts
 verwendet werden. Glücklicherweise wurden im CSS3 Standard die Webfonts eingeführt (Siehe
 Abschnitt\,\ref{sec:css3}), mit denen es möglich ist, beliebige OTF- und TTF-Schriftarten seitens
 des Servers bereitzustellen.
@@ -154,11 +153,11 @@ und kann daher in diesem Projekt keine Verwendung finden. Das OpenSource Projekt
 welches sich zur Aufgabe gemacht hat MathML und LaTeX Formeln per JavaScript in HTML Seiten korrekt
 anzuzeigen, hat als glückliches Nebenprodukt die Standard Fonts der LaTeX-Plattform
 (\textit{Computer Modern} Serie) in die verschiedensten Formate übertragen. Unter anderem auch OTF.
-Die Fonts sind unter der Apache License 2.0 lizensiert und damit nutzbar.
+Die Fonts sind unter der \textit{Apache License 2.0} lizenziert und damit nutzbar.
 
 Da diese Fonts getrennt wurden in \textit{Main}, \textit{Math}, \textit{AMS}, \textit{Caligraphic},
 \textit{Fraktur} und \textit{Typewriter}, muss wie in Abschnitt\,\ref{sec:syntax} beschrieben, beim
-Syntaxhighlighting immer auch entschieden werden, welcher Font an welcher Stelle benutzt werden
+Syntax-Highlighting immer auch entschieden werden, welcher Font an welcher Stelle benutzt werden
 soll.
 
 \subsubsection{Die Editor-Komponente}
@@ -200,7 +199,7 @@ Der Editor muss in der Lage sein
 
 Da der Hauptsächliche Aufwand bei einer Editor-Komponente nicht darin liegt Text zu bearbeiten und
 darzustellen sondern vor allem in der Infrastruktur drumherum (Copy/Paste, Suche, Selektieren,
-Drag'n'Drop, usw.) ist es verlockend, eine fertige Komponente zu verwenden. Hier existieren mehrere
+Drag'n'Drop, etc.) ist es verlockend, eine fertige Komponente zu verwenden. Hier existieren mehrere
 ausgereifte Alternativen. Bei genauerer Betrachtung gibt es jedoch keine, welche optimal für unsere
 Zwecke geeignet ist. 
 
@@ -211,8 +210,8 @@ wird aber seit 2008 nicht mehr weiter entwickelt und scheidet damit sofort aus.
 
 \item {Der \textbf{\acr{ace}}\footnote{http://ace.ajax.org/}} (Ehemals Mozilla SkyWriter) wird
 momentan sehr stark weiter entwickelt. \acr{ace} bietet bereits ein ausgeklügeltes Framework für das
-Syntaxhighlighting, welches sich in einem Prototyp relativ leicht an das Serverseitige
-Syntaxhighlighting anbinden ließ. \acr{ace} bietet alle Funktionen, welche man von einem Modernen
+Syntax-Highlighting, welches sich in einem Prototyp relativ leicht an das Serverseitige
+Syntax-Highlighting anbinden ließ. \acr{ace} bietet alle Funktionen, welche man von einem Modernen
 Text-Editor erwartet, hat jedoch einen entscheidenden Nachteil: Zur Darstellung wird aus
 Performance-Gründen intern ein festes Raster verwendet. Dabei wird davon ausgegangen, dass ein
 Monospace Font verwendet wird. Von diesem wird einmalig eine Zeichenbreite ermittelt und diese feste
@@ -226,9 +225,9 @@ in der Anwendung aus.
 Editor-Komponente, welche nicht ganz so umfangreich, wie acr{ace} ist, jedoch um einiges flexibler
 erscheint. In einem Prototyp war es möglich einige eigene Modifikationen für die Darstellung (Sub-
 Superskript, Tooltips, Hyperlinks) zu integrieren. CodeMirror verwendet kein festes Raster, darunter
-leidet die Performanz. Da wir jedoch darauf angwiesen sind, müssen wie diese Einbußen in der
+leidet die Performanz. Da wir jedoch darauf angewiesen sind, müssen wie diese Einbußen in der
 Geschwindigkeit akzeptieren. Seit Version 3.0 welche am 10.12.2012 erschien, ist es möglich
-Textteile zu durch HTML- Widgets zu substituieren. Dadurch ist es möglich Isabelle Sonderzeichen
+Textteile zu durch HTML-Widgets zu substituieren. Dadurch ist es möglich Isabelle Sonderzeichen
 welche durch ASCII Sequenzen wie beispielsweise \texttt{\textbackslash\textless
 rightarrow\textgreater} für das Zeichen $\rightarrow$ repräsentiert werden direkt im Editor zu
 ersetzen, sodass der bearbeitete Text valider Isabelle-Code bleibt, die Darstellung hingegen der
@@ -250,34 +249,35 @@ Diese sind unter anderem die Unterstützung von
 \subsubsection{Beweiszustände}
 
 Die Integration der Beweiszustände wurde in bisherigen Werkzeugen meist so gelöst, dass ein eigenes
-Fenster die Informationn über das Kommando unter dem Cursor visualisiert. Diese Lösung übernehmen
+Fenster die Information über das Kommando unter dem Cursor visualisiert. Diese Lösung übernehmen
 wir (Erreichbar über den Button \glqq Output\grqq\ am unteren Rand), integrieren jedoch zusätzlich
 einen neuen Ansatz. Um während der Entwicklung einfacher Beweise, wie sie in der Lehre am Anfang
 häufiger vorkommen eine Übersicht zu behalten, bieten wir die Möglichkeit eine Inline-Anzeige aller
-Beweiszustände zu integrieren. Das ist vorallem für das Verständnis der Zusammenhänge hilfreich. Da
+Beweiszustände zu integrieren. Das ist vor allem für das Verständnis der Zusammenhänge hilfreich. Da
 bei komplexeren Beweisen die Ausgaben jedoch sehr lang sein können, ist diese Option konfigurierbar.
 Ansonsten würden die Zustände zwischen den Zeilen in diesen Fällen die Lesbarkeit erschweren.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.5\linewidth]{images/inline-states}
-  \caption{Inlineanzeige von Beweiszuständen}
+  \caption{Inline-Anzeige von Beweiszuständen}
   \label{fig:inline-states}
 \end{figure}
 
 \subsection{Modell auf dem Client}
 
 Der Client muss zu jeder Zeit über ein konsistentes Abbild der relevanten Informationen verfügen.
-Das stellt sich als schwierige Herausforderung heraus. Insbesondere müssen der Inhalt des
-Texteditors mit dem Server synchron gehalten werden. Abbildung\,\ref{fig:diagram-workflow} zeigt ein
+Das stellt sich als schwierige Herausforderung dar. Insbesondere müssen der Inhalt des Texteditors
+mit dem Server synchron gehalten werden. Abbildung\,\ref{fig:diagram-workflow} zeigt ein
 Vereinfachtes Abbild des Datenflusses in der Anwendung. Die besondere Schwierigkeit liegt darin,
 dass natürlich nicht jeder Tastendruck übertragen werden kann. Das würde auch wenig Sinn machen, da
 es nicht realistisch ist, jede einzelne Veränderung zu überprüfen. Den Nutzer würden Fehlermeldungen
 zu Zwischenzuständen stören und der Server wäre absolut überlastet. Also wird nach jedem Tastendruck
 ein \textit{Timeout} von 700 Millisekunden gestartet. Wenn es abläuft, ohne dass eine Taste gedrückt
 wird, werden die Veränderungen im Dokument an den Server übertragen. In dem häufigen Fall eines
-weiteren Tastendrucks innerhalb der Zeispanne, wird das Timeout neu gestartet (\textit{Reset}) so
+weiteren Tastendrucks innerhalb der Zeitspanne, wird das Timeout neu gestartet (\textit{Reset}) so
 lange, bis der Nutzer über den Zeitraum von 700ms keine Veränderung mehr vornimmt.
+
 
 \begin{figure}[ht]
 \includegraphics[width=\linewidth]{images/diagram-workflow}
@@ -288,5 +288,3 @@ lange, bis der Nutzer über den Zeitraum von 700ms keine Veränderung mehr vorni
 Die Zeitspanne von 700 Millisekunden hat sich in eigenen Experimenten als guter Wert herausgestellt
 und ähnliche Werte werden auch von anderen Entwicklungsumgebungen und Editoren (\acr{ace}, eclipse,
 Visual Studio, ...), Standardmäßig verwendet um den Präsentationskompiler zu entlasten.
-
-\TODO{Client-Modell}

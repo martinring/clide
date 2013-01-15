@@ -2,7 +2,7 @@
 
 Das Ergebnis der Arbeit ist ein innovatives, funktionstüchtiges Werkzeug, das in der Lage ist dem
 Nutzer bei der Arbeit mit Beweisdokumenten eine sinnvolle und produktive Unterstützung zu gewähren.
-Als Maßstab für die Einordnung der Ergebnise bietet sich ein Vergleich mit dem bisherigen Ansatz
+Als Maßstab für die Einordnung der Ergebnisse bietet sich ein Vergleich mit dem bisherigen Ansatz
 Isabelle/jEdit an. 
 
 Dabei ist allerdings zu beachten, dass es sich bei diesem Projekt auch um eine Machbarkeitsstudie
@@ -23,13 +23,13 @@ zusätzliche Funktionalität, wie Versionsverwaltungssystem oder andere Erweiter
 da diese dann speziell für diese neue Plattform entwickelt werden müssen.
 
 Eine große Zahl von Funktionen ist nur über Tastenkürzel verfügbar, jedoch nicht über Mausaktionen,
-diese Nachzurüsten ist eher fleißarbeit, da die Infrastruktur für Kommandos in der Sidebar bereits
+diese Nachzurüsten ist eher Fleißarbeit, da die Infrastruktur für Kommandos in der Sidebar bereits
 fertiggestellt wurde. Dieser Umstand betrifft damit eher die Usability in
 Abschnitt\,\ref{sec:usability}.
 
 \section{Zuverlässigkeit}
 
-Da die Browseranwendung zwingenderweise in \acr{js}, also einer dynamischen Sprache entwickelt
+Da die Browseranwendung zwingender Weise in \acr{js}, also einer dynamischen Sprache entwickelt
 werden musste ist es schwieriger, Fehler zu entdecken, da Typfehler in sprachen mit dynamischer
 Typisierung logischerweise nicht existieren und der Compiler so keine große Hilfe bei der
 Fehlerfindung darstellt. Während der Entwicklung wurden sogenannte \textit{cross checks} im Code
@@ -42,23 +42,23 @@ Benutzerschnittstelle befinden.
 Serverseitig mussten vor allem der \texttt{LineBuffer} und das \texttt{RemoteDocumentModel} getestet
 werden. Hierfür wurde zum einen eine zuschaltbare Visualisierung der Serverseitigen Daten
 implementiert sowie einige in ScalaTest implementierte Testfälle (\texttt{/test/scala/...}). Die
-meiste andere Funktionaltät stammt aus Isabelle/Scala bzw. Play und wurde nur verknüpft.
+meiste andere Funktionalität stammt aus Isabelle/Scala bzw. Play und wurde nur verknüpft.
 
 \section{Benutzbarkeit}
 \label{sec:usability}
 
 Da es sich um eine Benutzerschnittstelle handelt ist Usability ein wichtiges Thema. Leider ist dies
-bei der Konzeption zu kurz gekommen. Da es sich um eine Machbarkeitstudie handelt, wurden einige
+bei der Konzeption zu kurz gekommen. Da es sich um eine Machbarkeitsstudie handelt, wurden einige
 Aspekte der Usability zunächst hinten angestellt. Insbesondere auch die Barrierefreiheit, da diese
 in einer \textit{single-page}-HTML-Anwendung bislang schwer zu erreichen ist, nicht zuletzt auch
 weil viele unkonventionelle ELemente verwendet werden mussten. Anstelle von ausgiebigen Usability
-Tests wurde die Anwendung einigen Probanden (Kommolitonen) zur Benutzung vogelegt, und deren
+Tests wurde die Anwendung einigen Probanden (Kommilitonen) zur Benutzung vorgelegt, und deren
 Verhalten beobachtet. Dabei wurden einige Lücken gewahr, die noch geschlossen werden konnten. So
 wurden beispielsweise nach den Tests die meisten Kommandos auf Standard Tastenkombinationen gelegt.
 
 Isabelle/jEdit hat hier natürlich den Vorteil, dass es in einer ausgereiften Umgebung (jEdit) lebt,
 die über einige hundert Personenjahre Entwicklungszeit entstanden ist und damit in den Details viel
-vielfältiger und Kofortabler für den Nutzer ist.
+vielfältiger und komfortabler für den Nutzer ist.
 
 \section{Performanz}
 
@@ -67,7 +67,7 @@ Geschwindigkeit des Beweisers selbst. Bei der lokalen Ausführung auf einem Rech
 Browser ist zu erwarten, dass es durch die Kommunikation über Serialisierte Nachrichten und deren
 Umrechnung zu leichten Geschwindigkeitseinbußen gegenüber Isabelle/jEdit kommt. Die Performanz auf
 diese Weise zu vergleichen is jedoch nicht sinnvoll, da in einem normalen Szenario der Server auf
-einem zentralen Rechner ausgeführt wird, der über die nötigen Resourcen verfügt um die Isabelle
+einem zentralen Rechner ausgeführt wird, der über die nötigen Ressourcen verfügt um die Isabelle
 Plattform tragen zu können. Der Zugriff geschieht dann über mehrere Clients die keine besonders
 hohen Ansprüche erfüllen müssen. Hier liegt ein Vorteil gegenüber der jEdit Implementierung.
 Mit \textit{clide} ist es theoretisch möglich einen Theorembeweiser von einem Netbook oder einem

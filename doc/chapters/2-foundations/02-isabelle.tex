@@ -17,7 +17,7 @@ bestimmte Konstrukte besonders dargestellt. Solche Symbole werden in der Form
 \texttt{\textbackslash\textless ...\textgreater} im Code repräsentiert. Es gibt theoretisch
 unendlich viele dieser Symbole. Allerdings wird nur eine kleine Menge von Symbolen in
 \cite{isabelle} genau spezifiziert. Desweiteren existieren Kontrollzeichen in der Form
-\texttt{\textbackslash\textless\textasciicircum ...\textgreater}, die beenutzt werden können um
+\texttt{\textbackslash\textless\textasciicircum ...\textgreater}, die benutzt werden können um
 Sub- und Superskript zu repräsentieren bzw. Zeichen fett darzustellen. Da die konkrete Benutzung der
 Isabelle-Plattform selbst für diese Arbeit eine eher untergeordnete Relevanz hat, wird an dieser
 Stelle für weitere Informationen auf die Isabelle Referenz in \cite{isabelle} verwiesen.
@@ -31,7 +31,8 @@ ein neues Interaktionsmodell, bei dem Beweisskripte erstellt werden, die vom Pro
 verwaltet werden, dass es möglich ist, in Beweisen Schritte zurück zu gehen, bzw. Beweiserzustände
 an den Kommandos automatisch gespeichert und wiederhergestellt werden. 
 
-Problematisch ist dabei, dass keine explizite Nebenläufigkeit besteht, und damit keine Kontrolle über die Performanz.
+Problematisch ist dabei, dass keine explizite Nebenläufigkeit besteht, und damit auch keine direkte
+Kontrolle über die Optimierung für Mehrprozessorsystem, wie sie heute üblich sind.
 
 \clearpage
 
@@ -118,5 +119,3 @@ bereitgestellt.
 Isabelle/Scala wurde für und zusammen mit der Anwendung \textit{Isabelle/jEdit} entwickelt. JEdit
 wurde hier unter anderem deswegen gewählt, weil es über sehr einfache API verfügt und somit das
 Projekt nicht zu sehr auf den Editor konzentriert ist.
-
-\TODO{Mehr Isabelle?}

@@ -1,7 +1,7 @@
 \section{Scala}
 
 Die Programmiersprache Scala ist eine an der École polytechnique fédérale de Lausanne (EPFL) von
-einem Team um Martin Odersky entwickelte statisch typisiserte,  objektorientierte, funktionale
+einem Team um Martin Odersky entwickelte statisch typisierte,  objektorientierte, funktionale
 Sprache. In Scala entwickelte Programme laufen  sowohl in der \acr{jvm} als auch in der Common
 Language Runtime (CLR). Die Implementierung für die CLR hinkt jedoch stark  hinterher und ist für
 diese Arbeit auch nicht von Interesse. Die aktuelle Sprachversion ist Scala 2.10, welche auch im
@@ -26,8 +26,8 @@ dafür, dass eine große Infrastruktur um Scala herum entsteht. (Siehe auch\,\ci
 \subsection{Sprachkonzepte}
 
 Im Folgenden sollen die für diese Arbeit relevanten Konzepte der Sprache Scala kurz vorgestellt
-werden. Dabei wird allerings auf Grundlagen der objektorierten und funktionalen Programmierung sowie
-auf bereits aus Java bekannte Konzepte verzichtet.
+werden. Dabei wird allerdings auf Grundlagen der objektorientierten und funktionalen Programmierung
+sowie auf bereits aus Java bekannte Konzepte verzichtet.
 
 \subsubsection{Traits}
 
@@ -126,7 +126,7 @@ def sort[T](elems: List[T])(implicit ord: Ord[T]): List[T] = ...
 Die Funktion \texttt{sort} kann nun verwendet werden, um Dateien zu sortieren solange das implizite
 Objekt \texttt{FileOrd} beim Aufruf sichtbar ist.
 
-Das Konzept der Typklasen ist vor allem dort sehr hilfreich, wo es darum geht fremde  Bibliotheken um
+Das Konzept der Typklassen ist vor allem dort sehr hilfreich, wo es darum geht fremde  Bibliotheken um
 eigene Funktionen zu erweitern.
 
 \subsubsection{Dynamische Typisierung}
@@ -158,7 +158,7 @@ wie JavaScript sowie bei der Arbeit mit externen Daten, bei denen keine Typinfor
 \label{sec:sbt}
 
 Das \acr{sbt}\footnote{http://www.scala-sbt.org/} wird seit 2011 von Typesafe weiterentwickelt und
-ist das Standard-Werkzeug zur automatischen Projekt- und Abhängigkeitsverwaltung in der Scala
+ist das Standard-Werkzeug zur automatischen Projekt- und Abhängigkeitsverwaltung in der Scala-
 Progammierung. Da es selbst in Scala geschrieben wurde und auch die Konfiguration in Scala-Objekten
 stattfindet, ist es leicht, Erweiterungen dafür zu entwickeln. \Acr{sbt} ist mit Maven, einem sehr
 verbreiteten Build Tool für Java kompatibel, sodass auch Javabibliotheken, welche in einem Maven-
@@ -169,10 +169,11 @@ beispielsweise öffentliche Git-Repositories als Abhängigkeit definiert werden.
 \subsection{Akka}
 \label{sec:akka}
 
-Akka\footnote{http://www.akka.io/} war ursprünglich eine Implementierung des aus Erlang bekannten
-Aktoren Modells, ist mitlerweile jedoch zu einem umfangreichen Framework zur Entwicklung von
-hochperformanten verteilten Systemen gewachsen. Die Grundlage bilden nach wie vor Aktoren, wenn auch
-in, gegenüber anderen Implementierungen, leicht veränderter Form. \cite{actors}
+\textit{Akka}\footnote{http://www.akka.io/} war ursprünglich eine Implementierung des aus
+\textit{Erlang} bekannten Aktoren Modells, ist mittlerweile jedoch zu einem umfangreichen Framework
+zur Entwicklung von hochperformanten verteilten Systemen gewachsen. Die Grundlage bilden nach wie
+vor Aktoren, wenn auch in, gegenüber anderen Implementierungen, leicht veränderter Form.
+\cite{actors}
 
 \subsubsection{Aktoren}
 
@@ -233,9 +234,9 @@ Entwicklung der Anwendung durch auffrischen der Seite im Browser immer die neust
 Play nutzt dafür \acr{sbt} als Build System.
 
 Views werden als spezielle HTML-Templates, die auch Scala Code zulassen, definiert. Durch die
-Ausdrucksorientiertheit von Scala ist es damit möglich, die Views typsicher zu halten und somit schon
-zur Kompilierzeit über sehr viele Klassen von Fehlern informiert zu werden. Das ist ein klarer
-Vorteil gegenüber den meisten andern modernen Webframeworks.
+Ausdrucksorientiertheit von Scala ist es damit möglich, die Views typsicher zu halten und somit
+schon zur Kompilierzeit über sehr viele Klassen von Fehlern informiert zu werden. Das ist ein klarer
+Vorteil gegenüber den meisten andern modernen Web-Frameworks.
 
 Modelle können natürlicherweise als beliebige Scala-Klassen bzw. Datenstrukturen repräsentiert
 werden. Play beschränkt den Entwickler auch nicht auf eine bestimmte Möglichkeit der

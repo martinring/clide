@@ -1,7 +1,7 @@
 \section{HTML5}
 
-Für die Implementierung der Browseranwendung wird auf den aktuellen Entwurf des  zukünfitgen HTML5
-Standards zurückgegriffen. 
+Für die Implementierung der Browser-Anwendung wird auf den aktuellen Entwurf des zukünftigen HTML5
+Standards zurückgegriffen.
 
 \acr{html} ist eine Sprache, die der strukturierten Beschreibung von Webseiten dient. Die Sprache
 wurde in ihrer ursprünglichen Form  von 1989-1992, lange vor dem sogenannten Web 2.0, von
@@ -11,7 +11,7 @@ proprietäre globale Standard zur digitalen Übertragung von strukturierten  Dok
 modernen Webseiten vorkommen, zu beschreiben. 
 
 Der heutige HTML5-Standard geht weit über die Sprache \acr{html} selbst hinaus und  umfasst vor
-allem auch die Scriptsprache \acr{js} und die darin verfügbaren Bibliotheken sowie das \acr{dom},
+allem auch die Skriptsprache \acr{js} und die darin verfügbaren Bibliotheken sowie das \acr{dom},
 auf das in  Scripten zugegriffen werden kann, um den angezeigten Inhalt dynamisch zu verändern.
 \cite{html5}
 
@@ -20,11 +20,11 @@ auf das in  Scripten zugegriffen werden kann, um den angezeigten Inhalt dynamisc
 Das \textit{\acr{dom}} ist eine Schnittstelle, die es erlaubt \acr{html}- bzw. \acr{xml}-Dokumente zu
 modifizieren und bildet damit die Grundlage für die Realisierung dynamischer Webseiten.
 
-Der Einstiegstpunkt in das \acr{dom} ist der \texttt{document}-Knoten, welcher in \acr{js}
+Der Einstiegspunkt in das \acr{dom} ist der \texttt{document}-Knoten, welcher in \acr{js}
 global verfügbar ist und von welchem aus die gesamte Baumstruktur erreichbar ist. Jeder
 \acr{html}-Tag, jedes Attribut und jeder Text wird als ein Objekt, bzw. ein Knoten im Baum
 repräsentiert. Über verschiedene Methoden ist es möglich die Kinder-, Geschwister- und Elternknoten
-zu erhalten. Durch funktionen wie \texttt{appendChild} ist es schließlich möglich, neue Elemente
+zu erhalten. Durch Funktionen wie \texttt{appendChild} ist es schließlich möglich, neue Elemente
 in das \acr{dom} zu integrieren bzw. bestehende zu modifizieren. \cite{dom}
 
 \subsection{Cascading Styles Sheets}
@@ -40,10 +40,11 @@ Stilvorlagen in \acr{css}-Dateien ausgelagert  werden.
 \label{sec:css3}
 
 In der kommenden \acr{css} Version 3.0, die bereits zu großen Teilen von den meisten aktuellen
-Browsern unterstützt wird, kommen einige interesante Neuerungen hinzu, die es vor allem ermöglichen,
-Anwendungen, welche man Bisher in Frameworks wie \textit{Flash} oder \textit{Silverlight}
-implementiert hat nun in reinem \acr{html}+\acr{css} zu verwirklichen. Die für die Realisierung der
-browserbasierten Entwicklungsumgebung relevanten Neuerungen umfassen im speziellen:
+Browsern unterstützt wird, kommen einige interessante Neuerungen hinzu, die es vor allem
+ermöglichen, Anwendungen, welche man Bisher in Frameworks wie \textit{Flash} oder
+\textit{Silverlight} implementiert hat nun in reinem \acr{html}+\acr{css} zu verwirklichen. Die für
+die Realisierung der Browser-basierten Entwicklungsumgebung relevanten Neuerungen umfassen im
+speziellen:
 
 \begin{itemize}
   \item Einbetten von Schriftarten,
@@ -56,13 +57,13 @@ browserbasierten Entwicklungsumgebung relevanten Neuerungen umfassen im speziell
 
 \label{sec:less}
 
-Auch \acr{css}3 hat immernoch einige konzeptionelle Einschränkungen, welche die Benutzung
+Auch \acr{css}3 hat immer noch einige konzeptionelle Einschränkungen, welche die Benutzung
 erschweren:
 
 \begin{itemize} 
   \item Es ist nicht möglich Variablen zu definieren, um Werte, die an
 vielen Stellen vorkommen nur einmal definieren zu müssen. 
-  \item Es fehlen Funktionsdefinitonen, um ähnliche
+  \item Es fehlen Funktionsdefinitionen, um ähnliche
 oder abhängige Definitionen  zusammenzufassen und zu parametrisieren. 
   \item Die Hierarchie einer
 \acr{css}-Datei ist flach, obwohl die Definitionen geschachtelt sind. Dies reduziert die Lesbarkeit
@@ -74,16 +75,15 @@ werden, müssen alle Dateien einzeln geladen werden, was zu längeren Ladezeiten
 Funktionsdefinitionen, verschachtelte Definitionen sowie  Dateiimports erlaubt. Damit werden die
 oben genannten Einschränkungen von \acr{css} zu großen Teilen aufgehoben.
 
-Das Play Framework (Siehe Abschnitt\,\ref{sec:play}) ermöglicht es, die Stylesheet-Sprache
-LESS zu verwenden, ohne dass diese auf Browserseite unterstützt werden muss. Hierfür
-werden die in  LESS definierten Stylesheet auf Serverseite in CSS übersetzt  und
-dem Browser zur Verfügung gestellt. Dafür müssen die Dateien an einem vorher konfigurierten Ort
-liegen. Nach der Übersetzung werden sie an derselben Stelle zur Verfügung gestellt wie normale
-CSS-Dateien.
+Das Play Framework (Siehe Abschnitt\,\ref{sec:play}) ermöglicht es, die Stylesheet-Sprache LESS zu
+verwenden, ohne dass diese seitens des Browsers unterstützt werden muss. Hierfür werden die in  LESS
+definierten Stylesheet auf Serverseite in CSS übersetzt  und dem Browser zur Verfügung gestellt.
+Dafür müssen die Dateien an einem vorher konfigurierten Ort liegen. Nach der Übersetzung werden sie
+an derselben Stelle zur Verfügung gestellt wie normale CSS-Dateien.
 
 \subsection{JavaScript}
 
-\textit{JavaScript} ist eine dynamisch typisierte, klassenlose, objektorientierte Scriptsprache, die
+\textit{JavaScript} ist eine dynamisch typisierte, klassenlose, objektorientierte Skriptsprache, die
 aktuell der Standard in der Entwicklung von clientseitigem Code für dynamische Webinhalte ist. Der
 Kern von \acr{js} wurde von der \textit{Ecma International} als \textit{ECMAScript} normiert. Durch
 \acr{js} ist es möglich Webseiten dynamisch zu verändern. Für eine gute Einführung in die Konzepte
@@ -93,24 +93,23 @@ von \acr{js} sei an dieser Stelle auf \cite{js} verwiesen.
 \label{sec:coffeescript}
 
 JavaScript wurde in Eile entwickelt und normiert, da zur Zeit der Entstehung ein schneller Bedarf an
-einer normierten Sprache für das Web bestand. Dadurch sind jedoch auch einige Unschönheiten in den
-Sprachkern gedrungen. So ist beispielsweise die C-artige Syntax für eine eher funktional angehauchte
-Sprache wie \acr{js} ungeeignet, da Funktionsdefinitonen durch geschweifte Klammern, das
-Schlüsselwort \texttt{function} und ein \texttt{return} Statement unnötig aufgeblasen werden und
+einer normierten Sprache für das Web bestand. Dadurch sind jedoch auch einige Unschöne Konstrukte in
+den Sprachkern gedrungen. So ist beispielsweise die C-artige Syntax für eine eher funktional
+angehauchte Sprache wie \acr{js} ungeeignet, da Funktionsdefinitionen durch geschweifte Klammern,
+das Schlüsselwort \texttt{function} und ein \texttt{return} Statement unnötig aufgeblasen werden und
 damit unleserlicheren Code erzeugen. Darüber hinaus fehlt in \acr{js} jede Möglichkeit der
 Modularisierung. Da noch nicht einmal Klassen existieren, führt das bei reinem JavaScript schnell zu
-unwartbarem Code. Ein weiterer Stolperstein ist das Schlüsselwort \texttt{this}, das nicht immer
-klar zu verstehen ist, da es in Funktionsaufrufen seine Bedeutung wechseln kann.
+nicht mehr wartbarem Code. Ein weiterer Stolperstein ist das Schlüsselwort \texttt{this}, das nicht
+immer klar zu verstehen ist, da es in Funktionsaufrufen seine Bedeutung wechseln kann.
 
-\textit{CoffeeScript}\footnote{http://www.coffeescript.org} ist eine neue Scriptsprache mit dem Ziel
+\textit{CoffeeScript}\footnote{http://www.coffeescript.org} ist eine neue Skriptsprache mit dem Ziel
 diese \glqq Problemzonen\grqq von \acr{js} auszumerzen. CoffeeScript hat eine eher an funktionale
-Sprachen wie Haskell erinnernde Syntax mit Verschachtelungen über Whitespace und einem
-\texttt{->}-Operator zur Funktionsdefinition. Darüber hinaus bietet CoffeScript die Möglichkeit
-Klassen zu definieren und führt das Konzept der Vererbung ein. Das \texttt{this}-Schlüsselwort kann
-an Instanzen von Klassen gebunden werden. CoffeeScript Dateien werden zu optimiertem \acr{js} Code
-kompiliert, der den Vorgaben des \textit{\acr{js}
-Linter}\footnote{http://www.javascriptlint.com/} entspricht. Im Einzelnen sind die Verbesserungen
-gegenüber \acr{js}:
+Sprachen wie Haskell erinnernde Syntax mit signifikantem Whitespace und einem \texttt{->}-Operator
+zur Funktionsdefinition. Darüber hinaus bietet CoffeScript die Möglichkeit Klassen zu definieren und
+führt das Konzept der Vererbung ein. Das \texttt{this}-Schlüsselwort kann an Instanzen von Klassen
+gebunden werden. CoffeeScript Dateien werden zu optimiertem \acr{js} Code kompiliert, der den
+Vorgaben des \textit{\acr{js} Linter}\footnote{http://www.javascriptlint.com/} entspricht. Im
+Einzelnen sind die Verbesserungen gegenüber \acr{js}:
 
 \begin{itemize}
   \item Vereinfachte Syntax für Funktionsdefinitionen, Arrays, Blöcke,
@@ -132,7 +131,7 @@ gleicher Stelle wie normale \acr{js}-Dateien dem  Browser als \acr{js} zur Verf�
 
 \subsection{HTTP}
 
-Das \acr{http} ist das im Intenet verwendete Standardprotokoll zur Übertragung von Daten. (Siehe
+Das \acr{http} ist das im Internet verwendete Standardprotokoll zur Übertragung von Daten. (Siehe
 auch \cite{http}) Leider ist \acr{http} für die Implementierung von hochdynamischen Webapplikationen
 nur bedingt geeignet, da Anfragen immer vom Browser gestellt werden, aber keine Möglichkeit
 vorgesehen ist, in die andere Richtung initiativ zu kommunizieren.  Auf Grund der Einschränkungen
@@ -150,8 +149,8 @@ Daten  zwischen Browser und Webserver per \acr{http} auf dynamischen Webseiten. 
 \acr{js}-Objekt \texttt{XMLHttpRequest} verwendet, um während der Anzeige einer Webseite, Daten vom
 Server nachzuladen bzw. dem Server Daten zu senden, ohne dass die Webseite neu geladen werden muss
 wie es bei klassischen Webseiten der Fall war. Ursprünglich und namensgebend wurde für die
-Übertragung der Daten XML verwendet. Mittlerweile ist es nach dem abgflauen des XML-Hypes wegen der
-guten Untersützung in \acr{js} und den meisten Webframeworks auch üblich \acr{json} zur Übertragung
+Übertragung der Daten XML verwendet. Mittlerweile ist es nach dem Abflauen des XML-Hypes wegen der
+guten Unterstützung in \acr{js} und den meisten Web-Frameworks auch üblich \acr{json} zur Übertragung
 zu nutzen. \cite{ajax}
 
 \begin{figure}[ht]
@@ -189,17 +188,17 @@ gestellt, die der Server dann im Erfolgsfall mit der Eröffnung des WebSockets b
 Die Bibliothek \textit{jQuery}\footnote{http://www.jquery.com} ist heute ein defacto-Standard in der
 Webentwicklung. In erster Linie erleichtert es den Zugriff und die Manipulation des \acr{dom},
 bietet aber darüber hinaus zahlreiche Vereinfachungen im Umgang mit alltäglichen Aufgaben der
-Webentwickling. Besonders erwähnenswert ist hierbei auch die \acr{ajax}-Abstraktion. Eine gute
+Web-Entwickling. Besonders erwähnenswert ist hierbei auch die \acr{ajax}-Abstraktion. Eine gute
 Einführung in jQuery bietet \cite{jquery}.
 
 \subsubsection{Backbone und Underscore}
 
 \textit{Backbone}\footnote{backbonejs.org} ist eine Bibliothek, die der Strukturierung von
 sogenannten \textit{single-page}-\acr{js}-Anwendungen dient. Backbone baut auf der allgemeinen
-\textit{Underscore}\footnote{underscorejs.org}-Bibliothek auf, die einige Erleicherungen im Umgang
+\textit{Underscore}\footnote{underscorejs.org}-Bibliothek auf, die einige Erleichterungen im Umgang
 mit Daten in \acr{js} bietet.. Backbone führt das Model-View-Controller Konzept in
 Browseranwendungen ein und bietet hierfür einige Prototypen, von denen abgeleitet werden kann um
-eigene Modelle und Views zu implementieren, die dann über Events deklarativ miteinander verküpft
+eigene Modelle und Views zu implementieren, die dann über Events deklarativ miteinander verknüpft
 werden können.
 
 Besonders interessant ist die Möglichkeit, die im \acr{html}5 Standard neu eingeführte
@@ -227,9 +226,9 @@ Die \textit{RequireJS}-Bibliothek sorgt dann dafür,  dass diese Module geladen 
 aktuelle Modul ausgeführt wird.
 
 RequireJS erlaubt es, den  \acr{js}-Code für den Produktiveinsatz zu optimieren. Dafür
-gibt es  das sogenannte \textit{r.js}-Script, das unter anderm alle Abhängigkeiten in eine Datei
+gibt es  das sogenannte \textit{r.js}-Script, das unter anderem alle Abhängigkeiten in eine Datei
 zusammenfasst und den Code durch entfernen von Whitespaces und Kommentaren  sowie umbenennen
 von Variablennamen verkürzt. Zur Entwicklungszeit ist dieser nicht mehr lesbare Code nicht
 erwünscht. Deswegen bietet das Play Framework (Siehe Abschnitt\,\ref{sec:play}) eine integrierte
 Version von RequireJS, die automatisch den lesbaren Code zur Entwicklungszeit  bereitstellt, im
-Produktiveisatz jedoch den optimierten.
+Produktiveinsatz jedoch den optimierten.

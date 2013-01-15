@@ -14,16 +14,16 @@ Kapitel\,\ref{sec:draft} nur kurz angerissen wurden, genauer herausgearbeitet.
 \end{figure}
 
 Abbildung\,\ref{fig:layout} zeigt ein grobes Architekturlayout. Server und Browser kommunizieren
-über die Serverseitige Schnittstelle \texttt{JSConnector} bzw.Clientseitig über den
+über die serverseitige Schnittstelle \texttt{JSConnector} bzw. clientseitig über den
 \texttt{ScalaConnector}. (Abschnitt\,\ref{sec:jsc}) Die verknüpften Objekte sind dabei
-\texttt{Session} aus \texttt{Session.scala} wovon für jede Clientseitige Sizung eine Instanz besteht
+\texttt{Session} aus \texttt{Session.scala} wovon für jede Clientseitige Sitzung eine Instanz besteht
 sowie im Browser das Objekt \texttt{Session} aus \texttt{isabelle.coffee}.
 
 Im Browser wird ein Modell aller Theorien verwaltet, welches sowohl von der \texttt{Session}
-verändert wird (Serverseitiges Syntaxhighlighting in Abschnitt\,\ref{sec:ssyntax}), als auch vom
-Editor. Die Kommunikation erfoglt über Eventbasierte Callbacks. Jeder \texttt{Editor} erzeugt eine
+verändert wird (Serverseitiges Syntax-Highlighting in Abschnitt\,\ref{sec:ssyntax}), als auch vom
+Editor. Die Kommunikation erfoglt über eventbasierte Callbacks. Jeder \texttt{Editor} erzeugt eine
 angepasste \texttt{CodeMirror} Instanz zur Visualisierung mit einem Parser, welcher die Äußere
-Syntax erkennent und direkt in die Darstellung integriert (Abschnitt\,\ref{sec:syntax}).
+Syntax erkennt und direkt in die Darstellung integriert (Abschnitt\,\ref{sec:syntax}).
 
 Auf dem Server wird das \texttt{RemoteDocumentModel} mit den \texttt{LineBuffer}n (Siehe
 Abschnitt\,\ref{sec:linebuffer}) verwendet um den Zustand der Theorien synchron zum Client zu
@@ -33,7 +33,7 @@ verwalten.
 \label{sec:jsc}
 
 Um das Protokoll austauschbar zu gestalten wurde eine Abstraktion über WebSockets implementiert.
-Hierfür wurde auf der Browserseite der \texttt{ScalaConnector} und auf Seiten des Servers der
+Hierfür wurde seitens des Browsers der \texttt{ScalaConnector} und serverseitig der
 \texttt{JSConnector} entwickelt.
 
 \subsection{ScalaConnector}
@@ -48,7 +48,7 @@ define -> class ScalaConnector
 \end{lstlisting}
 
 Dem Konstruktor wird zum einen die url (\texttt{url}) des WebSockets mit dem verbunden werden soll,
-zum anderen das Objekt (\texttt{object}), welches dem Server als Schnittstelle zur verfügung
+zum anderen das Objekt (\texttt{object}), welches dem Server als Schnittstelle zur Verfügung
 gestellt werden soll übergeben. Als optionales Argument kann eine \texttt{init}-Funktion übergeben
 werden, welche aufgerufen wird, sobald die Verbindung hergestellt worden ist.
 
@@ -102,7 +102,7 @@ Anfrage oder ein Kommando vom Server.
     auf die nicht geantwortet wird.
   \end{itemize}
   \item Wenn die Nachricht das Feld \texttt{action} nicht enthält, handelt es sich um eine Antwort 
-  auf eine vorherige Anfrage des Clients. In diesem Fall wird die entsprechende Callbackfunktion mit
+  auf eine vorherige Anfrage des Clients. In diesem Fall wird die entsprechende Callback-Funktion mit
   dem Ergebnis des Servers aufgerufen.
 \end{itemize}
 
@@ -135,8 +135,8 @@ soll.
 
 Wenn zusätzlich das feld \texttt{callback} mit einer Callback-Funktion belegt wird, wird eine
 \texttt{id} generiert, welche dem Server gesendet wird um unter dieser \texttt{id} zu antworten.
-(Siehe oben) Das gesamte Objekt wird nun (natürlich ohne die Callbackfunktion) an den Server als
-JSON übertragen. Wenn keine Callbackfunktion definiert wurde, wird auch keine Antwort vom Server
+(Siehe oben) Das gesamte Objekt wird nun (natürlich ohne die Callback-Funktion) an den Server als
+JSON übertragen. Wenn keine Callback-Funktion definiert wurde, wird auch keine Antwort vom Server
 gesendet.
 
 \subsection{JSConnector}
@@ -161,7 +161,7 @@ trait JSConnector {
 WebSocket an den Enumeratee \texttt{out} verbunden ist). Der eigentliche Knackpunkt sind jedoch wie
 beim Client das Empfangen sowie das Versenden von Nachrichten.
 
-Beim Empfang wird genau wie auf der Browserseite zwischen den 3 beschriebenen Fällen unterschieden:
+Beim Empfang wird genau wie im Browser zwischen den drei beschriebenen Fällen unterschieden:
 
 \begin{lstlisting}
   val in = Iteratee.foreach[JsValue] { json =>    
@@ -193,13 +193,13 @@ Beim Empfang wird genau wie auf der Browserseite zwischen den 3 beschriebenen F�
 
 Um die Ausführung nicht zu blockieren verwenden wir \textit{Futures} (Abschnitt\,\ref{sec:futures}),
 die Anfragen des Clients in eigenen Threads ausführen. Wenn der Client eine Anfrage stellt wird der
-enstprechenden Funktion das Datenobjekt aus dem Empfangenen JSON-Code übergeben und diese in einem
+entsprechenden Funktion das Datenobjekt aus dem Empfangenen JSON-Code übergeben und diese in einem
 Future ausgeführt. Wenn das Future die Ausführung erfolgreich beendet wird das Ergebnis im
 Bedarfsfall (\texttt{id} ist in der Anfrage definiert) an den Client zurückgesandt. Im Fehlerfall
-wird das Ereignis geloggt. Da Fehlerfälle für den Client uninteressant sind, da das debugging auf
+wird das Ereignis geloggt. Da Fehlerfälle für den Client uninteressant sind, da das Debugging auf
 dem Server Stattfinden sollte werden sie in diese Richtung nicht übertragen. Wenn signalisiert
 werden soll, dass eine Aktion aus einem Bestimmten Grund nicht ausgeführt werden kann sollte mit
-einem geeigneten Datentyp ein Wohldefiniertes Ergebnis von der entprechenden Funktion zurückgegeben
+einem geeigneten Datentyp ein Wohldefiniertes Ergebnis von der entsprechenden Funktion zurückgegeben
 werden. (z.B: \texttt{Option[T]})
 
 Zu beachten ist, dass für ein erfolgreiches Versenden das Funktionsergebnis einen Typ haben muss,
@@ -281,7 +281,7 @@ Da Isabelle/Scala intern mit absoluten Text-Offests, die Browseranwendung dagege
 Zeilen/Spaltennummern arbeitet, ist es notwendig auf dem Server eine effiziente Umrechnung
 bereitzustellen. Bei langen Dokumenten wäre ein einfaches Durchlaufen des Dokuments um die
 Positionen der Zeilenumbrüche zu erkennen, bei jeder Änderung nicht performant genug. Um das Problem
-zu lösen wurde der \texttt{LineBuffer} auf dem Server imlementiert. Darüber hinaus wurde zur
+zu lösen wurde der \texttt{LineBuffer} auf dem Server implementiert. Darüber hinaus wurde zur
 Synchronisierung die Klasse \texttt{RemoteDocumentModel} entwickelt.
 
 \subsection{LineBuffer}
@@ -342,7 +342,7 @@ So ist es nie nötig, den Text tatsächlich zu durchlaufen. Der Aufwand ist nur 
 und nicht mehr zur Zeichenzahl und damit deutlich reduziert.
 
 Ein Aufruf \texttt{myLineBuffer.lines(5) = "Hallo"} würde so den bisherigen Text der sechsten Zeile
-mit dem Text \texttt{"Hallo"} erzetzen und die Offsets der sechsten bis letzten Zeile aktualisieren.
+mit dem Text \texttt{"Hallo"} ersetzen und die Offsets der sechsten bis letzten Zeile aktualisieren.
 
 \subsection{RemoteDocumentModel}
 
@@ -353,15 +353,15 @@ einen \texttt{LineBuffer} verwaltet und auf welche direkt die vom Browser erhalt
 Liste von \texttt{isabelle.Text.Edit} zurückgibt, die dann an Isabelle/Scala übergeben werden kann.
 
 Darüber hinaus wird hier die Versionsnummer des Dokuments, die auf selbe Art und Weise (Nach jedem
-ChangeSet wird eins hochgezählt) vom Client geführt wirt, verwaltet sodass dem Client immer
+ChangeSet wird eins hochgezählt) vom Client geführt wird, verwaltet sodass dem Client immer
 mitgeteilt werden kann auf welche Version des Dokuments sich in einer Nachricht bezogen wird. Das
 ist deswegen wichtig, damit auf dem Client keine Inkonsistenzen entstehen.
 
-\section{Clientseitiges Syntaxhighlighting}
+\section{Clientseitiges Syntax-Highlighting}
 \label{sec:syntax}
 
 Auf Grund der in Kapitel\,\ref{sec:draft} beschriebenen Notwendigkeit, Verbindungskapazität
-einzusparen musste ein Teil des Syntaxhighlightings, welches von Isabelle/Scala betrieben wird auf
+einzusparen musste ein Teil des Syntax-Highlightings, welches von Isabelle/Scala betrieben wird auf
 Browserseite nachgebildet werden. Dafür wurde ein CodeMirror-\texttt{Mode} in CoffeeScript
 implementiert. (Zu finden unter \texttt{/app/assets/javascripts/mode/isabelle.coffee})
 
@@ -411,20 +411,28 @@ am Ende jeder Zeile einen eindeutigen Zustand zurückzugeben mit dem die Verarbe
 Zeile ohne weitere kontextuelle Informationen fortgesetzt werden kann. Da Isabelle wie ML
 verschachtelte Kommentare zulässt muss dieser unter anderem auch die Kommentarebene enthalten.
 
-Um der variablilität der äußeren Syntax gerecht zu werden (Die Schlüsselwörter können sich
+Um der Variabilität der äußeren Syntax gerecht zu werden (Die Schlüsselwörter können sich
 verändern), werden die Schlüsselwörter als Parameter an den Parser übergeben, so dass dieser bei
 Bedarf neu initialisiert werden kann.
 
-\section{Serverseitiges Syntaxhighlighting}
+\section{Serverseitiges Syntax-Highlighting}
 \label{sec:ssyntax}
 
 Für das Highlighting auf dem Server wird die Isabelle/Scala Schnittstelle verwendet. Die
 Herausforderung besteht darin, die Daten in geeigneter Form an den Client zu übermitteln, damit
-dieser das verzögerte Highlighting der inneren Syntax vornehmen kann.
+dieser das verzögerte Highlighting der inneren Syntax vornehmen kann. Zur Illustration ist in
+Abbildung\,\ref{fig:sssyntax} der Serverseitig gehighlightete Teil der Syntax (innere Syntax)
+grün unterstrichen.
+
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{images/sssyntax}
+  \caption{Serverseitiges Syntax-Highlighting}
+  \label{fig:sssyntax}
+\end{figure}
 
 Im Browser wird eine Liste der Kommandos im Quelltext verwaltet, welche der Server ständig durch
 Nachrichten aktualisiert. Dafür wurde auf dem Client in \texttt{isabelle.coffee} ein Backbone-Modell
-für die repräsentation der relevanten Daten von Kommandos (\texttt{Command}) entworfen.
+für die Repräsentation der relevanten Daten von Kommandos (\texttt{Command}) entworfen.
 
 \begin{lstlisting}[language=coffee]
   class Command extends Backbone.Model
@@ -479,7 +487,7 @@ session.commands_changed += { change =>
 
 Im \texttt{RemoteDocumentModel} wird dafür eine synchrone Repräsentation der Kommandos verwaltet.
 Sollte ein Kommando hier nicht mehr existieren, wird es über die Nachricht
-\texttt{js.ignore.removeCommand(...)} im Browser entfernt, damit die Resourcen dort freigegeben
+\texttt{js.ignore.removeCommand(...)} im Browser entfernt, damit die Ressourcen dort freigegeben
 werden können bzw. Syntaxmarkierungen aus dem Dokument entfernt werden können.
 
 Über \texttt{pushCommand} werden dann alle veränderten Kommandos verarbeitet. Wenn sich dann die
@@ -548,7 +556,7 @@ Quelltext zu substituieren. Da CodeMirror glücklicherweise seit Version 3.0 wel
 Bearbeitungszeit dieser Diplomarbeit veröffentlicht wurde die Möglichkeit bietet Textstellen durch
 HTML-Widgets zu ersetzten, konnte eine vorheriger serverseitiger Ansatz, der von Natur aus recht
 Fehleranfällig war, da mit den Verschiedenen Positionssystemen von Isabelle und CodeMirror ständig
-herumgerechnet werden musste, glücklicherweise verworfen werden.
+umgerechnet werden musste, glücklicherweise verworfen werden.
 
 \begin{figure}[ht]
 \includegraphics[width=\linewidth]{images/subst}
@@ -593,7 +601,7 @@ sollen bis die Selektion wieder aufgehoben wurde.
 \end{lstlisting}
 
 Nun löschen wir alle zuvor eingeführten Substitutionen (durch die Eingabe kann sich das zu
-Substitutierende Zeichen verändert haben) Da wir \texttt{CodeMirror.operation} verwenden, ist diese
+substituierende Zeichen verändert haben) Da wir \texttt{CodeMirror.operation} verwenden, ist diese
 Aktion relativ performant.
 
 \begin{lstlisting}[language=coffee]
@@ -626,4 +634,75 @@ Fraktur, AMS, ...) für jedes Symbol manuell eingearbeitet.
 \includegraphics[width=0.5\linewidth]{images/completion}
   \caption{Vervollständigung von Symbolsubstitutionen}
   \label{fig:subst}
+\end{figure}
+
+
+\section{Modale Dialoge}
+
+Um die Funktionsweise von \texttt{Backbone.View} und das Zusammenspiel mit dem ScalaConnector zu
+illustrieren, betrachten wir an dieser Stelle ein einfaches Beispiel. An manchen Stellen in der
+Anwendung ist es notwendig, den Benutzer mit modalen Dialogen zur Beantwortung einer Frage
+aufzufordern. Hierfür wurde das Modul \texttt{Dialog.coffee} entworfen.
+
+\begin{lstlisting}
+define ->
+  class Dialog extends Backbone.View
+\end{lstlisting}
+
+Beim Initialisieren wird abhängig von den übergebenen Optionen die \acr{ui} aufgebaut. Mögliche
+Optionen sind dabei
+
+\begin{itemize}
+  \item ein String \texttt{title} um eine Überschrift zu erzeugen,
+  \item ein String \texttt{message} um die eigentliche Nachrich zu spezifizieren,
+  \item ein Array \texttt{buttons} um festzulegen, welche Buttons angezeigt werden soll,
+  \item \texttt{defaultAction} um den Standard Button festzulegen, welche ausgelöst wird, wenn der
+  Nutzer einfach Enter drückt,
+  \item ein String \texttt{defaultText}, welcher zum Festlegen eines \texttt{input[type=text]} 
+  Controls sowie eines eventuellen vorgegebenen Inhalts dient sowie
+  \item ein Callback \texttt{done} um das Ergebnis der Nutzereingabe zu verarbeiten.
+\end{itemize}
+
+Die Optionen können weggelassen werden, sodass auf Standardwerte zurückgegriffen wird, bzw. der
+Titel oder die Nachricht weggelassen werden.
+
+Wenn ein Button geklickt wird oder Enter gedrückt wird, wird die \texttt{exit}-Funktion aufgerufen,
+welche den Dialog aus dem \acr{dom} entfernt und das \texttt{done}-Callback aufruft. \texttt{text}
+ist dabei \texttt{undefined}, wenn kein Input-Control erzeugt wurde.
+
+\begin{lstlisting}
+    exit: (action) => () =>
+      text = @$('input').val()
+      @$el.remove()
+      if @options.done then @options.done
+        action: action
+        text: text
+\end{lstlisting}
+
+Nun können wir beispielsweise als Aktion eines Kontextmenüeintrages \glqq Löschen\grqq zunächst
+einen Modalen Dialog erstellen um sicherzugehen, dass die Aktion vom Nutzer gewollt ist.
+
+\begin{lstlisting}
+  menu.show(e.pageX,e.pageY,[
+      text: 'Delete'
+      command: ->
+        new Dialog
+          title: "Delete Project"
+          message: "Do you really want to delete project '#{$(elem).data('name')}'?"
+          buttons: ['Yes','No']
+          defaultAction: 'Yes'
+          done: (e) => if e.action is 'Yes' then deleteProject(user,$(elem).data('name'))                  
+    ])
+\end{lstlisting}
+
+Das Spannende daran ist nun, dass es möglich ist, diese Dialoge über den \texttt{JsConnector} bzw.
+den \texttt{ScalaConnector} vom Server aus zu erzeugen und zu nutzen. So kann der Server bei Bedarf
+über \texttt{js.sync} eine blockierende Frage auf dem Client stellen und erst nach der Antwort des
+Nutzers fortfahren, genauso wie es in Desktopanwendungen über Messageboxen üblich ist.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{images/screen-dialog}
+  \caption{Ein modaler Dialog}
+  \label{fig:dialog}
 \end{figure}
