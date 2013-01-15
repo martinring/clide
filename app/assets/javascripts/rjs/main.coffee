@@ -101,10 +101,10 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
     $('#consoleButton').toggleClass 'active', v
     $('body').toggleClass 'extendedStatusbar', v
 
-  settings.on 'change:inlineStates', (m,v) ->    
+  settings.on 'change:inlineStates', (m,v) ->
     $('body').toggleClass 'inlineStates', v  
 
-  settings.on 'change:inlineErrors', (m,v) ->    
+  settings.on 'change:inlineErrors', (m,v) ->
     $('body').toggleClass 'inlineErrors', v  
 
   isabelle.on 'change:output', (m,out) ->
@@ -115,9 +115,9 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
     pushState: true
 
   router.on 'route:node', (node, pos) ->
-    [exp,fl,fc,tl,tc] = pos.match /^([0-9]+):([0-9]+)(?:-([0-9]+):([0-9]+))?$/ if pos?    
+    [exp,fl,fc,tl,tc] = pos.match /^([0-9]+):([0-9]+)(?:-([0-9]+):([0-9]+))?$/ if pos?
     thy = isabelle.theories.get(node)
-    commands.open.execute(thy,fl,fc,tl,tc) if thy?        
+    commands.open.execute(thy,fl,fc,tl,tc) if thy?
 
   $('#loadingStatus').append("<li>connecting</li>")
   isabelle.start user, project

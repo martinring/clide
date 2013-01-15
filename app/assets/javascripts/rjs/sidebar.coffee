@@ -28,16 +28,11 @@ define ['isabelle','settings','commands','icons','contextMenu','Dialog'], (isabe
       @$('.menu').append(e)
 
   class Search extends Backbone.View
-    el: '#search'
+    el: '#search'    
     events:
-      'click #searchButton': 'startSearch'
-      'keyup #searchBox': 'changeSearch'
-      'change #searchBox': 'changeSearch'
-    startSearch: =>
-      $('body').addClass('sidebar')
-      setTimeout((-> $('#searchBox').focus()), 200)
-    changeSearch: (e) =>
-      commands.search.execute($('#searchBox').val())      
+      'click': 'startSearch'      
+    startSearch: =>      
+      commands.search.execute()
 
   class FileItemView extends Backbone.View
     tagName: 'li'
@@ -204,7 +199,7 @@ define ['isabelle','settings','commands','icons','contextMenu','Dialog'], (isabe
         message: if again is true
             '<p>You entered an invalid name which is either taken or not supported</p><p>Please enter a valid name</p>'
           else 
-            'Please enter a name for the new Theory file (without the .thy-extension)'
+            'Please enter a name for the new theory file (without the .thy-extension)'
         defaultText: ''
         buttons: ['Ok','Cancel']
         defaultAction: 'Ok'

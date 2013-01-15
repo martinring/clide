@@ -14,6 +14,7 @@
 # author:  Martin Ring
 # email:   martinring@live.de
 # summary: Defines a custom prompt interface
+#          Depends on dialog.less
 #
 ####################################################################################################
 

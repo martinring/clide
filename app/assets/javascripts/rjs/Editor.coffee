@@ -53,8 +53,11 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
           'Ctrl-Space': 'autocomplete'
           'Ctrl-Down' : 'sub'
           'Ctrl-Up'   : 'sup'
+          'Ctrl-Shift-Down' : 'isub'
+          'Ctrl-Shift-Up' : 'isup'
           'Ctrl-B'    : 'bold'
           'Ctrl-S'    : 'save'
+          'F3'        : 'findNext'
         mode: 
           name: "isabelle"
           words: defaultWords
@@ -84,7 +87,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
         @cm.markClean()        
         @model.set(clean: true)
 
-      @cm.on 'change', (editor,change) => editor.operation =>        
+      @cm.on 'change', (editor,change) => editor.operation =>
         @model.set(clean: editor.isClean())
         unless editor.somethingSelected()          
           pos   = change.to
@@ -157,6 +160,9 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
           
       currentLine = @cm.addLineClass(0, 'background', 'current_line')
 
+      commands.search.bind =>
+        CodeMirror.commands.find(@cm)
+        
       @model.get('commands').forEach @includeCommand
       @model.get('commands').on('add', @includeCommand)
       @model.get('commands').on('change', @includeCommand)
@@ -210,7 +216,6 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
       CodeMirror.commands.isup = (cm) ->
         cm.replaceRange('\\<^isup>' ,cm.getCursor())
       
-
     updatePerspective: (editor, start, end) =>      
       @model.set
         perspective:
