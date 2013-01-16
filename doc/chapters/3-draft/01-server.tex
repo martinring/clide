@@ -1,63 +1,63 @@
 \section{Server}
 
 Der Webserver muss neben den normalen Aufgaben eines Webservers, wie der Bereitstellung der Inhalte,
-der Authentifizierung der Benutzer sowie der Persistierung bzw. Bereitstellung der
-nutzerspezifischen Daten (In unserem Fall Projekte / Theorien), auch eine besondere Schnittstelle
+der Authentifizierung der Benutzer oder der Persistierung bzw. Bereitstellung der
+nutzerspezifischen Daten (in diesem Fall Projekte / Theorien), auch eine besondere Schnittstelle
 für die Arbeit mit den Theorien bereitstellen. Vom Browser aus muss es möglich sein,
 
 \begin{itemize}
   \item die einzelnen Theorien in Echtzeit zu bearbeiten,
-  \item Informationen über Beweiszustände bzw. Fehler zu erhalten,
-  \item als auch Informationen über die Typen, bzw. Definitionen von Ausdrücken zu erhalten.
+  \item Informationen über Beweiszustände bzw. Fehler zu erhalten und
+  \item Informationen über die Typen, bzw. Definitionen von Ausdrücken zu erhalten.
 \end{itemize}
 
-All diese Informationen müssen zuvor Serverseitig aufbereitet und bereitgestellt werden. Dabei ist
+All diese Informationen müssen zuvor serverseitig aufbereitet und bereitgestellt werden. Dabei ist
 es aus Sicht der Performanz wichtig, unnötige Informationen zu eliminieren und die Daten zu
 komprimieren.
 
 Der Server stellt zum einen eine normale \acr{http} API zur Authentifizierung und zur Verwaltung der
-Projekte zur Verfügung, zum andern eine WebSocket Schnittstelle zur Arbeit mit den Theorien. Während
-bei der \acr{http} API auf bewährte Methoden aus der Literatur zurückgegriffen werden kann gibt es
-für die WebSocket Schnittstelle keine nennenswerten Erfahrungen auf die hier aufgebaut werden
-könnte.
+Projekte zur Verfügung, zum anderen eine WebSocket-Schnittstelle zur Arbeit mit den Theorien.
+Während bei der \acr{http} API auf bewährte Methoden aus der Literatur zurückgegriffen werden kann,
+gibt es für die WebSocket-Schnittstelle keine nennenswerten Erfahrungen, auf die hier aufgebaut
+werden könnte.
 
 \subsection{Wahl des Webframeworks}
 
-Da wir die Isabelle/Scala Schnittstelle nutzen, liegt es nahe ein Webframework in Scala zu nutzen um
-den Aufwand für die Integration gering zu halten. Dafür existieren momentan zwei ausgereifte,
+Da wir die Isabelle/Scala-Schnittstelle nutzen, liegt es nahe, ein Webframework in Scala zu nutzen,
+um den Aufwand für die Integration gering zu halten. Dafür existieren momentan zwei ausgereifte,
 bekannte Alternativen:
 
 \begin{itemize}
 
   \item Das \textit{Lift Webframework}\footnote{http://www.liftweb.org} bietet viele neue Ansätze in
-der Webprogrammierung und kann als Experimentierkasten verstanden werden. Für jeden Anwendungsfall
-gibt es gleich mehrere Lösungen. Lift wird allerdings auf Grund des Rückzugs von David Pollack aus
-der Entwicklung seit einiger Zeit nicht mehr geordnet weiter entwickelt wird und ist zudem für
-unsere Zwecke überdimensioniert. Da die Webanwendung eher unkonventionelle Anforderungen an den
-Server hat, nutzen die meisten Funktionen von Lift nichts. Lift wurde in der Vergangenheit schnell
-in verschiedenste Richtungen weiterentwickelt, dabei ist die Dokumentation jedoch stets
-vernachlässigt worden.
+der Webprogrammierung und kann als \glqq Experimentierkasten\grqq verstanden werden. Für jeden
+Anwendungsfall gibt es gleich mehrere Lösungen. Lift wird allerdings, auf Grund des Rückzugs von
+David Pollack aus der Entwicklung, seit einiger Zeit nicht mehr geordnet weiterentwickelt wird und
+ist zudem für unsere Zwecke überdimensioniert. Da die Webanwendung eher unkonventionelle
+Anforderungen an den Server hat, nützen die meisten Funktionen von Lift nicht. Lift wurde in der
+Vergangenheit schnell in verschiedenste Richtungen weiterentwickelt, dabei ist die Dokumentation
+jedoch stets vernachlässigt worden.
 
 
   \item Das \textit{Play Framework} (Siehe auch Abschnitt\,\ref{sec:play}) ist dagegen bewusst
-Leichtgewichtig gehalten und eher auf hohe Performance ausgelegt, als auf die Lösung möglichst
-vieler Anwendungsfälle in verschiedener, ausgefallener Weise. Darüber hinaus wird Play mittlerweile
+leichtgewichtig gehalten und eher auf hohe Performance ausgelegt, als auf die Lösung möglichst
+vieler Anwendungsfälle in verschiedenen, ausgefallenen Weisen. Darüber hinaus wird Play mittlerweile
 kommerziell von Typesafe unterstützt und weiterentwickelt und verfügt über eine detaillierte und
-professionell gestaltete Dokumentation. \cite{play}
+professionell gestaltete Dokumentation \cite{play}.
 
 \end{itemize}
 
-Erfahrungen aus früheren Projekten mit Lift scheinen an dieser Stelle nicht zu nützen, da die größte
-Hürde die Implementierung der WebSocket Schnittstelle bildet und diese in Lift nur sehr spärlich
-Dokumentiert sind, und auch kein eindeutiger beschriebener Weg dafür existiert.
+Erfahrungen aus früheren Projekten mit Lift scheinen an dieser Stelle nicht weiter zu helfen, weil
+die größte Hürde die Implementierung der WebSocket Schnittstelle bildet und diese in Lift nur sehr
+spärlich dokumentiert sind und auch kein eindeutig beschriebener Weg dafür existiert.
 
 \subsection{Authentifizierung}
 
 Die Authentifizierung soll in diesem Projekt bewusst einfach gehalten werden, da es sich hierbei um
-eine Nebensächlichkeit handelt, welche ohne weitere Probleme aufgerüstet werden kann. Wir
-beschränken uns daher auf die Möglichkeit sich mit einem Benutzernamen sowie einem dazugehörigen
-Passwort einzuloggen, welche dann mit einer Konfigurationsdatei auf dem Server abgeglichen wird. Wir
-können dann auf die Möglichkeit des Play Frameworks zur sicheren Verwaltung von Session-Bezogenen
+eine Nebensächlichkeit handelt, die ohne weitere Probleme aufgerüstet werden kann. Wir beschränken
+uns daher auf die Möglichkeit, sich mit einem Benutzernamen sowie einem dazugehörigen Passwort
+anzumelden. Die Nutzerdaten werden dabei mit einer Konfigurationsdatei auf dem Server abgeglichen.
+Wir können dann auf die Fähigkeit des Play Frameworks zur sicheren Verwaltung von sessionbezogenen
 Daten zurückgreifen um die Anmeldung aufrechtzuerhalten.
 
 Es ist zu erwarten, dass in einer zukünftigen Version von Play ein eigenes Modul zur
@@ -66,73 +66,73 @@ verwendet werden kann.
 
 \subsection{Persistenz}
 
-Als Besonderheit bei der Datenpersistenz sind die serverseitig zu verwaltenden Theorien zu nennen.
-Da jeder Benutzer eine von allen anderen Benutzern unabhängige Menge von Projekten mit Theorien
-besitzt, also eine hierarchische Struktur besteht, spricht nichts dagegen, die Daten Serverseitig im
-Dateisystem zu verwalten. Somit ist auch eine eventuelle spätere Integration eines
+Als Besonderheit bei der Datenpersistenz sind die serverseitig zu verwaltenden Theorien
+hervorzuheben. Da jeder Benutzer eine von allen anderen Benutzern unabhängige Menge von Projekten
+mit Theorien besitzt, also eine hierarchische Struktur besteht, spricht nichts dagegen, die Daten
+serverseitig im Dateisystem zu verwalten. Somit ist auch eine eventuelle spätere Integration eines
 Versionsverwaltungssystems wie \textit{Mercurial} oder \textit{Git} möglich. Da über diese Daten
 hinaus nur wenige Informationen (Passwörter und Projektkonfigurationen) vom Server verwaltet werden
-müssen, ist die Einrichtung und Anbindung einer Datenbank nicht von Nöten.
+müssen, ist die Einrichtung und Anbindung einer Datenbank nicht notwendig.
 
-\subsection{Bereitstellung von Resourcen}
+\subsection{Bereitstellung von Ressourcen}
 
-Das Play-Framework bietet ausgefeilte Möglichkeiten sowohl statische als aus dynamische Ressourcen
-bereit zu stellen. Ein Hauptaugenmerk liegt hierbei auf der Bereitstellung der nötigen \acr{js}-,
+Das Play-Framework bietet ausgefeilte Möglichkeiten, sowohl statische, als aus dynamische Ressourcen
+bereitzustellen. Ein Hauptaugenmerk liegt hierbei auf der Bereitstellung der nötigen \acr{js}-,
 \acr{css}- sowie \acr{html}-Dateien.
 
-Während der Entwicklung dieser Arbeit wurde ein Modul für das Play Framework entwickelt, um \textbf
+Während der Entwicklung dieser Arbeit, wurde ein Modul für das Play Framework entwickelt, um \textbf
 {CoffeeScript-Dateien} automatisch zu \acr{js} zu übersetzen, Abhängigkeiten mit RequireJS
-aufzulösen und eine Optimierte \acr{js}-Datei bereitzustellen. Da in der in Kürze erscheinenden
-Version 2.1 des Play Framework ganau diese Funktionalität entwickelt wurde, liegt die Entscheidung
-nahe, diese neue Funktionalität zu nutzen und das eigene Modul wegfallen zu lassen, da so eine
-Weiterentwicklung bzw. die Kompatibilität mit zukünftigen Versionen des Frameworks gesichert ist.
-(Siehe Abschnitt\,\ref{sec:coffeescript} sowie\,\ref{sec:requirejs})
+aufzulösen und eine einzelne, optimierte \acr{js}-Datei bereitzustellen. Da in der in Kürze
+erscheinenden Version 2.1 des Play Framework ganau diese Funktionalität zu finden sein, liegt die
+Entscheidung nahe, diese neue Funktionalität zu nutzen und das eigene Modul wegfallen zu lassen, da
+so eine Weiterentwicklung bzw. die Kompatibilität mit zukünftigen Versionen des Frameworks gesichert
+ist (Siehe Abschnitt\,\ref{sec:coffeescript} sowie\,\ref{sec:requirejs}).
 
-Ebenfalls von Play unterstützt wird die Möglichkeit  \textbf{\acr{less}-Dateien} mit ihren
+Ebenfalls von Play unterstützt wird die Möglichkeit, \textbf{\acr{less}-Dateien} mit ihren
 Abhängigkeiten zu einer \acr{css}-Datei zu übersetzen. Da diese genau wie bei der CoffeeScript-
 Übersetzung zur Entwicklungszeit in lesbare und im Produktiveinsatz in optimierte Dateien übersetzt
-werden. Da die Oberfläche im Fall der Entwicklungsumgebung sehr vielschichtig und komplex ist, ist
+werden. Weil die Oberfläche im Fall der Entwicklungsumgebung sehr vielschichtig und komplex ist, ist
 eine Modularisierung der Stilvorlagen eine willkommene Erleichterung und im Sinne der Wartbarkeit.
 
-\textbf{Statische Ressourcen} wie in unserem Fall z.B. Font-Dateien oder fremde \acr{js}-Bibliotheken
-werden durch einen sogenannten \textit{Asset}-Controler aus dem Play-Framework bereitgestellt.
-Dieser bietet die Möglichkeit alle Dateien in einem Ordner statisch bereitzustellen. In unserem Fall
-sind das die Dateien im Ordner \texttt{"/public"} welche unter der \acr{url} \texttt{"/assets"}
-bereitgestellt werden.
+\textbf{Statische Ressourcen}, in unserem Fall z.B. Font-Dateien oder fremde \acr{js}-Bibliotheken,
+werden durch einen sogenannten \textit{Asset-Controler} aus dem Play-Framework bereitgestellt.
+Dieser bietet die Möglichkeit, alle Dateien in einem Ordner statisch zur Verfügung zu stellen. In
+unserem Fall sind das die Dateien im Ordner \texttt{"/public"} welche unter der \acr{url}
+\texttt{"/assets"} bereitgestellt werden.
 
-Die Bereitstellung der einzelnen Dokumente bzw. Theorien findet direkt über die WebSocket API statt.
-(Siehe Abschnitt\,\ref{sec:comm})
+Die Bereitstellung der einzelnen Dokumente bzw. Theorien findet direkt über die WebSocket API statt
+(Siehe Abschnitt\,\ref{sec:comm}).
 
-\subsection{Isabelle/Scala Integration}
+\subsection{Isabelle/Scala-Integration}
 
-Da die Isabelle/Scala Schnittstelle ständig weiter Entwickelt wird muss zunächst abgewogen werden,
+Weil die Isabelle/Scala Schnittstelle ständig weiter entwickelt wird, muss zunächst abgewogen werden,
 welche Version hier verwendet werden soll. Da es sich noch um ein junges Projekt handelt, das im
 Moment noch vielen größeren Änderungen unterliegt, entscheiden wir uns dafür die aktuellste stabile
-Version - die in Isabelle 2012 enthaltene - zu verwenden und damit deren Einschränkungen gegenüber
+Version (die in Isabelle 2012 enthaltene) zu verwenden und damit deren Einschränkungen gegenüber
 aktuellen Entwicklungsversionen zu akzeptieren, da ein dauerndes \glqq Hinterherlaufen\grqq\ hier zu
-großen Aufwand bedeutet hätte.
+großen Aufwand bedeuten würde.
 
-Da Isabelle/Scala in Isabelle 2012 für Scala 2.9 übersetzt wurde, kann es nicht direkt in diesem
-Projekt verwendet werden. (Scala 2.9 und Scala 2.10 sind nicht binärkompatibel) Deswegen musste die
-Schnittstelle für Scala 2.10 neu Übersetzt werden. Die neu gebaute Version von \texttt{Pure.jar} ist
-im Anwendungsverzeichnis unter \texttt{lib/} zu finden. Bei Verwendung älterer Versionen kommt es zu
-unverständlichen Fehlermeldungen.
+Isabelle/Scala wurde in Isabelle 2012 für Scala 2.9 übersetzt. Deswegen kann es nicht direkt in
+diesem Projekt verwendet werden (Scala 2.9 und Scala 2.10 sind nicht binärkompatibel). Deswegen
+musste die Schnittstelle für Scala 2.10 neu übersetzt werden. Die neu gebaute Version von
+\texttt{Pure.jar} ist im Anwendungsverzeichnis unter \texttt{lib/} zu finden. Bei Verwendung älterer
+Versionen kommt es zu unverständlichen Fehlermeldungen.
 
 Isabelle/Scala arbeitet intern mit Offset-basierten Textpositionen. Da das auf dem Client ineffizient
 wäre und der verwendete Editor (Abschnitt\,\ref{sec:editor}) mit zeilenbasierten Positionen arbeitet,
 ist es notwendig, eine effiziente Repräsentation der Dateien auf dem Server zu entwickeln, auf
-welche sowohl über die Zeile/Spalte als auch über absolute Offsets zugegriffen werden kann. (Die
-Implementierung wird in Abschnitt\,\ref{sec:linebuffer} beschrieben) 
+welche sowohl über die Zeile/Spalte als auch über absolute Offsets zugegriffen werden kann (Die
+Implementierung wird in Abschnitt\,\ref{sec:linebuffer} beschrieben).
 
 Um die kumulierten Änderungen am Dokument, welche vom Client regelmäßig gesendet werden nicht nur
-in die eigene Repräsentation einzuarbeiten sondern auch an Isabelle/Scala weiterzuleiten, muss eine
+in die eigene Repräsentation einzuarbeiten, sondern auch an Isabelle/Scala weiterzuleiten, muss eine
 Umrechnung der Daten in die von der Schnittstelle verwendeten Datentypen geschehen.
 
 Nach jeder Veränderung an einzelnen Dokumenten leitet Isabelle/Scala die Daten an die Isabelle
-Plattform weiter, welche die Dokumente dann dann überprüft. Über einen Nachrichtenkanal
-(\texttt{Session.commandsChanged}) kommen nach erfolgreichem Abschuss dann die Ergebnisse zurück
+Plattform weiter, welche die Dokumente dann überprüft. Über einen Nachrichtenkanal
+(\texttt{Session.commandsChanged}) kommen nach erfolgreichem Abschluss dann die Ergebnisse zurück
 welche wiederum in ein für den Client verständliches Format (JSON) mit den Zeilen/Spalten-basierten
 Positionen übertragen wird.
 
-Für das Syntax-Highlighting auf dem Client ist es nötig eine Liste der gültigen Schlüsselwörter in
-der Theorie an den Browser zu übertragen und aktuell zu halten. (Siehe auch\,\ref{sec:syntax})
+Für das Syntax-Highlighting auf dem Client ist es nötig, eine Liste der gültigen Schlüsselwörter in
+der Theorie an den Browser zu übertragen und aktuell zu halten (Siehe auch\,\ref{sec:syntax}).

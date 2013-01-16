@@ -3,21 +3,21 @@
 Isabelle ist ein generisches System, das vor allem zum interaktiven Beweisen von Theoremen unter
 der Nutzung von Logiken höherer Ordnung eingesetzt wird. Isabelle ist in \acr{sml} implementiert und
 stark davon abhängig. In Beweisen kann die volle Mächtigkeit von \acr{sml} an jeder Stelle benutzt
-werden. Dadurch ist es schwer eine Echtzeitverarbeitung wie sie für eine Entwicklungsumgebung nötig
+werden. Dadurch ist es schwer, eine Echtzeitverarbeitung wie sie für eine Entwicklungsumgebung nötig
 wäre zu realisieren.
 
 Die \acr{isar}-Plattform bietet eine zusätzliche Abstraktion vom nackten \acr{sml} Code, die dem
 Benutzer eine komfortablere Umgebung zur Formulierung von \textit{Beweisdokumenten} liefert. Darüber
 hinaus ermöglichen die strukturierten Dokumente eine menschenlesbare Veröffentlichung der Beweise.
-Das ist ein klarer Vorteil gegenüber Beweisen in \acr{sml} Skripten, welche eher maschinenbezogen
+Das ist ein klarer Vorteil gegenüber Beweisen in \acr{sml}-Skripten, welche eher maschinenbezogen
 sind.
 
-Isabelle/Isar erlaubt die Veröffentlichung in verschiedene Formate, wie HTML und LaTeX. Dabei werden
+Isabelle/Isar erlaubt die Veröffentlichung in verschiedene Formate, wie HTML und \LaTeX. Dabei werden
 bestimmte Konstrukte besonders dargestellt. Solche Symbole werden in der Form
 \texttt{\textbackslash\textless ...\textgreater} im Code repräsentiert. Es gibt theoretisch
 unendlich viele dieser Symbole. Allerdings wird nur eine kleine Menge von Symbolen in
 \cite{isabelle} genau spezifiziert. Desweiteren existieren Kontrollzeichen in der Form
-\texttt{\textbackslash\textless\textasciicircum ...\textgreater}, die benutzt werden können um
+\texttt{\textbackslash\textless\textasciicircum ...\textgreater}, die benutzt werden können, um
 Sub- und Superskript zu repräsentieren bzw. Zeichen fett darzustellen. Da die konkrete Benutzung der
 Isabelle-Plattform selbst für diese Arbeit eine eher untergeordnete Relevanz hat, wird an dieser
 Stelle für weitere Informationen auf die Isabelle Referenz in \cite{isabelle} verwiesen.
@@ -28,10 +28,10 @@ Das bisherige Standardwerkzeug für die Erstellung von Beweisdokumenten ist der 
 \textit{Proof General}, der auf der \textit{emacs} Plattform lebt. Der Proof General bietet
 sogenanntes \textit{script management}. (Vgl. \cite{sm}) Gegenüber bisherigen Ansätzen entsteht hier
 ein neues Interaktionsmodell, bei dem Beweisskripte erstellt werden, die vom Proof General so
-verwaltet werden, dass es möglich ist, in Beweisen Schritte zurück zu gehen, bzw. Beweiserzustände
+verwaltet werden, dass es möglich ist, in Beweisen Schritte zurück zu gehen bzw. Beweiserzustände
 an den Kommandos automatisch gespeichert und wiederhergestellt werden. 
 
-Problematisch ist dabei, dass keine explizite Nebenläufigkeit besteht, und damit auch keine direkte
+Problematisch ist dabei, dass keine explizite Nebenläufigkeit besteht und damit auch keine direkte
 Kontrolle über die Optimierung für Mehrprozessorsystem, wie sie heute üblich sind.
 
 \clearpage
@@ -69,43 +69,43 @@ $|$\hspace*{6 mm}$step: rel\ x\ y \Longrightarrow path\ rel\ y\ z\ \Longrightarr
 Hier können die verschiedenen Schichten von Isabelle/Isar erläutert werden:
 
 \begin{enumerate}
-  \item Theorien - Es existiert ein azyklischer Graph von Theorien, der die äußere Modulare Struktur
-  der Anwendung abbilden. Im Beispiel Theory C die von A und B abhängt. 
+  \item Theorien - Es existiert ein azyklischer Graph von Theorien, der die äußere modulare Struktur
+  der Anwendung abbildet. Im Beispiel Modul C, das von den Modulen A und B abhängt. 
 
   \item Definitionen und Kommandos -   Diese müssen sequenziell betrachtet werden. Im Beispiel sind
   das die Definition   \textbf{inductive} und das Kommando \textbf{theorem}.
 
-  \item Toplevel Beweise - Hier wird der meiste Rechenaufwand benötigt.
+  \item Toplevel-Beweise - Hier wird der meiste Rechenaufwand benötigt.
 
-  \item Verschachtelte Beweise - Beweise sind hierarchisch Strukturiert. 
+  \item Verschachtelte Beweise - Beweise sind hierarchisch strukturiert. 
 \end{enumerate}
 
-In Proof General werden die Toplevel Beweise sequenziell ausgeführt. Lediglich die einzelnen Module
+In Proof General werden die Toplevel-Beweise sequenziell ausgeführt. Lediglich die einzelnen Module
 werden bereits Parallel überprüft.
 
-Da Beweise allerdings unwichtig sind in dem Sinne, dass es für einen Abhängigen Beweis nicht wichtig
-ist abzuwarten ob eine Vorbedingung erfolgreich bewiesen wurde, könnte diese Sequenzielle Struktur
+Da Beweise allerdings in dem Sinne unwichtig sind, dass es für einen abhängigen Beweis nicht wichtig
+ist abzuwarten ob eine Vorbedingung erfolgreich bewiesen wurde, könnte diese sequenzielle Struktur
 aufgebrochen werden. \textit{(Ende der Zitation von \cite{parproof})}
 
 \subsection{Asynchrones Beweisen}
 
-Mit Erscheinung der Version 2009 von Isabelle wurde es dann möglich, Beweisdokumente bzw. Theorien
+Mit Erscheinen der Version 2009 von Isabelle wurde es dann möglich, Beweisdokumente bzw. Theorien
 nebenläufig zu überprüfen. Also die Toplevel Beweise gleichzeitig zu überprüfen. \cite{parproof}
 
 \subsection{Isabelle/Scala}
 
-Seit 2010 existiert mit \textit{Isabelle/Scala} eine neue Schnittstelle zur Isabelle-Platform, die
+Seit 2010 existiert mit \textit{Isabelle/Scala} eine neue Schnittstelle zur Isabelle-Plattform, die
 auf Scala basiert. Isabelle/Scala stellt eine API zur Arbeit mit Isabelle bereit, welche die zur
-Nutzung relevanten Teile der SML Implementierung in Scala abbilden. \cite{iscala} (Siehe auch
-Abbildung\,\ref{fig:diagram-iscala}) Dabei werden die in \cite{parproof} erarbeiteten Konzepte des
+Nutzung relevanten Teile der SML Implementierung in Scala abbilden \cite{iscala} (Siehe auch
+Abbildung\,\ref{fig:diagram-iscala}). Dabei werden die in \cite{parproof} erarbeiteten Konzepte des
 asynchronen Beweisens angewendet.
 
 Über statisch typisierte Methoden können die Dokumente modifiziert werden. Dafür wurde ein internes
-XML-Basiertes Protokoll eingeführt, das die Scala API mit der SML API verknüpft. Dementsprechend
+XML-basiertes Protokoll eingeführt, das die Scala API mit der SML API verknüpft. Dementsprechend
 sind auch die Informationen, welche von Isabelle geliefert werden typisiert. Das macht
 Isabelle/Scala in der Nutzung recht robust, da ein Großteil der Fehler bereits zur Übersetzungszeit
 gefunden werden kann. Die Schnittstelle basiert zu großen Teilen auf einfachen Aktoren aus der Scala
-Standardbibliothek, es wird jedoch auch eine Aktorenunabhängige API mit Callback-Funktionen
+Standardbibliothek, es wird jedoch auch eine aktorenunabhängige API mit Callback-Funktionen
 bereitgestellt.
 
 \begin{figure}[ht]
