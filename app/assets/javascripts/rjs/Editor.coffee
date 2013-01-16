@@ -57,6 +57,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
           'Ctrl-Shift-Up' : 'isup'
           'Ctrl-B'    : 'bold'
           'Ctrl-S'    : 'save'
+          'Ctrl-H'    : 'replace'
           'F3'        : 'findNext'
         mode: 
           name: "isabelle"

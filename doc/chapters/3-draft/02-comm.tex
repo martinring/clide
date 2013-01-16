@@ -1,22 +1,22 @@
 \section{Kommunikation}
 \label{sec:comm}
 
-Da viele Daten in hoher Frequenz übertragen werden müssen, (Nach jeder Veränderung des Dokuments
+Da viele Daten in hoher Frequenz übertragen werden müssen (Nach jeder Veränderung des Dokuments
 muss der Server informiert werden, der dann zu unbestimmten Zeitpunkten in mehreren Schritten die
-Zustands- Informationen zurücksendet) ist eine normale Datenübertagung wie bei Webapplikationen
+Zustands-Informationen zurücksendet), ist eine normale Datenübertagung wie bei Webapplikationen
 üblich über \acr{ajax} bzw. \acr{http}-Anfragen nicht gut geeignet: Bei normalem \acr{http} ist es
-zum einen immer nötig auf Browser Seite eine Anfrage zu stellen um Informationen vom Server zu
+zum einen immer nötig auf Browser Seite eine Anfrage zu stellen, um Informationen vom Server zu
 erhalten, zum anderen hat jede Anfrage und jede Antwort zusätzlich einen Header, welcher mindestens
 einige hundert Bytes groß ist.
 
 Als Worst-Case-Beispiel kann das Entfernen von Kommandos aus dem Dokumenten-Modell betrachtet
-werden: Um das Modell eines Dokuments auf Server und Client synchron zu halten müssen ab und zu
+werden: Um das Modell eines Dokuments auf Server und Client synchron zu halten, müssen ab und zu
 Nachrichten vom Server gesendet werden, welche signalisieren, dass ein Kommando aus dem Modell
 entfernt wurde. Diese Nachricht enthält als Information die eindeutige ID des Kommandos. Bei der ID
-handelt es sich um eine 64-Bit Zahl. Zusätzlich dazu muss signalisiert werden, um welche Aktion es
+handelt es sich um eine 64-Bit-Zahl. Zusätzlich dazu muss signalisiert werden, um welche Aktion es
 sich eigentlich handelt. Dafür reichen bei der überschaubaren Anzahl an möglichen Aktionen weitere 4
-Byte mehr als aus. Das bedeutet, die eigentlichen Informationen die für diese Aktion relevant sind
-belaufen sich auf höchstens 12 Byte. Würde diese Aktion über \acr{http} laufen müsste zunächst eine
+Byte mehr als aus. Das bedeutet, die eigentlichen Informationen, die für diese Aktion relevant sind
+belaufen sich auf höchstens 12 Byte. Würde diese Aktion über \acr{http} laufen, müsste zunächst eine
 Anfrage gestellt werden
 
 \begin{lstlisting}
@@ -24,7 +24,7 @@ GET /user/project/file.thy/remove-command HTTP/1.1
 Host: www.clide.net
 \end{lstlisting}
 
-Diese Anfrage allein ist bereits 70 Zeichen lang ohne dass überhaupt relevante Informationen
+Diese Anfrage allein ist bereits 70 Zeichen lang, ohne dass überhaupt relevante Informationen
 übertragen wurden. Die minimale Antwort sähe dann in etwa so aus:
 
 \begin{lstlisting}
@@ -38,13 +38,13 @@ Content-Type: text/html
 178
 \end{lstlisting}
 
-Das sind zusammen über 250 Zeichen um zu signalisieren, dass Kommando 178 entfernt werden soll.
+Das sind zusammen über 250 Zeichen, um zu signalisieren, dass Kommando 178 entfernt werden soll.
 Damit wurde die Information um den Faktor 30 aufgeblasen. Zusätzlich kommt es zu Verzögerungen durch
 die zusätzlichen Anfragen. 
 
 \subsection{Google SPDY}
 
-Google experimentiert zu zeit mit einem neuen Protokoll für schnellere Webanwendungen bei dem die
+Google experimentiert zu Zeit mit einem neuen Protokoll für schnellere Webanwendungen, bei dem die
 Header komprimiert werden und vor allem unbegrenzt viele parallele Anfragen gestellt werden können.
 SPDY führt zu einem drastischen Geschwindigkeitsgewinn bei der Arbeit mit vielen kleinen
 Nachrichten. Das Protokoll ist jedoch zur Zeit noch experimentell und wird lediglich von einem
@@ -57,8 +57,8 @@ Nutzerzahl verwendbar. Darüber hinaus ist der Erfolg des Protokolls ungewiss.
 
 Die im \acr{html}5-Standard eingeführten WebSockets sind die ideale Lösung für das Problem. Bei
 WebSockets wird eine vollduplex Verbindung über TCP aufgebaut, welche ohne den HTTP-Overhead
-auskommt und lediglich ein Byte pro Nachricht benötigt um zu signalisieren, dass eine Nachricht
-endet. Außerdem ist es durch die duplex Verbindung möglich sogenannte Server-Pushes wie in dem
+auskommt und lediglich ein Byte pro Nachricht benötigt, um zu signalisieren, dass eine Nachricht
+endet. Außerdem ist es durch die duplex Verbindung möglich, sogenannte Server-Pushes wie in dem
 vorangegangenen Beispiel ohne vorheriges Polling bzw. eine verzögerte Antwort auf eine Anfrage zu
 realisieren.
 
@@ -68,16 +68,16 @@ relativ leicht zu implementieren, aber in der Benutzung kaum akzeptabel, da sich
 Verzögerungen bei teilweise weit über 1000 Nachrichten pro Minute so negativ auf die
 Ausführungsgeschwindigkeit auswirken würden, dass ein produktives Arbeiten mit dem System nicht mehr
 möglich wäre. Aktuell werden WebSockets von allen relevanten Browsern in der neusten Version
-unterstützt. Browser die seit einem Jahr nicht mehr aktualisiert wurden können mit dem Aufruf
-allerdings zu großen Teilen nichts Anfangen. (Siehe Abschnitt\,\ref{sec:comp}) Das Play Webframwork
-unterstützt Serverseitige WebSocket-Verbindungen. Allerdings muss bei der Benutzung auf viel
-Funktionalität verzichtet werden. Da WebSockets allerdings so unabdingbar sind werden diese
+unterstützt. Browser, die seit einem Jahr nicht mehr aktualisiert wurden können mit dem Aufruf
+allerdings zu großen Teilen nichts anfangen (Siehe Abschnitt\,\ref{sec:comp}). Das Play Webframwork
+unterstützt serverseitige WebSocket-Verbindungen. Allerdings muss bei der Benutzung auf viel
+Funktionalität verzichtet werden. Weil WebSockets allerdings so unabdingbar sind werden diese
 Einschränkungen akzeptiert.
 
 \subsection{Protokoll}
 
-Für das Protokoll wurde zunächst der Einfachheit halber \acr{json} gewählt mit der Möglichkeit im
-Hinterkopf, es zu einem späteren Zeitpunkt leicht durch das komprimierte \acr{bson}-Protokoll zu
-ersetzen. Um das möglich zu machen wird unter Verwendung von Dynamischer Typisierung in Scala (Siehe
-Abschnitt\,\ref{sec:dyn}) vom Übertragungsprotokoll abstrahiert, (Siehe Abschnitt\,\ref{sec:jsc})
-damit es ohne größeren Aufwand ausgetauscht werden kann.
+Für das Protokoll wird zunächst der Einfachheit halber \acr{json} gewählt mit der Möglichkeit im
+Hinterkopf, es zu einem späteren Zeitpunkt leicht durch das komprimierte \acr{bson}-Protokoll
+\cite{bson} zu ersetzen. Um das möglich zu machen, wird unter Verwendung von dynamischer Typisierung
+in Scala (Siehe Abschnitt\,\ref{sec:dyn}) vom Übertragungsprotokoll abstrahiert (Siehe
+Abschnitt\,\ref{sec:jsc}), damit es ohne größeren Aufwand ausgetauscht werden kann.

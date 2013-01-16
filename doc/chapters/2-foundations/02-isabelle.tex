@@ -6,17 +6,17 @@ stark davon abhängig. In Beweisen kann die volle Mächtigkeit von \acr{sml} an 
 werden. Dadurch ist es schwer, eine Echtzeitverarbeitung wie sie für eine Entwicklungsumgebung nötig
 wäre zu realisieren.
 
-Die \acr{isar}-Plattform bietet eine zusätzliche Abstraktion vom nackten \acr{sml} Code, die dem
-Benutzer eine komfortablere Umgebung zur Formulierung von \textit{Beweisdokumenten} liefert. Darüber
-hinaus ermöglichen die strukturierten Dokumente eine menschenlesbare Veröffentlichung der Beweise.
-Das ist ein klarer Vorteil gegenüber Beweisen in \acr{sml}-Skripten, welche eher maschinenbezogen
-sind.
+Die \acr{isar}-Plattform (siehe dazu \cite{isar}) bietet eine zusätzliche Abstraktion vom nackten
+\acr{sml} Code, die dem Benutzer eine komfortablere Umgebung zur Formulierung von
+\textit{Beweisdokumenten} liefert. Darüber hinaus ermöglichen die strukturierten Dokumente eine
+menschenlesbare Veröffentlichung der Beweise. Das ist ein klarer Vorteil gegenüber Beweisen in
+\acr{sml}-Skripten, welche eher maschinenbezogen sind.
 
 Isabelle/Isar erlaubt die Veröffentlichung in verschiedene Formate, wie HTML und \LaTeX. Dabei werden
 bestimmte Konstrukte besonders dargestellt. Solche Symbole werden in der Form
 \texttt{\textbackslash\textless ...\textgreater} im Code repräsentiert. Es gibt theoretisch
 unendlich viele dieser Symbole. Allerdings wird nur eine kleine Menge von Symbolen in
-\cite{isabelle} genau spezifiziert. Desweiteren existieren Kontrollzeichen in der Form
+\cite[S. 265-270]{isabelle} genau spezifiziert. Desweiteren existieren Kontrollzeichen in der Form
 \texttt{\textbackslash\textless\textasciicircum ...\textgreater}, die benutzt werden können, um
 Sub- und Superskript zu repräsentieren bzw. Zeichen fett darzustellen. Da die konkrete Benutzung der
 Isabelle-Plattform selbst für diese Arbeit eine eher untergeordnete Relevanz hat, wird an dieser
@@ -26,17 +26,17 @@ Stelle für weitere Informationen auf die Isabelle Referenz in \cite{isabelle} v
 
 Das bisherige Standardwerkzeug für die Erstellung von Beweisdokumenten ist der generische
 \textit{Proof General}, der auf der \textit{emacs} Plattform lebt. Der Proof General bietet
-sogenanntes \textit{script management}. (Vgl. \cite{sm}) Gegenüber bisherigen Ansätzen entsteht hier
-ein neues Interaktionsmodell, bei dem Beweisskripte erstellt werden, die vom Proof General so
-verwaltet werden, dass es möglich ist, in Beweisen Schritte zurück zu gehen bzw. Beweiserzustände
-an den Kommandos automatisch gespeichert und wiederhergestellt werden. 
+sogenanntes \textit{script management}. (Vgl. \cite[S. 161-194]{sm}) Gegenüber bisherigen Ansätzen
+entsteht hier ein neues Interaktionsmodell, bei dem Beweisskripte erstellt werden, die vom Proof
+General so verwaltet werden, dass es möglich ist, in Beweisen Schritte zurück zu gehen bzw.
+Beweiserzustände an den Kommandos automatisch gespeichert und wiederhergestellt werden.
 
 Problematisch ist dabei, dass keine explizite Nebenläufigkeit besteht und damit auch keine direkte
 Kontrolle über die Optimierung für Mehrprozessorsystem, wie sie heute üblich sind.
 
 \clearpage
 
-In \cite{parproof} wird folgendes Beispielskript zur Illustration des Problems aufgeführt:
+In \cite[S. 2]{parproof} wird folgendes Beispielskript zur Illustration des Problems aufgeführt:
 
 \begin{quote}
 \textbf{theory} C \textbf{imports} A B\\
@@ -66,31 +66,35 @@ $|$\hspace*{6 mm}$step: rel\ x\ y \Longrightarrow path\ rel\ y\ z\ \Longrightarr
 \textbf{end}
 \end{quote}
 
-Hier können die verschiedenen Schichten von Isabelle/Isar erläutert werden:
+Anhand dieses Beispiels werden die verschiedenen Schichten von Isabelle/Isar im Bezug auf die
+Nebenläufigkeit erläutert (hier zusammengefasst).
 
 \begin{enumerate}
   \item Theorien - Es existiert ein azyklischer Graph von Theorien, der die äußere modulare Struktur
   der Anwendung abbildet. Im Beispiel Modul C, das von den Modulen A und B abhängt. 
 
-  \item Definitionen und Kommandos -   Diese müssen sequenziell betrachtet werden. Im Beispiel sind
-  das die Definition   \textbf{inductive} und das Kommando \textbf{theorem}.
+  \item Definitionen und Kommandos -   Diese müssen streng sequenziell betrachtet werden. Im
+  Beispiel sind   das die Definition   \textbf{inductive} und das Kommando \textbf{theorem}. Hier
+  besteht kein Optimierungspotential
 
   \item Toplevel-Beweise - Hier wird der meiste Rechenaufwand benötigt.
 
-  \item Verschachtelte Beweise - Beweise sind hierarchisch strukturiert. 
-\end{enumerate}
+  \item Verschachtelte Beweise - $\langle proof\rangle$ - Beweise können hierarchisch strukturiert
+  werden.  \end{enumerate}
 
-In Proof General werden die Toplevel-Beweise sequenziell ausgeführt. Lediglich die einzelnen Module
-werden bereits Parallel überprüft.
+In Proof General werden die Toplevel-Beweise sequenziell betrachtet. Lediglich die einzelnen Module
+werden bereits parallel überprüft.
 
-Da Beweise allerdings in dem Sinne unwichtig sind, dass es für einen abhängigen Beweis nicht wichtig
-ist abzuwarten ob eine Vorbedingung erfolgreich bewiesen wurde, könnte diese sequenzielle Struktur
-aufgebrochen werden. \textit{(Ende der Zitation von \cite{parproof})}
+Da Beweise allerdings in dem Sinne unwichtig sind, dass es für einen abhängigen Beweis nicht
+unbedingt nötig ist abzuwarten ob eine Vorbedingung erfolgreich bewiesen wurde, könnte diese
+sequenzielle Struktur aufgebrochen werden.
 
 \subsection{Asynchrones Beweisen}
 
 Mit Erscheinen der Version 2009 von Isabelle wurde es dann möglich, Beweisdokumente bzw. Theorien
-nebenläufig zu überprüfen. Also die Toplevel Beweise gleichzeitig zu überprüfen. \cite{parproof}
+nebenläufig zu überprüfen. Also die Toplevel Beweise gleichzeitig zu überprüfen \cite{parproof}. Das
+hat die Voraussetzung für effiziente Implementierungen von interaktiven Benutzeroberflächen
+geschaffen.
 
 \subsection{Isabelle/Scala}
 

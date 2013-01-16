@@ -485,7 +485,10 @@ session.commands_changed += { change =>
 
 Im \texttt{RemoteDocumentModel} wird dafür eine synchrone Repräsentation der Kommandos verwaltet.
 Sollte ein Kommando hier nicht mehr existieren, wird es über die Nachricht
-\texttt{js.ignore.removeCommand(...)} im Browser entfernt, damit die Ressourcen dort freigegeben
+\begin{lstlisting}
+js.ignore.removeCommand(...)
+\end{lstlisting}
+im Browser entfernt, damit die Ressourcen dort freigegeben
 werden können bzw. Syntaxmarkierungen aus dem Dokument entfernt werden können.
 
 Über \texttt{pushCommand} werden alle veränderten Kommandos verarbeitet. Wenn sich dann die

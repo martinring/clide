@@ -1,9 +1,9 @@
 \chapter{Bewertung}
 
-Das Ergebnis dieser Arbeit ist ein innovatives, funktionstüchtiges Werkzeug, das in der Lage ist dem
-Nutzer bei der Arbeit mit Beweisdokumenten eine sinnvolle und produktive Unterstützung zu gewähren.
-Als Maßstab für die Einordnung der Ergebnisse bietet sich ein Vergleich mit dem bisherigen Ansatz
-Isabelle/jEdit an. 
+Das Ergebnis dieser Arbeit ist ein innovatives, funktionstüchtiges Werkzeug (\textit{clide}), das in
+der Lage ist dem Nutzer bei der Arbeit mit Beweisdokumenten eine sinnvolle und produktive
+Unterstützung zu gewähren. Als Maßstab für die Einordnung der Ergebnisse bietet sich ein Vergleich
+mit dem bisherigen Ansatz Isabelle/jEdit an.
 
 Dabei ist allerdings zu beachten, dass es sich bei diesem Projekt auch um eine Machbarkeitsstudie
 für die Umsetzung einer webbasierten IDE handelt, da es nicht möglich ist eine sogenannte
@@ -66,25 +66,41 @@ meiste andere Funktionalität stammt aus Isabelle/Scala bzw. Play und wurde nur 
 Da es sich um eine Benutzerschnittstelle handelt ist Usability ein wichtiges Thema. Da es sich hier
 um eine Machbarkeitsstudie handelt, wurden einige Aspekte der Usability zunächst hinten angestellt.
 Insbesondere auch die Barrierefreiheit, da diese in einer \textit{single-page}-HTML-Anwendung
-bislang schwer zu erreichen ist, nicht zuletzt auch weil viele unkonventionelle ELemente verwendet
+bislang schwer zu erreichen ist, nicht zuletzt auch weil viele unkonventionelle Elemente verwendet
 werden mussten. Anstelle von ausgiebigen Usability Tests wurde die Anwendung einigen Probanden
 (Kommilitonen) zur Benutzung vorgelegt, und deren Verhalten beobachtet. Dabei wurden einige Lücken
 gewahr, die noch geschlossen werden konnten. So wurden beispielsweise nach den Tests die meisten
-Kommandos auf Standard Tastenkombinationen gelegt oder eigene modale Dialoge anstelle der Browser-
-Dialoge eingeführt.
+Kommandos auf Standard Tastenkombinationen gelegt oder eigene modale Dialoge anstelle der 
+Browser-Dialoge eingeführt.
 
 Isabelle/jEdit hat hier natürlich den Vorteil, dass es in einer ausgereiften Umgebung (jEdit) lebt,
 die über einige hundert Personenjahre Entwicklungszeit entstanden ist und damit vielfältiger ist.
 
 Die Grundlagen für eine benutzerfreundliche Anwendung wurden aber dennoch geschaffen. Insbesondere
-wurde von Anfang an viel Wert auf die \texttt{User Experience} gelegt. In den oben erwähnten Tests
+wurde von Anfang an viel Wert auf die \textit{User Experience} gelegt. In den oben erwähnten Tests
 wurde diese häufig als gut gelungen bewertet und es konnte beobachtet werden, dass die Probanden
 Spaß an der Nutzung der Anwendung hatten, selbst bei denen, die das eigentliche Thema des
 Theorembeweisens nicht interessierte. Das ist eine gute wichtige Voraussetzung für den erfolgreichen
 Einsatz in der Lehre, da für das Lernverhalten Emotionen eine wichtige Rolle spielen
 \cite{emotionaldesign}.
 
+Ein wichtiger Punkt der Benutzbarkeit ist auch der Konfigurationsaufwand. Dieser ist hier für die
+Endnutzer welche den von einem Administrator einmal eingerichteten Server verwenden praktisch nicht
+vorhanden, so dass direkt mit der Inhaltlichen Arbeit gestartet werden kann. Auch dies ist besonders
+für die Lehre von Interesse, da es nicht zuträglich ist, wenn sich Studierende mit der Installation
+und Konfiguration der Plattform länger Aufhalten als mit den ersten Versuchen darauf.
+
 \section{Visualisierung}
+
+Die gesamte Anwendung im Browser nutzt keine gerasterten Grafiken, so dass es möglich ist
+hochqualitative Ergebnisse auf Geräten mit geeigneten Bildschirmen zu erhalten 
+(Abbildung\,\ref{fig:screen-detail}).
+
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{images/screen-detail}
+  \caption{jEdit vs. clide}
+  \label{fig:screen-detail}
+\end{figure}
 
 \begin{figure}[ht]
 \includegraphics[width=\linewidth]{images/jedit}
@@ -92,11 +108,11 @@ Einsatz in der Lehre, da für das Lernverhalten Emotionen eine wichtige Rolle sp
   \label{fig:jedit}
 \end{figure}
 
-Hier ist eine klare Verbesserung gegenüber Isabelle/jEdit zu erkennen. Während Isabelle/jEdit sich
-am festen Textraster, welches in jEdit vorgegeben ist, orientieren musste und nur geringe
-Abweichungen implementieren konnte, ähnelt die Darstellung in der Bearbeitung bei der Webanwendung
-schon sehr stark der endgültigen Darstellung in veröffentlichten \LaTeX-Dokumenten (Siehe
-Abbildung\,\ref{fig:jedit})
+Bei der eigentlichen Visualisierung der Dokumente ist eine klare Verbesserung gegenüber
+Isabelle/jEdit zu erkennen. Während Isabelle/jEdit sich am festen Textraster, das in jEdit
+vorgegeben ist, orientieren musste und nur geringe Abweichungen implementieren konnte, ähnelt die
+Darstellung in der Bearbeitung bei der Webanwendung schon sehr stark der endgültigen Darstellung in
+veröffentlichten \LaTeX-Dokumenten (Siehe Abbildung\,\ref{fig:jedit})
 
 Darüber hinaus ist die Integration der Beweiser-Ausgaben flexibler gestaltet und es ist auch möglich
 diese teilweise oder vollständig \textit{inline} anzuzeigen.
@@ -112,3 +128,7 @@ Die Webanwendung kann als Grundlage für die Integration weiterer Sprachen im Zu
 Theorembeweisen genutzt werden. Für die Lehre wäre es denkbar Aufgaben direkt online zu stellen
 und lösen zu lassen. Während Isabelle/jEdit auf einem lokalen Rechner \glqq gefangen\grqq ist,
 können hier ganz neue Optionen der Integration gewählt werden.
+
+Nachdem die Hürden der Kommunikation und der grundsätzlichen Infrastruktur genommen wurden, kann
+\textit{clide} durch seine skalierbare Architektur in alle denkbaren Richtungen erweitert werden und
+damit ein mächtiges Werkzeug geschaffen werden.

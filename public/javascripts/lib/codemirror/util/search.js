@@ -19,10 +19,18 @@
     return cm.getSearchCursor(query, pos, typeof query == "string" && query == query.toLowerCase());
   }
   function dialog(cm, text, shortText, f) {
-    if (cm.openDialog) cm.openDialog(text, f);
-    else f(prompt(shortText, ""));
+    $('body').addClass('sidebar');
+    $('#searchBox').val('');
+    $('#searchBox').attr('placeholder',shortText);
+    $('#searchBox').removeAttr('disabled');
+    $('#searchBox').focus();   
+    $('#searchBox').on('change',function(e){
+      f($('#searchBox').val());
+      $('#searchBox').blur();
+      $('#searchBox').attr('disabled','disabled')
+    });    
   }
-  function confirmDialog(cm, text, shortText, fs) {
+  function confirmDialog(cm, text, shortText, fs) {    
     if (cm.openConfirm) cm.openConfirm(text, fs);
     else if (confirm(shortText)) fs[0]();
   }

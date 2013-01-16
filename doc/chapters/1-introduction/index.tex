@@ -7,24 +7,24 @@ Forschung im Gebiet der formalen Beweissysteme. Lange Zeit wurde hier die Intera
 sequenzielles \textit{\acr{repl}}-Modell dominiert. Für das verbreitete Isabelle-System ist das
 Standard-Werkzeug der \textit{Proof General}, welcher auf \textit{emacs} basiert und damit in einer
 mächtigen Entwicklungsumgebung lebt und große Verbesserungen gegenüber den bisherigen Tools bietet.
-Das grundsätzliche Interaktionsmodell des Proof General wird in \cite{iscala}, S. 2 jedoch immer
+Das grundsätzliche Interaktionsmodell des Proof General wird in \cite[S. 2]{iscala} jedoch immer
 noch als sequenziell beschrieben (\textit{\glqq one command after another\grqq}).
 
 \subsection{Isabelle/Scala}
 
-2010 wurde von Makarius Wenzel in \cite{iscala} die \textit{Isabelle/Scala} Schnittstelle
+2010 wurde von Makarius Wenzel die \textit{Isabelle/Scala} \cite{iscala2} Schnittstelle
 eingeführt, die es erlaubt, in der Sprache Scala über ein einfaches Dokumentenmodell auf die
-Isabelle-Plattform zuzugreifen. Scala besitzt die nötige Flexibilität, um die relevanten Teile von
-Isabelle, das in Standard ML implementiert wurde, abzubilden. Da Scala darüber hinaus in der
+Isabelle-Plattform zuzugreifen. Scala wird als flexibel genug beschrieben, um die relevanten Teile
+von Isabelle, das in Standard ML implementiert wurde, abzubilden. Da Scala darüber hinaus in der
 \acr{jvm} lebt, bieten sich vielfältige Möglichkeiten, die Schnittstelle zu integrieren. Unter
 anderem existieren für die \acr{jvm} viele ausgereifte Entwicklungsumgebungen.
 
-Zusammen mit der Schnittstelle wurde zunächst die Isabelle/jEdit Umgebung eingeführt. Die Wahl fiel
-dabei auf jEdit, da es über eine einfache Plugin-Achitektur verfügt und die Integration das Projekt
-nicht zu sehr ablenken sollte. Dadurch wurden auch die Einschränkungen von jEdit gegenüber mächtigen
-Entwicklungsumgebungen wie Eclipse, Netbeans oder IntelliJ akzeptiert. Isabelle/Scala wurde dabei
-aber bewusst so konzipiert, dass es möglichst universell in eine beliebige Umgebung integriert
-werden kann.
+Zusammen mit der Schnittstelle wurde zunächst die Isabelle/jEdit Umgebung eingeführt \cite{iscala}.
+Die Wahl fiel dabei auf jEdit, da es über eine einfache Plugin-Achitektur verfügt und die
+Integration das Projekt nicht zu sehr ablenken sollte. Dadurch wurden auch die Einschränkungen von
+jEdit gegenüber mächtigen Entwicklungsumgebungen wie Eclipse, Netbeans oder IntelliJ akzeptiert.
+Isabelle/Scala wurde dabei aber bewusst so konzipiert, dass es möglichst universell in eine
+beliebige Umgebung integriert werden kann.
 
 Eine Integration der Plattform in eine der großen Entwicklungsumgebungen ist zweifelsohne ein
 wichtiges Projekt für ambitionierte Nutzer, birgt aber weiterhin den Nachteil, dass die komplexe,

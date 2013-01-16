@@ -16,18 +16,18 @@ Theorien nicht lokal auf den einzelnen Rechnern verwaltet werden können, sonder
 Server-Modell ergibt sich bei einer Webanwendung ohnehin automatisch.
 
 Weil es sich bei der Webanwendung um eine Entwicklungsumgebung handelt, die insbesondere durch
-Echtzeitinformationen einen Mehrwert bieten soll, ist einer der wichtigsten Aspekte des Entwurfs
-die effiziente Kommunikation zwischen Server und Browser. Da die Kommunikation bei einer
-Webanwendung generell sehr zeitaufwändig ist - abhängig von der Internetanbindung kann es zu großen
-Verzögerungen kommen - muss abgewogen werden, welche Arbeit im Browser und welche auf dem Server
-erledigt werden soll. Als illustratives Beispiel kann das Syntax-Highlighting genannt werden:
-Isabelle verfügt über eine innere und eine äußere Syntax, die sich im analytischen Aufwand stark
-unterscheiden. Während die äußere Syntax relativ leicht zu verarbeiten ist und dabei bereits viele
-Informationen liefert, ist die innere Syntax sehr komplex, flexibel und stark vom jeweiligen Kontext
-abhängig. Somit liegt es nahe, das Syntax-Highlighting aufzuteilen: Um Übertragungskapazität zu
-sparen, kann das Highlighting der äußeren Syntax bereits im Browser mittels \acr{js} stattfinden. Die
-feiner granulierten Informationen aus der inneren Syntax können dann auf dem Server ermittelt werden
-und mit kurzer Verzögerung in die Darstellung integriert werden.
+Echtzeitinformationen einen Mehrwert bieten soll, ist einer der wichtigsten Aspekte des Entwurfs die
+effiziente Kommunikation zwischen Server und Browser. Da die Kommunikation bei einer Webanwendung
+generell sehr zeitaufwändig ist - abhängig von der Internetanbindung kann es zu großen Verzögerungen
+kommen - muss abgewogen werden, welche Arbeit im Browser und welche auf dem Server erledigt werden
+soll. Als illustratives Beispiel kann das Syntax-Highlighting genannt werden: Isabelle verfügt über
+eine innere und eine äußere Syntax, die sich im analytischen Aufwand stark unterscheiden. Während
+die äußere Syntax relativ leicht zu verarbeiten ist und dabei bereits viele Informationen liefert,
+ist die innere Syntax sehr komplex, flexibel und stark vom jeweiligen Kontext abhängig. Somit liegt
+es nahe, das Syntax-Highlighting aufzuteilen: Um Übertragungskapazität zu sparen, kann das
+Highlighting der äußeren Syntax bereits im Browser mittels \acr{js} stattfinden. Die feiner
+granulierten Informationen aus der inneren Syntax können dann auf dem Server ermittelt werden und
+mit kurzer Verzögerung in die Darstellung integriert werden.
 
 \input{chapters/3-draft/01-server.tex}
 
