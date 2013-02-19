@@ -129,7 +129,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
             to:   change.to
             text: change.text
           change = change.next          
-        @pushTimeout = setTimeout(@pushChanges,700)
+        @pushTimeout = setTimeout(@pushChanges,1000)
 
       @cm.on 'cursorActivity', (editor) =>
         editor.removeLineClass(currentLine, 'background', 'current_line')
@@ -161,12 +161,40 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
           
       currentLine = @cm.addLineClass(0, 'background', 'current_line')
 
+      commands.insertSym.bind => if @model.get('active')
+        @cm.focus()
+        CodeMirror.commands.autocomplete(@cm)
+     
       commands.search.bind =>
+        @cm.focus()
         CodeMirror.commands.find(@cm)
+
+      commands.bold.bind => if @model.get('active')
+        @cm.focus()
+        CodeMirror.commands.bold(@cm)
+
+      commands.sub.bind => if @model.get('active')
+        @cm.focus()
+        CodeMirror.commands.sub(@cm)
+
+      commands.sup.bind => if @model.get('active')
+        @cm.focus()
+        CodeMirror.commands.sup(@cm)
+
+      commands.isub.bind => if @model.get('active')
+        @cm.focus()
+        CodeMirror.commands.isub(@cm)
+
+      commands.isup.bind => if @model.get('active')
+        @cm.focus()
+        CodeMirror.commands.isup(@cm)
         
       @model.get('commands').forEach @includeCommand
       @model.get('commands').on('add', @includeCommand)
       @model.get('commands').on('change', @includeCommand)
+
+      @model.on 'change:active', (m,a) => if a then pushChanges()
+
       @model.on 'change:states', (m,states) => @cm.operation () =>         
         @cm.clearGutter('states')        
         for state, i in states          
@@ -182,9 +210,10 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
         syms = _.keys(symbols)
         CodeMirror.simpleHint cm, (editor) -> unless editor.somethingSelected()
           pos   = editor.getCursor()
-          token = editor.getTokenAt(pos)          
+          token = editor.getTokenAt(pos) 
+          list = _.filter(syms, (v) -> v.indexOf(token.string) isnt -1)
           (
-            list: _.filter(syms, (v) -> v.indexOf(token.string) isnt -1)
+            list: if list.length > 0 then list else syms
             from: 
               line: pos.line
               ch:   token.start

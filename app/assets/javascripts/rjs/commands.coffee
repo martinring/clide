@@ -37,7 +37,13 @@ define ->
     'cut',
     'copy',
     'paste',
-    'search'
+    'search',
+    'sub',
+    'sup',
+    'isub',
+    'isup',
+    'bold',
+    'insertSym'
   ]
 
   exports = { }

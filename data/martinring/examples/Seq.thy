@@ -1,10 +1,8 @@
 header {* Finite sequences *}
 
 theory Seq
-imports Main
+imports Main Test
 begin
- 
-datatype 'a seq = Empty | Seq 'a "'a seq"
 
 fun conc :: "'a seq \<Rightarrow> 'a seq \<Rightarrow> 'a seq"
 where
@@ -13,7 +11,7 @@ where
 
 fun reverse :: "'a seq \<Rightarrow> 'a seq"
 where
-"reverse Empty = Empty"
+  "reverse Empty = Empty"
 | "reverse (Seq x xs) = conc (reverse xs) (Seq x Empty)"
 
 lemma conc_empty: "conc xs Empty = xs"

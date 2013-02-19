@@ -260,6 +260,30 @@ define ['isabelle','settings','commands','icons','contextMenu','Dialog'], (isabe
               text: 'Paste'
               icon: icons.paste
               command: commands.paste
+            new Command
+              text: 'Insert Symbol'
+              icon: icons.symbol
+              command: commands.insertSym          
+            new Command
+              text: 'Bold'
+              icon: icons.bold
+              command: commands.bold
+           new Command
+              text: 'Superscript'
+              icon: icons.sup
+              command: commands.sup
+            new Command
+              text: 'Subscript'
+              icon: icons.sub
+              command: commands.sub
+            new Command
+              text: 'Superscript (Identifiers)'
+              icon: icons.isup
+              command: commands.isup
+            new Command
+              text: 'Subscript (Identifiers)'
+              icon: icons.isub
+              command: commands.isub
           ]
       ]
     view: new Section

@@ -73,4 +73,9 @@ define ->
   mirror: '\uE11E'
   sync: '\uE117'
   shield: '\uE1DE'
-  
+  bold: '\uE19B'
+  sub: '\uE1C6'
+  sup: '\uE1C7'
+  isub: '\uE1C6'
+  isup: '\uE1C7'
+  symbol: '\uE1bc'
