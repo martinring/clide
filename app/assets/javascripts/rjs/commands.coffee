@@ -43,6 +43,7 @@ define ->
     'isub',
     'isup',
     'bold',
+    'cancel',
     'insertSym'
   ]
 

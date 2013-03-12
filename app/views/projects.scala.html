@@ -16,7 +16,7 @@
     </head>
     <body>
       <div class="projects">
-        <h1>@{user.name}'s projects</h1>
+        <h1>@{user.name}'@if(!user.name.endsWith("s")){s} projects</h1>
         <table>
           <thead>
             <tr>

@@ -55,6 +55,7 @@ define ->
   plus: '\uE109'
   minus: '\uE108'
   close: '\uE10A'
+  cancel: '\uE10A'  
   check: '\uE10B'
   home: '\uE10F'
   clock: '\uE121'

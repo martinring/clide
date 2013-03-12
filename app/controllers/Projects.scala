@@ -20,6 +20,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import akka.routing.Broadcast
 import views.html.defaultpages.badRequest
+import scala.collection.mutable.Buffer
+
 
 object Projects extends Controller with Secured {
   /**
@@ -55,6 +57,8 @@ object Projects extends Controller with Secured {
       case None       => NotFound("user " + user + " does not exist")
     }
   }
+  
+  var openProjects: Buffer[(String,String)] = Buffer()
   
   /**
    * Create a WebSocket Session, connected via ScalaConnector/JSConnector

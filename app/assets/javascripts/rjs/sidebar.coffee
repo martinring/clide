@@ -260,6 +260,9 @@ define ['isabelle','settings','commands','icons','contextMenu','Dialog'], (isabe
               text: 'Paste'
               icon: icons.paste
               command: commands.paste
+          ]
+        new CommandGroup
+          content: [
             new Command
               text: 'Insert Symbol'
               icon: icons.symbol
@@ -285,6 +288,13 @@ define ['isabelle','settings','commands','icons','contextMenu','Dialog'], (isabe
               icon: icons.isub
               command: commands.isub
           ]
+        new CommandGroup
+          content: [
+            new Command
+              text: 'Cancel Execution'
+              icon: icons.cancel
+              command: commands.cancel
+          ]          
       ]
     view: new Section
       title: 'View'

@@ -35,7 +35,7 @@ case class User(name: String, password: String) {
       new java.io.File(f"data/$name/$project").mkdir()
       true
     }
-  }
+  }    
   
   def removeProject(project: String) = {
     val data = projects.filterNot(_.name == project)

@@ -8,11 +8,12 @@ import scala.io.Source
 import play.api.Logger
 import java.lang.Throwable
 import isabelle.Thy_Info
+import play.api.cache.Cache
 
 /**
  * Provides a Session interface to the client
  **/
-class Session(project: Project) extends JSConnector {
+class Session(project: Project) extends JSConnector {    
   /**
    * The list of currently opened documents
    */
@@ -312,12 +313,26 @@ class Session(project: Project) extends JSConnector {
     case "setCurrentDoc" => json =>
       current = Some(name(json.as[String]))
       
+    case "cancel" => json =>
+      session.cancel_execution()
+      true
+      
   }
- 
+   
+  implicit def app = play.api.Play.current
+
   // We need to release the session in order to release all the resources attached 
   override def onClose() {
-    session.stop();
+    session.stop()
+    Cache.set(project.id,Cache.getOrElse(project.id)(0) - 1)        
   }
+    
+  Cache.set(project.id,Cache.getOrElse(project.id)(0) + 1)
   
-  session.start(List(project.logic))
+  if (Cache.getOrElse(project.id)(0) > 1) {    
+    js.ignore.println("failure: this session is already opened")
+  }
+  else {    
+    session.start(List(project.logic))
+  }
 }

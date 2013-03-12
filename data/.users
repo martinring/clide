@@ -1,5 +1,25 @@
 [
 {
+  "name": "anthony",
+  "password": "secret"
+},
+{
+  "name": "brian",
+  "password": "secret"
+},
+{
+  "name": "charles",
+  "password": "secret"
+},
+{
+  "name": "david",
+  "password": "secret"
+},
+{
+  "name": "edward",
+  "password": "secret"
+},
+{
   "name": "martinring",
   "password": "secret"
 }

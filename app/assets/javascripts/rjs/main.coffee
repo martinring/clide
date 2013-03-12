@@ -73,6 +73,9 @@ require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Route
   commands.copy.bind clipboardUnsupported
   commands.paste.bind clipboardUnsupported
 
+  commands.cancel.bind -> isabelle.scala.call
+    action: "cancel"    
+
   isabelle.on 'change:phase', (model,phase) -> 
     $('#loadingStatus').append("<li>Session #{phase}</li>".toLowerCase())
     if phase is 'Ready' then $('#loading').fadeOut()

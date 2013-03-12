@@ -15,6 +15,7 @@ case class Project(
     else sys.error(dir + " is not a directory")
   }
   val url = java.net.URLEncoder.encode(name,"UTF-8")
+  val id = name + "/" + owner
 }
 
 case class Theory(
