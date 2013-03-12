@@ -193,7 +193,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
       @model.get('commands').on('add', @includeCommand)
       @model.get('commands').on('change', @includeCommand)
 
-      @model.on 'change:active', (m,a) => if a then pushChanges()
+      @model.on 'change:active', (m,a) => if a then @pushChanges()
 
       @model.on 'change:states', (m,states) => @cm.operation () =>         
         @cm.clearGutter('states')        
