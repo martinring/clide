@@ -3646,7 +3646,7 @@ window.CodeMirror = (function() {
       if (startStyle) fullStyle += startStyle;
       if (endStyle) fullStyle += endStyle;
       var c = elt("span", [content], fullStyle);
-      c.title = tooltip;
+      if (tooltip != undefined) c.title = tooltip;
       return builder.pre.appendChild(c);
     }
     builder.pre.appendChild(content);

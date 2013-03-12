@@ -329,7 +329,8 @@ class Session(project: Project) extends JSConnector {
     
   Cache.set(project.id,Cache.getOrElse(project.id)(0) + 1)
   
-  if (Cache.getOrElse(project.id)(0) > 1) {    
+  if (Cache.getOrElse(project.id)(0) > 1) {
+    js.ignore.setPhase("already opened")
     js.ignore.println("failure: this session is already opened")
   }
   else {    
