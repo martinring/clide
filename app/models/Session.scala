@@ -324,10 +324,10 @@ class Session(project: Project) extends JSConnector {
   // We need to release the session in order to release all the resources attached 
   override def onClose() {
     session.stop()
-    Cache.set(project.id,Cache.getOrElse(project.id)(0) - 1)        
+    Cache.set(project.id,Cache.getOrElse(project.id,3600)(0) - 1,3600)        
   }
     
-  Cache.set(project.id,Cache.getOrElse(project.id)(0) + 1)
+  Cache.set(project.id,Cache.getOrElse(project.id,3600)(0) + 1,3600)
   
   if (Cache.getOrElse(project.id)(0) > 1) {
     js.ignore.setPhase("already opened")
