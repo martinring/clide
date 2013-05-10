@@ -211,12 +211,13 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
         CodeMirror.simpleHint cm, (editor) -> unless editor.somethingSelected()
           pos   = editor.getCursor()
           token = editor.getTokenAt(pos) 
+          console.log(token)
           list = _.filter(syms, (v) -> v.indexOf(token.string) isnt -1)
           (
             list: if list.length > 0 then list else syms
             from: 
               line: pos.line
-              ch:   token.start
+              ch:   if token.type is 'incomplete' then token.start - 1 else token.start
             to: 
               line: pos.line
               ch:   token.end
