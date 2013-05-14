@@ -20,6 +20,21 @@
 
 $('#loadingStatus').append("<li>initializing</li>")
 require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Router','Dialog'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,router,Dialog) ->
+  version = 0;
+   
+  regexp = /AppleWebKit\/([\d.]+)/;
+  result = regexp.exec(navigator.userAgent);
+
+  version = parseFloat(result[1]) if result
+
+  unless version > 500
+    new Dialog
+      title: "Unsupported Browser"
+      message: "<p>You are using an unsupported browser. In the moment, we recomment to use an up to date WebKit based Browser (i.e. Google Chrome, Apple Safari or Opera)</p>" +
+          "<p>You will not be able to use clide properly in your browser! This will change in the future, when clide moves out of beta.</p>"       
+      buttons: ['Ok']
+      defaultAction: 'Ok'
+
   user = globalOptions.user
   project = globalOptions.project
 
