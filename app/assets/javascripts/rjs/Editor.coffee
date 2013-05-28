@@ -42,7 +42,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
     substitutions: []
 
     initModel: (text) =>      
-      currentLine = 0
+      currentLine = 0  
 
       @cm = new CodeMirror @el, 
         value: text
@@ -129,7 +129,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
             to:   change.to
             text: change.text
           change = change.next          
-        @pushTimeout = setTimeout(@pushChanges,1000)
+        @pushTimeout = setTimeout(@pushChanges,1500)
 
       @cm.on 'cursorActivity', (editor) =>
         editor.removeLineClass(currentLine, 'background', 'current_line')
@@ -189,6 +189,20 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
         @cm.focus()
         CodeMirror.commands.isup(@cm)
         
+      #@overlay = 
+      #  startState: () -> 
+      #    line: 0
+      #  token: (stream, state) ->
+      #    cmd = @model.get('commands').getCommandAt(line)
+      #    if cmd?
+      #      range = cmd.get('range')
+      #      tokens = cmd.get('tokens')
+      #      tokens[line + range.start]
+      #    else
+      #      stream.skipToEnd()
+      #      state.line += 1;
+      #      return null
+
       @model.get('commands').forEach @includeCommand
       @model.get('commands').on('add', @includeCommand)
       @model.get('commands').on('change', @includeCommand)
@@ -208,10 +222,9 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
           console.error "cross check failed: ", @cm.getValue(), content              
       CodeMirror.commands.autocomplete = (cm) ->
         syms = _.keys(symbols)
-        CodeMirror.simpleHint cm, (editor) -> unless editor.somethingSelected()
+        CodeMirror.showHint cm, (editor) -> unless editor.somethingSelected()
           pos   = editor.getCursor()
-          token = editor.getTokenAt(pos) 
-          console.log(token)
+          token = editor.getTokenAt(pos)           
           list = _.filter(syms, (v) -> v.indexOf(token.string) isnt -1)
           (
             list: if list.length > 0 then list else syms
@@ -293,6 +306,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
       range  = cmd.get 'range'
       length = range.end - range.start
       marks = []
+      console.log (cmd.get 'tokens')
       for line, i in cmd.get 'tokens'
         l = i + range.start
         p = 0
