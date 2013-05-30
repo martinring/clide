@@ -45,27 +45,29 @@ define ->
     '|\\-o|\\/o|\\=\\_\\(|\\=\\_\\)|\\=\\^\\(|\\=\\^\\)|\\-\\.|\\.\\.\\.|(?:Int|Inter' +
     "|Un|Union|SUM|PROD)(?!#{quasiletter})"  
 
-  abbrev      = RegExp abbrev
-  greek       = RegExp greek      
-  digit       = RegExp digit      
-  latin       = RegExp latin      
-  sym         = RegExp sym        
-  letter      = RegExp letter     
-  quasiletter = RegExp quasiletter
-  ident       = RegExp ident      
-  longident   = RegExp longident  
-  symident    = RegExp symident   
-  nat         = RegExp nat        
-  floating    = RegExp floating   
-  variable    = RegExp variable   
-  typefree    = RegExp typefree   
-  typevar     = RegExp typevar    
-  string      = RegExp string     
-  altstring   = RegExp altstring  
-  verbatim    = RegExp verbatim   
-  num         = /\#?-?[0-9]+(?:\.[0-9]+)?/
-  escaped     = /\\[\"\\]/
-  special     = /\\<[A-Za-z]+>/
-  control     = /\\<\^[A-Za-z]+>/
-  incomplete  = /\\<\^{0,1}[A-Za-z]*>?/
-  lineComment = /--.*/
+  return (
+    abbrev      = RegExp abbrev
+    greek       = RegExp greek
+    digit       = RegExp digit
+    latin       = RegExp latin
+    sym         = RegExp sym
+    letter      = RegExp letter
+    quasiletter = RegExp quasiletter
+    ident       = RegExp ident
+    longident   = RegExp longident
+    symident    = RegExp symident
+    nat         = RegExp nat
+    floating    = RegExp floating
+    variable    = RegExp variable
+    typefree    = RegExp typefree
+    typevar     = RegExp typevar
+    string      = RegExp string
+    altstring   = RegExp altstring
+    verbatim    = RegExp verbatim
+    num         = /\#?-?[0-9]+(?:\.[0-9]+)?/
+    escaped     = /\\[\"\\]/
+    special     = /\\<[A-Za-z]+>/
+    control     = /\\<\^[A-Za-z]+>/
+    incomplete  = /\\<\^{0,1}[A-Za-z]*>?/
+    lineComment = /--.*/
+  )

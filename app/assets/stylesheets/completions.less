@@ -1,4 +1,4 @@
-.CodeMirror-completions {  
+.CodeMirror-hints {  
   z-index: 10000;  
   overflow: hidden;
   position: absolute;   
@@ -24,11 +24,16 @@
     visibility: visible;
   }
 }
-.CodeMirror-completions select {
+.CodeMirror-hint {
   background: white;
   outline: none;
   border: none;
   padding: 0;
   margin: 0;
   font-family: Typewriter;
+}
+
+.CodeMirror-hint-active {
+  background: #08f;
+  color: white;
 }

@@ -39,7 +39,7 @@ object Projects extends Controller with Secured {
   **/
   def listProjects(user: String) = IsAuthenticated { _ => implicit request =>    
     User.find(user) match {
-      case Some(user) =>        
+      case Some(user) =>           
         Ok(Json.toJson(user.projects))
       case None       => NotFound("user " + user + " does not exist")
     }

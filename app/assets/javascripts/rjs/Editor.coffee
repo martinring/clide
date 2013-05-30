@@ -44,6 +44,8 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
     initModel: (text) =>      
       currentLine = 0  
 
+
+      console.log 'init'
       @cm = new CodeMirror @el, 
         value: text
         indentUnit: 2
@@ -60,8 +62,9 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
           'Ctrl-H'    : 'replace'
           'F3'        : 'findNext'
         mode: 
-          name: "isabelle"
+          name: 'isabelle'
           words: defaultWords
+      console.log 'done'
 
       settings.on 'change:showLineNumbers', (m,v) =>
         @cm.setOption('lineNumbers',v)

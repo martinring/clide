@@ -17,8 +17,8 @@
 #
 ####################################################################################################
 
-define ['isabelleGrammar'], (grammar) ->
-  CodeMirror.defineMode 'isabelle', (config,parserConfig) ->    
+define ['isabelleGrammar'], (grammar) -> 
+  (config,parserConfig) ->
     special = 
       startState: () ->
         control: null
@@ -83,8 +83,8 @@ define ['isabelleGrammar'], (grammar) ->
         return null
 
     tokenBase = (stream, state) ->    
-      if stream.match(grammar.lineComment)
-        return "comment"
+      #if stream.match(lineComment)
+      #  return "comment"
         
       ch = stream.peek()    
 
@@ -220,5 +220,3 @@ define ['isabelleGrammar'], (grammar) ->
         else
           return state.tokenize(stream, state)
     ),special,true)
-
-  CodeMirror.defineMIME("text/x-isabelle","isabelle")

@@ -18,8 +18,8 @@
 #
 ####################################################################################################
 
-$('#loadingStatus').append("<li>initializing</li>")
-require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Router','Dialog'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,router,Dialog) ->
+$('#loadingStatus').append('<li>initializing</li>')
+require ['Editor','Tabs','Tab','isabelle','sidebar','settings','commands','Router','Dialog','isabelleParser'], (Editor,Tabs,Tab,isabelle,sidebar,settings,commands,router,Dialog,isabelleParser) ->  
   version = 0;
    
   regexp = /AppleWebKit\/([\d.]+)/;
