@@ -44,7 +44,6 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
     initModel: (text) =>      
       currentLine = 0  
 
-
       console.log 'init'
       @cm = new CodeMirror @el, 
         value: text
