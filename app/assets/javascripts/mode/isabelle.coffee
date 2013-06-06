@@ -5,7 +5,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     'Pi|Sigma|Upsilon|Phi|Psi|Omega)>)"
   digit       = "[0-9]"
   latin       = "[a-zA-Z]"
-  sym         = "[\\!|\\#|\\$|\\%|\\&|\\*|\\+|\\-|\\/(?!\\\\)|\\<|\\=|\\>|\\?|\\@|\\^|\\_|\\||\\~]"
+  sym         = "[\\!|\\#|\\$|\\%|\\&|\\*|\\+|\\-|\\/|\\<|\\=|\\>|\\?|\\@|\\^|\\_|\\||\\~]"
   letter      = "(?:#{latin}|\\\\<#{latin}{1,2}>|#{greek}|\\\\<^isu[bp]>)"
   quasiletter = "(?:#{letter}|#{digit}|\\_|\\')"
   ident       = "(?:#{letter}#{quasiletter}*)"
@@ -186,7 +186,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     if stream.match('\"')
       state.tokenize = tokenBase
       return 'string'
-    if stream.match(symident) or stream.match(abbrev)
+    if stream.match(abbrev)
       return 'string symbol'    
     if stream.match(longident)
       return 'string longident'
@@ -199,7 +199,9 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     if stream.match(num)
       return 'string num'
     if stream.match(escaped)
-      return 'string'
+      return 'string'    
+    if stream.match(symident)
+      return 'string symbol'
     if stream.match(control)
       return null
     else if stream.match(incomplete)
