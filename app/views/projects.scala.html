@@ -15,6 +15,9 @@
         <script type="text/javascript" src="@routes.Assets.at("javascripts/require.js")" data-main="@routes.Assets.at("javascripts/rjs/projects.js")"></script>
     </head>
     <body>
+      <div id="logout">
+        <a class="icon" href="@routes.Application.logout()" title="logout">&#xE177;</a>
+      </div>  
       <div class="projects">
         <h1>@{user.name}'@if(!user.name.endsWith("s")){s} projects</h1>
         <table>
