@@ -5,7 +5,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     'Pi|Sigma|Upsilon|Phi|Psi|Omega)>)"
   digit       = "[0-9]"
   latin       = "[a-zA-Z]"
-  sym         = "[\\!|\\#|\\$|\\%|\\&|\\*|\\+|\\-|\\/|\\<|\\=|\\>|\\?|\\@|\\^|\\_|\\||\\~]"
+  sym         = "[\\!|\\#|\\$|\\%|\\&|\\*|\\+|\\-|\\/(?!\\\\)|\\<|\\=|\\>|\\?|\\@|\\^|\\_|\\||\\~]"
   letter      = "(?:#{latin}|\\\\<#{latin}{1,2}>|#{greek}|\\\\<^isu[bp]>)"
   quasiletter = "(?:#{letter}|#{digit}|\\_|\\')"
   ident       = "(?:#{letter}#{quasiletter}*)"
@@ -45,10 +45,12 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
   verbatim    = RegExp verbatim   
   num         = /\#?-?[0-9]+(?:\.[0-9]+)?/
   escaped     = /\\[\"\\]/
-  special     = /\\<[A-Za-z]+>/
+  speciale    = /\\<[A-Za-z]+>/
   control     = /\\<\^[A-Za-z]+>/
   incomplete  = /\\<\^{0,1}[A-Za-z]*>?/
   lineComment = /--.*/
+  conj        = /\/\\/
+  disj        = /\\\//
 
   special = 
     startState: () ->
@@ -73,11 +75,14 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
         console.log 'insub'
         stream.match(incomplete) or stream.next()
         state.control = null
-        return x + 'bold'
+        return x + 'bold'    
       if stream.eatWhile(/[^\\]/)
         if x isnt ''
           return x
-        return null
+        return null      
+      until stream.eol() or stream.match(speciale,false) or stream.match(control,false)
+        stream.next()
+        stream.eatWhile(/[^\\]/)
       if stream.match(/\\<\^[A-Za-z]+>/)
         switch stream.current()
           when '\\<^sub>'            
@@ -108,7 +113,6 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
           return x + 'control'
       if stream.match(/\\<[A-Za-z]+>/)
         return x + 'special'      
-      stream.next()
       if x isnt ''
         return x
       return null
@@ -151,7 +155,11 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
         return state.tokenize(stream, state)   
       else stream.backUp(1)   
 
-    if stream.match(abbrev)
+    if stream.match(disj)
+      return "symbol disj"
+    if stream.match(conj)
+      return "symbol conj"
+    if stream.match(abbrev)      
       return 'symbol'
     if stream.match(typefree)
       return 'tfree'
@@ -189,6 +197,12 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       return 'string tfree'
     if stream.match(typevar)
       return 'string tvar'
+    if stream.match(disj)
+      return "symbol disj"
+    if stream.match(conj)
+      return "symbol conj"
+    if stream.match(abbrev)      
+      return 'symbol'
     if stream.match(symident)
       return 'string symbol'
     if stream.match(num)

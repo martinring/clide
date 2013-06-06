@@ -50,6 +50,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
         indentUnit: 2
         lineNumbers: settings.get('showLineNumbers')
         gutters: ['CodeMirror-linenumbers','states']
+        flattenSpans: false
         extraKeys: 
           'Ctrl-Space': 'autocomplete'
           'Ctrl-Down' : 'sub'
@@ -72,19 +73,19 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
 
       if @options.focus.from.fl?
         @cm.setCursor(@options.focus.from)
-        @cm.scrollIntoView(null)
-        @cm.setExtending(true)
+        @cm.scrollIntoView(null)        
         if @options.focus.to.tl?
+          @cm.setExtending(true)
           @cm.setCursor(@options.focus.to)
-        @cm.setExtending(false)
+          @cm.setExtending(false)
 
       @model.on 'focus', (fl,fc,tl,tc) => if fl?
         @cm.setCursor (line: fl, ch: fc)
-        @cm.scrollIntoView(null)
-        @cm.setExtending(true)
+        @cm.scrollIntoView(null)        
         if tl?
+          @cm.setExtending(true)
           @cm.setCursor (line: tl, ch: tc)
-        @cm.setExtending(false)        
+          @cm.setExtending(false)        
         
       @model.on 'saved', =>
         @cm.markClean()        
@@ -92,10 +93,11 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
 
       @cm.on 'change', (editor,change) => editor.operation =>
         @model.set(clean: editor.isClean())
-        unless editor.somethingSelected()          
+        unless editor.somethingSelected()
           pos   = change.to
           cur   = editor.getCursor()
-          token = editor.getTokenAt(pos)          
+          token = editor.getTokenAt(pos)
+          console.log(token) 
           marks = editor.findMarksAt(pos)
           for mark in marks 
             if mark.__special
@@ -105,7 +107,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
             ch:   token.start
           to = 
             line: pos.line
-            ch:   token.end
+            ch:   token.end 
           if token.type? and (token.type.match(/special|symbol|control|sub|sup|bold/))              
             wid = symbols[token.string]
             if wid?
@@ -232,7 +234,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
             list: if list.length > 0 then list else syms
             from: 
               line: pos.line
-              ch:   if token.type is 'incomplete' then token.start - 1 else token.start
+              ch:   token.start
             to: 
               line: pos.line
               ch:   token.end
@@ -308,7 +310,7 @@ define ['isabelle', 'commands', 'symbols', 'settings', 'isabelleDefaultWords'], 
       range  = cmd.get 'range'
       length = range.end - range.start
       marks = []
-      console.log (cmd.get 'tokens')
+      #console.log (cmd.get 'tokens')
       for line, i in cmd.get 'tokens'
         l = i + range.start
         p = 0
