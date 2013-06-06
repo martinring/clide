@@ -76,10 +76,11 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
         stream.match(incomplete) or stream.next()
         state.control = null
         return x + 'bold'    
-      if stream.eatWhile(/[^\\]/)
+      if stream.eatWhile(/[^\\]/) and stream.match(speciale,false) or stream.match(control,false)
         if x isnt ''
           return x
-        return null      
+        else 
+          return null
       until stream.eol() or stream.match(speciale,false) or stream.match(control,false)
         stream.next()
         stream.eatWhile(/[^\\]/)
@@ -155,10 +156,6 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
         return state.tokenize(stream, state)   
       else stream.backUp(1)   
 
-    if stream.match(disj)
-      return "symbol disj"
-    if stream.match(conj)
-      return "symbol conj"
     if stream.match(abbrev)      
       return 'symbol'
     if stream.match(typefree)
@@ -189,22 +186,16 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
     if stream.match('\"')
       state.tokenize = tokenBase
       return 'string'
+    if stream.match(symident) or stream.match(abbrev)
+      return 'string symbol'    
     if stream.match(longident)
       return 'string longident'
     if stream.match(ident)
-      return 'string ident' 
+      return 'string ident'
     if stream.match(typefree)
       return 'string tfree'
     if stream.match(typevar)
-      return 'string tvar'
-    if stream.match(disj)
-      return "symbol disj"
-    if stream.match(conj)
-      return "symbol conj"
-    if stream.match(abbrev)      
-      return 'symbol'
-    if stream.match(symident)
-      return 'string symbol'
+      return 'string tvar'    
     if stream.match(num)
       return 'string num'
     if stream.match(escaped)
@@ -261,7 +252,7 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
       if stream.sol() and stream.match(/(?:[ \t]*\|[ \t]*)|(?:[ \t]+)/)
         return "indent"
       if stream.eatSpace()
-        return 'whitespace'
+        return null
       else
         return state.tokenize(stream, state)
   ),special,true)
