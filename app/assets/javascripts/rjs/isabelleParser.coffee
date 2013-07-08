@@ -17,7 +17,7 @@
 #
 ####################################################################################################
 
-define ['isabelleGrammar'], (grammar) -> 
+define ['IsabelleGrammar'], (grammar) -> 
   (config,parserConfig) ->
     special = 
       startState: () ->
