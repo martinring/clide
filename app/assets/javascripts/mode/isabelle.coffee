@@ -76,14 +76,16 @@ CodeMirror.defineMode "isabelle", (config,parserConfig) ->
         stream.match(incomplete) or stream.next()
         state.control = null
         return x + 'bold'    
-      if stream.eatWhile(/[^\\]/) and stream.match(speciale,false) or stream.match(control,false)
-        if x isnt ''
-          return x
-        else 
-          return null
-      until stream.eol() or stream.match(speciale,false) or stream.match(control,false)
-        stream.next()
-        stream.eatWhile(/[^\\]/)
+      if stream.eatWhile(/[^\\]/)
+        if stream.match(speciale,false) or stream.match(control,false)
+          if x isnt ''
+            return x
+          else
+            return null        
+        else
+          until stream.eol() or stream.match(speciale,false) or stream.match(control,false)
+            stream.next()
+            stream.eatWhile(/[^\\]/)
       if stream.match(/\\<\^[A-Za-z]+>/)
         switch stream.current()
           when '\\<^sub>'            
