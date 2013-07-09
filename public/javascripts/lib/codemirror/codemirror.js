@@ -4193,7 +4193,7 @@ window.CodeMirror = (function() {
   }
 
   var tokenSpecialChars = /[\t\u0000-\u0019\u00ad\u200b\u2028\u2029\uFEFF]/g;
-  function buildToken(builder, text, style, startStyle, endStyle) {
+  function buildToken(builder, text, style, startStyle, endStyle, tooltip) {
     if (!text) return;
     if (!tokenSpecialChars.test(text)) {
       builder.col += text.length;
@@ -4226,12 +4226,14 @@ window.CodeMirror = (function() {
       var fullStyle = style || "";
       if (startStyle) fullStyle += startStyle;
       if (endStyle) fullStyle += endStyle;
-      return builder.pre.appendChild(elt("span", [content], fullStyle));
+      var c = elt("span", [content], fullStyle);
+      if (tooltip != undefined) c.title = tooltip;
+      return builder.pre.appendChild(c);
     }
     builder.pre.appendChild(content);
   }
 
-  function buildTokenMeasure(builder, text, style, startStyle, endStyle) {
+  function buildTokenMeasure(builder, text, style, startStyle, endStyle, tooltip) {
     var wrapping = builder.cm.options.lineWrapping;
     for (var i = 0; i < text.length; ++i) {
       var ch = text.charAt(i), start = i == 0;
@@ -4243,7 +4245,7 @@ window.CodeMirror = (function() {
       }
       var span = builder.measure[builder.pos] =
         buildToken(builder, ch, style,
-                   start && startStyle, i == text.length - 1 && endStyle);
+                   start && startStyle, i == text.length - 1 && endStyle, tooltip);
       // In IE single-space nodes wrap differently than spaces
       // embedded in larger text nodes, except when set to
       // white-space: normal (issue #1268).
@@ -4292,9 +4294,11 @@ window.CodeMirror = (function() {
     var allText = line.text, len = allText.length;
     var pos = 0, i = 1, text = "", style;
     var nextChange = 0, spanStyle, spanEndStyle, spanStartStyle, collapsed;
+    var tooltip;
     for (;;) {
       if (nextChange == pos) { // Update current marker set
         spanStyle = spanEndStyle = spanStartStyle = "";
+        tooltip = null;
         collapsed = null; nextChange = Infinity;
         var foundBookmark = null;
         for (var j = 0; j < spans.length; ++j) {
@@ -4302,6 +4306,7 @@ window.CodeMirror = (function() {
           if (sp.from <= pos && (sp.to == null || sp.to > pos)) {
             if (sp.to != null && nextChange > sp.to) { nextChange = sp.to; spanEndStyle = ""; }
             if (m.className) spanStyle += " " + m.className;
+            if (m.tooltip) tooltip = m.tooltip;
             if (m.startStyle && sp.from == pos) spanStartStyle += " " + m.startStyle;
             if (m.endStyle && sp.to == nextChange) spanEndStyle += " " + m.endStyle;
             if (m.collapsed && (!collapsed || collapsed.marker.width < m.width))
@@ -4328,7 +4333,7 @@ window.CodeMirror = (function() {
           if (!collapsed) {
             var tokenText = end > upto ? text.slice(0, upto - pos) : text;
             builder.addToken(builder, tokenText, style ? style + spanStyle : spanStyle,
-                             spanStartStyle, pos + tokenText.length == nextChange ? spanEndStyle : "");
+                             spanStartStyle, pos + tokenText.length == nextChange ? spanEndStyle : "", tooltip);
           }
           if (end >= upto) {text = text.slice(upto - pos); pos = upto; break;}
           pos = end;
